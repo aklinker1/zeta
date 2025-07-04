@@ -1,5 +1,7 @@
 # Zeta
 
+[![JSR](https://jsr.io/badges/@aklinker1/zeta)](https://jsr.io/@aklinker1/zeta) [![Docs](https://img.shields.io/badge/Docs-blue?logo=readme&logoColor=white)](https://jsr.io/@aklinker1/zeta) [![API Reference](https://img.shields.io/badge/API%20Reference-blue?logo=readme&logoColor=white)](https://jsr.io/@aklinker1/zeta/doc) [![License](https://img.shields.io/npm/l/%40aklinker1%2Fzeta)](https://github.com/aklinker1/zeta/blob/main/LICENSE)
+
 Personal alternative to [Elysia](https://elysiajs.com/) with better validation support.
 
 ## Features
