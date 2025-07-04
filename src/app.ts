@@ -1,7 +1,13 @@
 import { callHandler } from "./internal/call-handler";
 import { HttpError } from "./errors";
 import { Status } from "./status";
-import type { App, RouterData, BaseDef, BasePath } from "./types";
+import type {
+  App,
+  RouterData,
+  BaseDef,
+  BasePath,
+  ServerSideFetch,
+} from "./types";
 import { addRoute, createRouter, findRoute } from "rou3";
 import { serializeErrorResponse } from "./internal/utils";
 import type { OpenAPIV3_1 } from "openapi-types";
@@ -58,7 +64,12 @@ export function createApp(options?: CreateAppOptions): App {
       const router = createRouter<RouterData>();
       for (const [method, methodValue] of Object.entries(routes)) {
         for (const [path, data] of Object.entries(methodValue)) {
-          addRoute(router, method, path, data);
+          addRoute(
+            router,
+            method === Method.Any ? undefined : method,
+            path,
+            data,
+          );
         }
       }
 
@@ -82,11 +93,16 @@ export function createApp(options?: CreateAppOptions): App {
       return app;
     },
 
-    get: (...args: any[]) => app.method.apply(app, ["GET", ...args] as any),
-    post: (...args: any[]) => app.method.apply(app, ["POST", ...args] as any),
-    put: (...args: any[]) => app.method.apply(app, ["PUT", ...args] as any),
+    get: (...args: any[]) =>
+      app.method.apply(app, [Method.Get, ...args] as any),
+    post: (...args: any[]) =>
+      app.method.apply(app, [Method.Post, ...args] as any),
+    put: (...args: any[]) =>
+      app.method.apply(app, [Method.Put, ...args] as any),
     delete: (...args: any[]) =>
-      app.method.apply(app, ["DELETE", ...args] as any),
+      app.method.apply(app, [Method.Delete, ...args] as any),
+    any: (...args: any[]) =>
+      app.method.apply(app, [Method.Any, ...args] as any),
 
     method(method: string, path: BasePath, ...args: any[]) {
       const def: BaseDef = args.length === 2 ? args[0] : undefined;
@@ -95,6 +111,30 @@ export function createApp(options?: CreateAppOptions): App {
       addRoutesEntry(method, route, { def, handler, route });
       return app;
     },
+
+    mount(...args: any[]) {
+      let path = "";
+      let def = {};
+      let fetch: ServerSideFetch;
+
+      if (args.length === 1) {
+        fetch = args[0];
+      } else if (args.length === 2) {
+        path = args[0];
+        fetch = args[1];
+      } else {
+        path = args[0];
+        def = args[1];
+        fetch = args[2];
+      }
+
+      const route = `${prefix}${path}/**`;
+      addRoutesEntry(Method.Any, route, { def, fetch, route });
+      console.log({ route, def, routes });
+
+      return app;
+    },
+
     use: (subApp) => {
       for (const [method, methodValue] of Object.entries(
         subApp["~zeta"].routes,
@@ -136,3 +176,11 @@ export type CreateAppOptionsWithPrefix<TPrefix extends BasePath> =
 
 /** @see {@link CreateAppOptions} */
 export type CreateAppOptionsWithoutPrefix = Omit<CreateAppOptions, "prefix">;
+
+enum Method {
+  Get = "GET",
+  Post = "POST",
+  Put = "PUT",
+  Delete = "DELETE",
+  Any = "ANY",
+}

@@ -4,6 +4,7 @@ import { NotFoundError } from "../errors";
 import {
   getUrlQuery,
   smartDeserialize,
+  smartSerialize,
   validateInputSchema,
   validateOutputSchema,
 } from "./utils";
@@ -27,11 +28,7 @@ export async function callHandler(
 
   if ("fetch" in route.data) {
     const res = route.data.fetch(request);
-    if (res instanceof Promise) {
-      return await res;
-    } else {
-      return res;
-    }
+    return res instanceof Promise ? await res : res;
   }
 
   const rawBody = await smartDeserialize(request);
@@ -73,11 +70,12 @@ export async function callHandler(
   }
 
   if (res instanceof Response) return res;
-  if (res == null) return new Response(undefined, { status: Status.Ok });
-  if (typeof res === "object") return Response.json(res, { status: Status.Ok });
 
-  return new Response((res as any).toString(), {
+  const resBody = smartSerialize(res);
+  if (!resBody) return new Response(undefined, { status: Status.Ok });
+
+  return new Response(resBody.serialized, {
     status: Status.Ok,
-    headers: { "Content-Type": "text/plain" },
+    headers: { "Content-Type": resBody.contentType },
   });
 }

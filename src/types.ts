@@ -119,6 +119,27 @@ export interface App<TAppData extends BaseAppData = {}> {
   >;
 
   /**
+   * Add an undocumented route to the app that responds to any method used.
+   */
+  any<TPath extends BasePath>(
+    path: TPath,
+    handler: RouteHandler<TAppData, TPath, AnyDef>,
+  ): App<
+    MergeAppData<TAppData, { routes: { ANY: { [path in TPath]: AnyDef } } }>
+  >;
+
+  /**
+   * Add an documented route to the app that responds to any method used.
+   */
+  any<TPath extends BasePath, TDef extends BaseDef>(
+    path: TPath,
+    def: TDef,
+    handler: RouteHandler<TAppData, TPath, AnyDef>,
+  ): App<
+    MergeAppData<TAppData, { routes: { ANY: { [path in TPath]: TDef } } }>
+  >;
+
+  /**
    * Add an undocumented route to the app using a custom method.
    */
   method<TMethod extends string, TPath extends BasePath>(
@@ -143,6 +164,40 @@ export interface App<TAppData extends BaseAppData = {}> {
     MergeAppData<
       TAppData,
       { routes: { [method in TMethod]: { [path in TPath]: TDef } } }
+    >
+  >;
+
+  /**
+   * Mount another fetch function at `/**`.
+   */
+  mount(
+    fetch: ServerSideFetch,
+  ): App<
+    MergeAppData<TAppData, { routes: { ANY: { [path in "/**"]: AnyDef } } }>
+  >;
+  /**
+   * Mount another fetch function at `${path}/**`.
+   */
+  mount<TPath extends BasePath>(
+    path: TPath,
+    fetch: ServerSideFetch,
+  ): App<
+    MergeAppData<
+      TAppData,
+      { routes: { ANY: { [path in `${TPath}/**`]: AnyDef } } }
+    >
+  >;
+  /**
+   * Mount another fetch function at `${path}/**`.
+   */
+  mount<TPath extends BasePath, TDef extends BaseDef>(
+    path: TPath,
+    def: TDef,
+    fetch: ServerSideFetch,
+  ): App<
+    MergeAppData<
+      TAppData,
+      { routes: { ANY: { [path in `${TPath}/**`]: TDef } } }
     >
   >;
 

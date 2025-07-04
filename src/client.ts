@@ -33,6 +33,11 @@ export interface AppClient<TRoutes extends BaseRoutes> {
     path: TPath,
     inputs: GetRequestParamsInput<TRoutes, TMethod, TPath>,
   ): MaybePromise<GetResponseOutput<TRoutes, TMethod, TPath>>;
+  fetch<TPath extends keyof TRoutes["ANY"]>(
+    method: string,
+    path: TPath,
+    inputs: GetRequestParamsInput<TRoutes, "ANY", TPath>,
+  ): MaybePromise<GetResponseOutput<TRoutes, "ANY", TPath>>;
 }
 
 /**
@@ -67,7 +72,7 @@ export function createAppClient<TApp extends App>(
   } = options ?? {};
 
   return {
-    async fetch(method, path, inputs: any) {
+    async fetch(method: string, path: string, inputs: any) {
       const searchParams =
         inputs.query == null
           ? undefined
@@ -89,7 +94,9 @@ export function createAppClient<TApp extends App>(
 
       try {
         const res = await fetch(url, init);
+        console.log("CLIENT", res);
         const response = await smartDeserialize(res);
+        console.log("deserialized", response);
         if (!res.ok) {
           throw new RequestError(
             (response as any)?.message ?? "Unknown error",

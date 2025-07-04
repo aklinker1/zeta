@@ -144,6 +144,20 @@ describe("App", () => {
         },
       );
     });
+
+    describe("any", () => {
+      it("should respond to any method used", async () => {
+        const expected = "success";
+        const app = createApp().any("/test", () => expected);
+        const client = createTestAppClient(app);
+
+        const getActual = await client.fetch("GET", "/test", {});
+        const postActual = await client.fetch("POST", "/test", {});
+
+        expect(getActual).toEqual(expected);
+        expect(postActual).toEqual(expected);
+      });
+    });
   });
 
   describe("use", () => {
@@ -187,6 +201,62 @@ describe("App", () => {
         const htmlRes = await client.fetch("GET", "/", {});
         expect(htmlRes).toBe(expectedHtml);
       });
+    });
+  });
+
+  describe("mount", () => {
+    it("should fallback to the mounted fetch function", async () => {
+      const expected = "mounted response";
+      const app = createApp()
+        .get("/not-mounted", () => "not" + expected)
+        .mount(
+          () =>
+            new Response(expected, {
+              headers: { "Content-Type": "text/plain" },
+            }),
+        );
+      const client = createTestAppClient(app);
+
+      const actual = await client.fetch("GET", "/**", {});
+
+      expect(actual).toEqual(expected);
+    });
+
+    it("should fallback to the mounted fetch function", async () => {
+      const expected = "mounted response";
+      const app = createApp()
+        .get("/not-mounted", () => `not-${expected}`)
+        .mount(
+          "/mounted",
+          () =>
+            new Response(expected, {
+              headers: { "Content-Type": "text/plain" },
+            }),
+        );
+      const appClient = createTestAppClient(app);
+
+      const actual = await appClient.fetch("GET", "/mounted/**", {});
+
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  describe.todo("decorate", () => {
+    it("should include the decorated value in the request handlers", async () => {
+      const expected = "decorated value";
+      const key = "decorated";
+      let actual: unknown;
+      const app = createApp()
+        .decorate(key, expected)
+        .get("/", (ctx) => {
+          console.log(ctx);
+          void (actual = ctx[key]);
+        });
+      const client = createTestAppClient(app);
+
+      await client.fetch("GET", "/", {});
+
+      expect(actual).toEqual(expected);
     });
   });
 });
