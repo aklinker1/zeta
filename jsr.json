@@ -1,0 +1,18 @@
+{
+  "$schema": "https://jsr.io/schema/config-file.v1.json",
+  "name": "@aklinker1/zeta",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publish": {
+    "include": ["./README.md", "./LICENSE", "./src/**"],
+    "exclude": ["./**/__tests__/**"]
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts",
+    "./errors": "./src/errors.ts",
+    "./client": "./src/client.ts",
+    "./testing": "./src/testing.ts",
+    "./status": "./src/status.ts"
+  }
+}
