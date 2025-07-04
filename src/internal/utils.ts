@@ -84,8 +84,7 @@ export function smartSerialize(value: unknown):
 export async function smartDeserialize(
   arg: Response | Request,
 ): Promise<unknown> {
-  const contentType = arg.headers.toJSON()["content-type"]; // Faster than headers.get
-
+  const contentType = arg.headers.get("content-type");
   if (contentType == null) return;
 
   // JSON
