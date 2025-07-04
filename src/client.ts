@@ -70,23 +70,33 @@ export function createAppClient<TApp extends App>(
     headers = {},
   } = options ?? {};
 
+  const buildSearchParams = (query: Record<string, unknown>) => {
+    return new URLSearchParams(
+      Object.entries(query)
+        .filter(([, value]) => value != null)
+        .map(([key, value]) => [key, String(value)]),
+    ).toString();
+  };
+
+  const buildPath = (route: string, params: Record<string, unknown>) => {
+    return Object.entries(params).reduce(
+      (path, [key, value]) =>
+        path.replace(
+          key === "**" ? key : new RegExp(`\\*{2}:${key}|:${key}`),
+          encodeURIComponent(String(value)),
+        ),
+      route,
+    );
+  };
+
   return {
     async fetch(method: string, route: string, inputs: any) {
       const searchParams =
         inputs.query == null
           ? undefined
-          : new URLSearchParams(inputs.query).toString();
+          : `?${buildSearchParams(inputs.query).toString()}`;
       const path =
-        inputs.params == null
-          ? route
-          : Object.entries(inputs.params).reduce(
-              (path, [key, value]) =>
-                path.replace(
-                  key === "**" ? key : new RegExp(`\\*{2}:${key}|:${key}`),
-                  encodeURIComponent(String(value)),
-                ),
-              route,
-            );
+        inputs.params == null ? route : buildPath(route, inputs.params);
       const url = `${join(baseUrl, path)}${searchParams ? "?" + searchParams : ""}`;
 
       const init = {
