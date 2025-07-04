@@ -17,6 +17,7 @@ Personal alternative to [Elysia](https://elysiajs.com/) with better validation s
 // Server-side
 import { createApp } from "@aklinker1/zeta";
 import { version } from "../package.json";
+import { z } from 'zod/v4'
 
 const app = createApp({ prefix: "/api" }).get(
   "/health",
