@@ -27,16 +27,16 @@ import type {
  * Type-safe client based on routes defined server-side.
  */
 export interface AppClient<TRoutes extends BaseRoutes> {
-  fetch<TMethod extends keyof TRoutes, TPath extends keyof TRoutes[TMethod]>(
+  fetch<TMethod extends keyof TRoutes, TRoute extends keyof TRoutes[TMethod]>(
     method: TMethod,
-    path: TPath,
-    inputs: GetRequestParamsInput<TRoutes, TMethod, TPath>,
-  ): MaybePromise<GetResponseOutput<TRoutes, TMethod, TPath>>;
-  fetch<TPath extends keyof TRoutes["ANY"]>(
+    route: TRoute,
+    inputs: GetRequestParamsInput<TRoutes, TMethod, TRoute>,
+  ): MaybePromise<GetResponseOutput<TRoutes, TMethod, TRoute>>;
+  fetch<TRoute extends keyof TRoutes["ANY"]>(
     method: string,
-    path: TPath,
-    inputs: GetRequestParamsInput<TRoutes, "ANY", TPath>,
-  ): MaybePromise<GetResponseOutput<TRoutes, "ANY", TPath>>;
+    route: TRoute,
+    inputs: GetRequestParamsInput<TRoutes, "ANY", TRoute>,
+  ): MaybePromise<GetResponseOutput<TRoutes, "ANY", TRoute>>;
 }
 
 /**
@@ -71,12 +71,23 @@ export function createAppClient<TApp extends App>(
   } = options ?? {};
 
   return {
-    async fetch(method: string, path: string, inputs: any) {
+    async fetch(method: string, route: string, inputs: any) {
       const searchParams =
         inputs.query == null
           ? undefined
           : new URLSearchParams(inputs.query).toString();
-      const url = `${join(baseUrl, path as string)}${searchParams ? "?" + searchParams : ""}`;
+      const path =
+        inputs.params == null
+          ? route
+          : Object.entries(inputs.params).reduce(
+              (path, [key, value]) =>
+                path.replace(
+                  key === "**" ? key : new RegExp(`\\*{2}:${key}|:${key}`),
+                  encodeURIComponent(String(value)),
+                ),
+              route,
+            );
+      const url = `${join(baseUrl, path)}${searchParams ? "?" + searchParams : ""}`;
 
       const init = {
         body: undefined as BodyInit | undefined,

@@ -34,6 +34,11 @@ export async function callHandler(
   const rawBody = await smartDeserialize(request);
 
   const rawParams = route.params ?? {};
+  // Rename _ to ** for validation and consistency
+  if ("_" in rawParams) {
+    rawParams["**"] = rawParams["_"];
+    delete rawParams["_"];
+  }
   const params = route.data.def?.params
     ? validateInputSchema(route.data.def.params, rawParams)
     : rawParams;
