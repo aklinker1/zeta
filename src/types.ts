@@ -37,6 +37,12 @@ export interface App<TAppData extends BaseAppData = {}> {
     key: TKey,
     value: TValue,
   ): App<MergeAppData<TAppData, { ctx: { [key in TKey]: Readonly<TValue> } }>>;
+  /**
+   * Add multiple static values to the handler context.
+   */
+  decorate<TValues extends Record<string, any>>(
+    values: TValues,
+  ): App<MergeAppData<TAppData, { ctx: TValues }>>;
 
   /**
    * Add an undocumented GET route to the app.
@@ -218,6 +224,9 @@ export type GetAppRoutes<TApp extends App> =
 export type RouterData = {
   def?: BaseDef;
   route: string;
+  pluginData: {
+    decorators: Record<string, any>;
+  };
 } & ({ fetch: ServerSideFetch } | { handler: (ctx: any) => Promise<any> });
 
 //

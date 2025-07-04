@@ -48,7 +48,6 @@ export async function callHandler(
     : rawBody;
 
   const ctx = {
-    // TODO: Add decorators
     request,
     url,
     path: url.pathname,
@@ -56,6 +55,7 @@ export async function callHandler(
     body,
     params,
     query,
+    ...route.data.pluginData.decorators,
   };
 
   let res = (route.data as any).handler(ctx as any);

@@ -241,22 +241,81 @@ describe("App", () => {
     });
   });
 
-  describe.todo("decorate", () => {
+  describe("decorate", () => {
     it("should include the decorated value in the request handlers", async () => {
       const expected = "decorated value";
       const key = "decorated";
+
       let actual: unknown;
       const app = createApp()
         .decorate(key, expected)
-        .get("/", (ctx) => {
-          console.log(ctx);
-          void (actual = ctx[key]);
-        });
+        .get("/", (ctx) => void (actual = ctx));
       const client = createTestAppClient(app);
-
       await client.fetch("GET", "/", {});
 
-      expect(actual).toEqual(expected);
+      expect(actual).toMatchObject({
+        [key]: expected,
+      });
+    });
+
+    it("should include all the decorated values in the request handlers", async () => {
+      const key1 = "a";
+      const value1 = "A";
+      const key2 = "b";
+      const value2 = "B";
+
+      let actual: unknown;
+      const app = createApp()
+        .decorate({
+          [key1]: value1,
+          [key2]: value2,
+        })
+        .get("/", (ctx) => void (actual = ctx));
+      const client = createTestAppClient(app);
+      await client.fetch("GET", "/", {});
+
+      expect(actual).toMatchObject({
+        [key1]: value1,
+        [key2]: value2,
+      });
+    });
+
+    it("should include the decorated value in the request handlers", async () => {
+      const expected = "decorated value";
+      const key = "decorated";
+
+      let actual: unknown;
+      const app = createApp()
+        .decorate(key, expected)
+        .get("/", (ctx) => void (actual = ctx));
+      const client = createTestAppClient(app);
+      await client.fetch("GET", "/", {});
+
+      expect(actual).toMatchObject({
+        [key]: expected,
+      });
+    });
+
+    it("should include all the decorated values in the request handlers", async () => {
+      const key1 = "a";
+      const value1 = "A";
+      const key2 = "b";
+      const value2 = "B";
+
+      let actual: unknown;
+      const app = createApp()
+        .decorate({
+          [key1]: value1,
+          [key2]: value2,
+        })
+        .get("/", (ctx) => void (actual = ctx));
+      const client = createTestAppClient(app);
+      await client.fetch("GET", "/", {});
+
+      expect(actual).toMatchObject({
+        [key1]: value1,
+        [key2]: value2,
+      });
     });
   });
 });

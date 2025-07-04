@@ -50,6 +50,10 @@ export function createApp(options?: CreateAppOptions): App {
     routes[method][route] = data;
   };
 
+  const createPluginData = (): RouterData["pluginData"] => ({
+    decorators: { ...decorators },
+  });
+
   const app: App = {
     // @ts-expect-error
     [Symbol.toStringTag]: "ZetaApp",
@@ -88,8 +92,14 @@ export function createApp(options?: CreateAppOptions): App {
         }
       };
     },
-    decorate: (key, value) => {
-      decorators[key] = value;
+
+    decorate: (...args: any[]) => {
+      if (args.length === 2) {
+        const [key, value] = args;
+        decorators[key] = value;
+      } else {
+        Object.assign(decorators, args[0]);
+      }
       return app;
     },
 
@@ -108,7 +118,12 @@ export function createApp(options?: CreateAppOptions): App {
       const def: BaseDef = args.length === 2 ? args[0] : undefined;
       const handler = args[1] ?? args[0];
       const route = `${prefix}${path}`;
-      addRoutesEntry(method, route, { def, handler, route });
+      addRoutesEntry(method, route, {
+        def,
+        handler,
+        route,
+        pluginData: createPluginData(),
+      });
       return app;
     },
 
@@ -129,7 +144,12 @@ export function createApp(options?: CreateAppOptions): App {
       }
 
       const route = `${prefix}${path}/**`;
-      addRoutesEntry(Method.Any, route, { def, fetch, route });
+      addRoutesEntry(Method.Any, route, {
+        def,
+        fetch,
+        route,
+        pluginData: createPluginData(),
+      });
       console.log({ route, def, routes });
 
       return app;
