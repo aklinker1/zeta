@@ -34,9 +34,7 @@ describe("Client", () => {
         "/api/users/**",
         (ctx) => void (actual = ctx),
       );
-      const client = createTestAppClient(app);
-
-      await client.fetch("GET", "/api/users/**", {
+      await createTestAppClient(app).fetch("GET", "/api/users/**", {
         params: { "**": id },
       });
 
@@ -54,8 +52,7 @@ describe("Client", () => {
         "/api/users/**:id",
         (ctx) => void (actual = ctx),
       );
-      const client = createTestAppClient(app);
-      await client.fetch("GET", "/api/users/**:id", {
+      await createTestAppClient(app).fetch("GET", "/api/users/**:id", {
         params: { id },
       });
 

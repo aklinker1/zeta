@@ -31,12 +31,12 @@ export interface AppClient<TRoutes extends BaseRoutes> {
     method: TMethod,
     route: TRoute,
     inputs: GetRequestParamsInput<TRoutes, TMethod, TRoute>,
-  ): MaybePromise<GetResponseOutput<TRoutes, TMethod, TRoute>>;
+  ): Promise<GetResponseOutput<TRoutes, TMethod, TRoute>>;
   fetch<TRoute extends keyof TRoutes["ANY"]>(
     method: string,
     route: TRoute,
     inputs: GetRequestParamsInput<TRoutes, "ANY", TRoute>,
-  ): MaybePromise<GetResponseOutput<TRoutes, "ANY", TRoute>>;
+  ): Promise<GetResponseOutput<TRoutes, "ANY", TRoute>>;
 }
 
 /**
