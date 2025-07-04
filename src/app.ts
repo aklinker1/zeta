@@ -150,7 +150,6 @@ export function createApp(options?: CreateAppOptions): App {
         route,
         pluginData: createPluginData(),
       });
-      console.log({ route, def, routes });
 
       return app;
     },

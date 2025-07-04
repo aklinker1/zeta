@@ -94,9 +94,7 @@ export function createAppClient<TApp extends App>(
 
       try {
         const res = await fetch(url, init);
-        console.log("CLIENT", res);
         const response = await smartDeserialize(res);
-        console.log("deserialized", response);
         if (!res.ok) {
           throw new RequestError(
             (response as any)?.message ?? "Unknown error",
@@ -104,7 +102,6 @@ export function createAppClient<TApp extends App>(
             response as HttpErrorResponse,
           );
         }
-
         return response as any;
       } catch (err) {
         throw Error("Fetch failed", { cause: err });
