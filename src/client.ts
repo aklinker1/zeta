@@ -65,7 +65,7 @@ export function createAppClient<TApp extends App>(
   options?: CreateAppClientOptions,
 ): AppClient<GetClientRoutes<TApp>> {
   const {
-    baseUrl = "/",
+    baseUrl = location.origin,
     fetch = globalThis.fetch,
     headers = {},
   } = options ?? {};
@@ -149,7 +149,7 @@ export type CreateAppClientOptions = {
   fetch?: typeof fetch;
   /**
    * Base URL used when making requests.
-   * @default "/"
+   * @default location.origin
    */
   baseUrl?: string;
   /**
