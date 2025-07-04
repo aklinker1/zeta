@@ -1,6 +1,6 @@
 {
   "name": "zeta",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "license": "MIT",
   "packageManager": "bun@1.2.17",
   "module": "src/index.ts",
