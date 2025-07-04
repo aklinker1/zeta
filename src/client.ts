@@ -22,7 +22,6 @@ import type {
   ApplyAppPrefix,
   ApplyAppDataPrefix,
 } from "./types";
-import { join } from "node:path/posix";
 
 /**
  * Type-safe client based on routes defined server-side.
@@ -159,3 +158,11 @@ export type CreateAppClientOptions = {
    */
   headers?: Record<string, string>;
 };
+
+/** Join string together using `/` without double slashes. */
+function join(...paths: string[]) {
+  return paths
+    .map((path) => path.replace(/^\/+|\/+$/g, ""))
+    .filter(Boolean)
+    .join("/");
+}
