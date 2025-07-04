@@ -10,6 +10,7 @@ Personal alternative to [Elysia](https://elysiajs.com/) with better validation s
 - ✅ Moduler route definitions
 - ✅ Full type safety
 - ✅ Type-safe Client
+- ✅ WinterCG compatible
 - ✏️ OpenAPI docs built-in (Scalar or Swagger or both)
 - ✏️ Plugin system
 
