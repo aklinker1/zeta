@@ -93,11 +93,11 @@ export function createAppClient<TApp extends App>(
     async fetch(method: string, route: string, inputs: any) {
       const searchParams =
         inputs.query == null
-          ? undefined
+          ? ""
           : `?${buildSearchParams(inputs.query).toString()}`;
       const path =
         inputs.params == null ? route : buildPath(route, inputs.params);
-      const url = `${join(baseUrl, path)}${searchParams ? "?" + searchParams : ""}`;
+      const url = `${join(baseUrl, path)}${searchParams}`;
 
       const init = {
         body: undefined as BodyInit | undefined,
