@@ -45,6 +45,4 @@ console.log(
   `\x1b[2m[${new Date().toLocaleTimeString()}]\x1b[0m Example app started \x1b[2m@\x1b[0m \x1b[36mhttp://localhost:3000\x1b[0m`,
 );
 
-Bun.serve({
-  fetch: app.build(),
-});
+app.listen(3000);

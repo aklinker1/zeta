@@ -27,8 +27,17 @@ export interface App<TAppData extends BaseAppData = {}> {
     routes: { [method: string]: { [path: string]: RouterData } };
   };
 
-  /** Merge and simplify all the app routes into a single fetch function. */
+  /**
+   * Merge and simplify all the app routes into a single fetch function.
+   */
   build: () => ServerSideFetch;
+
+  /**
+   * Detect the current environment and use `Bun.serve` or `Deno.serve` to serve the app over a port.
+   * @param port The port to listen on.
+   * @param cb Optional callback to be called when the server is ready.
+   */
+  listen: (port: number, cb?: () => void) => this;
 
   /**
    * Add a static value to the handler context.

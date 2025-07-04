@@ -15,6 +15,10 @@ import type { OpenAPIV3_1 } from "openapi-types";
 /**
  * Create a server-side, Zeta application.
  *
+ * Zeta provides simple support for serving applications using `Bun.serve` and `Deno.serve` by calling `app.listen(3000)`.
+ *
+ * If you need more customization, you can use the `build` method to create a `fetch` function and serve it however you like.
+ *
  * @example
  * ```ts
  * import { createApp } from "@aklinker1/zeta";
@@ -22,15 +26,15 @@ import type { OpenAPIV3_1 } from "openapi-types";
  * const app = createApp({ prefix: "/api" })
  *   .get("/health", () => "OK")
  *   .get("/users", () => ["user1", "user2"])
+ *
+ * app.listen(3000)
+ *
+ * // Or serve the app yourself
+ * const fetch = app.build();
+ * Bun.serve({ fetch, ... });
+ * Deno.serve({ fetch, ... });
  * ```
  *
- * Zeta does not provide any utilities for serving the application, use your runtime's built-in server:
- *
- * @example
- * ```ts
- * Bun.serve({ fetch: app.build() });
- * Deno.serve(app.build());
- * ```
  * @param options Configure application behavior.
  */
 export function createApp<TPrefix extends BasePath>(
@@ -91,6 +95,21 @@ export function createApp(options?: CreateAppOptions): App {
           return Response.json(serializeErrorResponse(err), { status });
         }
       };
+    },
+
+    listen: (port, cb) => {
+      if (typeof Bun !== "undefined") {
+        Bun.serve({ port, fetch: app.build() });
+        if (cb) setTimeout(cb, 0);
+      } else if (
+        // @ts-expect-error: Deno types not installed.
+        typeof Deno !== "undefined"
+      ) {
+        // @ts-expect-error: Deno types not installed.
+        Deno.serve({ port, fetch: app.build() });
+        if (cb) setTimeout(cb, 0);
+      }
+      return app;
     },
 
     decorate: (...args: any[]) => {
