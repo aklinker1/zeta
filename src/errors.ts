@@ -15,6 +15,22 @@ export class ValidationError extends Error {
   }
 }
 
+/**
+ * Base class of all HTTP errors. You can throw this error or throw any of the
+ * subclasses. Zeta will automatically detect and handle these errors, setting
+ * the appropriate status code and message.
+ *
+ * Error responses will include the stacktrace during development. To hide the
+ * stacktrace in production, set the `NODE_ENV` environment variable to
+ * `production`.
+ *
+ * @example
+ * ```ts
+ * throw new HttpError(Status.BadRequest, "Bad request")
+ * // OR
+ * throw new BadRequestError()
+ * ```
+ */
 export class HttpError extends Error {
   constructor(
     readonly status: Status,
@@ -27,6 +43,7 @@ export class HttpError extends Error {
   }
 }
 
+/** Shorthand for `new HttpError(Status.BadRequest, "Bad Request", ...)` */
 export class BadRequestError extends HttpError {
   constructor(
     message: string = "Bad Request",
@@ -38,6 +55,7 @@ export class BadRequestError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.Unauthorized, "Unauthorized", ...)` */
 export class UnauthorizedError extends HttpError {
   constructor(
     message: string = "Unauthorized",
@@ -49,6 +67,7 @@ export class UnauthorizedError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.PaymentRequired, "Payment Required", ...)` */
 export class PaymentRequiredError extends HttpError {
   constructor(
     message: string = "Payment Required",
@@ -60,6 +79,7 @@ export class PaymentRequiredError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.Forbidden, "Forbidden", ...)` */
 export class ForbiddenError extends HttpError {
   constructor(
     message: string = "Forbidden",
@@ -71,6 +91,7 @@ export class ForbiddenError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.NotFound, "Not Found", ...)` */
 export class NotFoundError extends HttpError {
   constructor(
     message: string = "Not Found",
@@ -82,6 +103,7 @@ export class NotFoundError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.MethodNotAllowed, "Method Not Allowed", ...)` */
 export class MethodNotAllowedError extends HttpError {
   constructor(
     message: string = "Method Not Allowed",
@@ -93,6 +115,7 @@ export class MethodNotAllowedError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.NotAcceptable, "Not Acceptable", ...)` */
 export class NotAcceptableError extends HttpError {
   constructor(
     message: string = "Not Acceptable",
@@ -104,6 +127,7 @@ export class NotAcceptableError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.ProxyAuthenticationRequired, "Proxy Authentication Required", ...)` */
 export class ProxyAuthenticationRequiredError extends HttpError {
   constructor(
     message: string = "Proxy Authentication Required",
@@ -115,6 +139,7 @@ export class ProxyAuthenticationRequiredError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.RequestTimeout, "Request Timeout", ...)` */
 export class RequestTimeoutError extends HttpError {
   constructor(
     message: string = "Request Timeout",
@@ -126,6 +151,7 @@ export class RequestTimeoutError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.Conflict, "Conflict", ...)` */
 export class ConflictError extends HttpError {
   constructor(
     message: string = "Conflict",
@@ -137,6 +163,7 @@ export class ConflictError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.Gone, "Gone", ...)` */
 export class GoneError extends HttpError {
   constructor(
     message: string = "Gone",
@@ -148,6 +175,7 @@ export class GoneError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.LengthRequired, "Length Required", ...)` */
 export class LengthRequiredError extends HttpError {
   constructor(
     message: string = "Length Required",
@@ -159,6 +187,7 @@ export class LengthRequiredError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.PreconditionFailed, "Precondition Failed", ...)` */
 export class PreconditionFailedError extends HttpError {
   constructor(
     message: string = "Precondition Failed",
@@ -170,6 +199,7 @@ export class PreconditionFailedError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.ContentTooLarge, "Content Too Large", ...)` */
 export class ContentTooLargeError extends HttpError {
   constructor(
     message: string = "Content Too Large",
@@ -181,6 +211,7 @@ export class ContentTooLargeError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.UriTooLong, "URI Too Long", ...)` */
 export class UriTooLongError extends HttpError {
   constructor(
     message: string = "URI Too Long",
@@ -192,6 +223,7 @@ export class UriTooLongError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.UnsupportedMediaType, "Unsupported Media Type", ...)` */
 export class UnsupportedMediaTypeError extends HttpError {
   constructor(
     message: string = "Unsupported Media Type",
@@ -203,6 +235,7 @@ export class UnsupportedMediaTypeError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.RangeNotSatisfiable, "Range Not Satisfiable", ...)` */
 export class RangeNotSatisfiableError extends HttpError {
   constructor(
     message: string = "Range Not Satisfiable",
@@ -214,6 +247,7 @@ export class RangeNotSatisfiableError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.ExpectationFailed, "Expectation Failed", ...)` */
 export class ExpectationFailedError extends HttpError {
   constructor(
     message: string = "Expectation Failed",
@@ -225,6 +259,7 @@ export class ExpectationFailedError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.ImATeapot, "I'm a Teapot", ...)` */
 export class ImATeapotError extends HttpError {
   constructor(
     message: string = "I'm a Teapot",
@@ -236,6 +271,7 @@ export class ImATeapotError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.MisdirectedRequest, "Misdirected Request", ...)` */
 export class MisdirectedRequestError extends HttpError {
   constructor(
     message: string = "Misdirected Request",
@@ -247,6 +283,7 @@ export class MisdirectedRequestError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.UnprocessableEntity, "Unprocessable Entity", ...)` */
 export class UnprocessableEntityError extends HttpError {
   constructor(
     message: string = "Unprocessable Entity",
@@ -258,6 +295,7 @@ export class UnprocessableEntityError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.Locked, "Locked", ...)` */
 export class LockedError extends HttpError {
   constructor(
     message: string = "Locked",
@@ -269,6 +307,7 @@ export class LockedError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.FailedDependency, "Failed Dependency", ...)` */
 export class FailedDependencyError extends HttpError {
   constructor(
     message: string = "Failed Dependency",
@@ -280,9 +319,10 @@ export class FailedDependencyError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.TooEarly, "Too Early", ...)` */
 export class TooEarlyError extends HttpError {
   constructor(
-    message: string = "TooEarly",
+    message: string = "Too Early",
     additionalInfo?: Record<string, any>,
     options?: ErrorOptions,
   ) {
@@ -291,6 +331,7 @@ export class TooEarlyError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.UpgradeRequired, "Upgrade Required", ...)` */
 export class UpgradeRequiredError extends HttpError {
   constructor(
     message: string = "Upgrade Required",
@@ -302,6 +343,7 @@ export class UpgradeRequiredError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.PreconditionRequired, "Precondition Required", ...)` */
 export class PreconditionRequiredError extends HttpError {
   constructor(
     message: string = "Precondition Required",
@@ -313,6 +355,7 @@ export class PreconditionRequiredError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.TooManyRequests, "Too Many Requests", ...)` */
 export class TooManyRequestsError extends HttpError {
   constructor(
     message: string = "Too Many Requests",
@@ -324,6 +367,7 @@ export class TooManyRequestsError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.RequestHeaderFieldsTooLarge, "Request Header Fields Too Large", ...)` */
 export class RequestHeaderFieldsTooLargeError extends HttpError {
   constructor(
     message: string = "Request Header Fields Too Large",
@@ -335,6 +379,7 @@ export class RequestHeaderFieldsTooLargeError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.UnavailableForLegalReasons, "Unavailable For Legal Reasons", ...)` */
 export class UnavailableForLegalReasonsError extends HttpError {
   constructor(
     message: string = "Unavailable For Legal Reasons",
@@ -346,6 +391,7 @@ export class UnavailableForLegalReasonsError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.InternalServerError, "Internal Server Error", ...)` */
 export class InternalServerErrorError extends HttpError {
   constructor(
     message: string = "Internal Server Error",
@@ -357,6 +403,7 @@ export class InternalServerErrorError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.NotImplemented, "Not Implemented", ...)` */
 export class NotImplementedError extends HttpError {
   constructor(
     message: string = "Not Implemented",
@@ -368,6 +415,7 @@ export class NotImplementedError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.BadGateway, "Bad Gateway", ...)` */
 export class BadGatewayError extends HttpError {
   constructor(
     message: string = "Bad Gateway",
@@ -379,6 +427,7 @@ export class BadGatewayError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.ServiceUnavailable, "Service Unavailable", ...)` */
 export class ServiceUnavailableError extends HttpError {
   constructor(
     message: string = "Service Unavailable",
@@ -390,6 +439,7 @@ export class ServiceUnavailableError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.GatewayTimeout, "Gateway Timeout", ...)` */
 export class GatewayTimeoutError extends HttpError {
   constructor(
     message: string = "Gateway Timeout",
@@ -401,6 +451,7 @@ export class GatewayTimeoutError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.HttpVersionNotSupported, "HTTP Version Not Supported", ...)` */
 export class HttpVersionNotSupportedError extends HttpError {
   constructor(
     message: string = "HTTP Version Not Supported",
@@ -412,6 +463,7 @@ export class HttpVersionNotSupportedError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.VariantAlsoNegotiates, "Variant Also Negotiates", ...)` */
 export class VariantAlsoNegotiatesError extends HttpError {
   constructor(
     message: string = "Variant Also Negotiates",
@@ -423,6 +475,7 @@ export class VariantAlsoNegotiatesError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.InsufficientStorage, "Insufficient Storage", ...)` */
 export class InsufficientStorageError extends HttpError {
   constructor(
     message: string = "Insufficient Storage",
@@ -434,6 +487,7 @@ export class InsufficientStorageError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.LoopDetected, "Loop Detected", ...)` */
 export class LoopDetectedError extends HttpError {
   constructor(
     message: string = "Loop Detected",
@@ -445,6 +499,7 @@ export class LoopDetectedError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.NotExtended, "Not Extended", ...)` */
 export class NotExtendedError extends HttpError {
   constructor(
     message: string = "Not Extended",
@@ -456,6 +511,7 @@ export class NotExtendedError extends HttpError {
   }
 }
 
+/** Shorthand for `new HttpError(Status.NetworkAuthenticationRequired, "Network Authentication Required", ...)` */
 export class NetworkAuthenticationRequiredError extends HttpError {
   constructor(
     message: string = "Network Authentication Required",

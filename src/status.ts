@@ -1,5 +1,5 @@
 /**
- * Safe for usage on both server and client side.
+ * Contains an enum of all HTTP status codes. Safe for use on both client and server side.
  * @module
  */
 

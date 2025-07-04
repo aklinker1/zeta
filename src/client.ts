@@ -1,3 +1,9 @@
+/**
+ * Main module used client-side in the same application. If you're frontend and
+ * backend are in separate projects, generate your client using the OpenAPI docs.
+ * @module
+ */
+
 import type {
   BaseRoutes,
   Fallback,
@@ -14,6 +20,9 @@ import type {
 } from "./types";
 import { join } from "node:path/posix";
 
+/**
+ * Type-safe client based on routes defined server-side.
+ */
 export interface AppClient<TRoutes extends BaseRoutes> {
   fetch<TMethod extends keyof TRoutes, TPath extends keyof TRoutes[TMethod]>(
     method: TMethod,
@@ -22,6 +31,28 @@ export interface AppClient<TRoutes extends BaseRoutes> {
   ): MaybePromise<GetResponseOutput<TRoutes, TMethod, TPath>>;
 }
 
+/**
+ * Creates a type-safe client based on the server-side app. This is only useful
+ * if your frontend is in the same TypeScript project as your backend, and you
+ * can reference it's types in the frontend.
+ *
+ * If that's not the case, generate your client using the OpenAPI docs.
+ *
+ * @example
+ * ```ts
+ * // Server-side:
+ * import { createApp } from "@aklinker1/zeta";
+ *
+ * const app = createApp();
+ * export type App = typeof app;
+ *
+ * // Client-side:
+ * import type { App } from "../server";
+ * //     ^^^^ MAKE SURE TO ONLY IMPORT THE TYPE HERE
+ *
+ * const client = createAppClient<App>();
+ * ```
+ */
 export function createAppClient<TApp extends App>(
   options?: CreateAppClientOptions,
 ): AppClient<GetClientRoutes<TApp>> {
@@ -86,14 +117,20 @@ export class RequestError extends Error {
   }
 }
 
+/**
+ * Helper for converting an `App` type to `AppClient`.
+ */
 export type GetAppClient<TApp extends App> = App extends { base: string }
   ? GetAppClient<ApplyAppPrefix<TApp>>
   : AppClient<
       GetAppRoutes<TApp> extends BaseRoutes ? GetAppRoutes<TApp> : never
     >;
 
+/**
+ * Configure the client's behavior.
+ */
 export type CreateAppClientOptions = {
-  fetch?: ClientSideFetch;
+  fetch?: typeof fetch;
   /**
    * Base URL used when making requests.
    * @default "/"
@@ -105,8 +142,3 @@ export type CreateAppClientOptions = {
    */
   headers?: Record<string, string>;
 };
-
-export type ClientSideFetch = (
-  input: string | URL | Request,
-  init?: RequestInit,
-) => Promise<Response>;

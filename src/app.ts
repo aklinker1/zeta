@@ -6,6 +6,27 @@ import { addRoute, createRouter, findRoute } from "rou3";
 import { serializeErrorResponse } from "./internal/utils";
 import type { OpenAPIV3_1 } from "openapi-types";
 
+/**
+ * Create a server-side, Zeta application.
+ *
+ * @example
+ * ```ts
+ * import { createApp } from "@aklinker1/zeta";
+ *
+ * const app = createApp({ prefix: "/api" })
+ *   .get("/health", () => "OK")
+ *   .get("/users", () => ["user1", "user2"])
+ * ```
+ *
+ * Zeta does not provide any utilities for serving the application, use your runtime's built-in server:
+ *
+ * @example
+ * ```ts
+ * Bun.serve({ fetch: app.build() });
+ * Deno.serve(app.build());
+ * ```
+ * @param options Configure application behavior.
+ */
 export function createApp<TPrefix extends BasePath>(
   options: CreateAppOptionsWithPrefix<TPrefix>,
 ): App<{ base: TPrefix }>;
