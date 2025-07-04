@@ -11,7 +11,7 @@
     "bench": "bun run src/__tests__/bench.ts",
     "example": "bun --watch run example.ts",
     "example:prod": "NODE_ENV=production bun run example",
-    "publish": "jsr publish"
+    "publish": "bun run scripts/publish.ts"
   },
   "dependencies": {
     "@standard-schema/spec": "^1.0.0",

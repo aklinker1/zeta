@@ -47,3 +47,11 @@ const client = createAppClient<MyApp>();
 const res = await client.fetch("GET", "/api/health");
 // => { status: "up", version: string }
 ```
+
+## Publishing
+
+To publish a new version of Zeta, run:
+
+```sh
+bun run publish 0.1.3 # or whatever the new version is
+```
