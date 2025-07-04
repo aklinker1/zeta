@@ -1,3 +1,11 @@
+/**
+ * Types used internally by Zeta to build the type system. You probably don't
+ * need to use these, and there is no guarantee that they will remain stable
+ * between non-major versions.
+ *
+ * @internal Subject to breaking changes outside of major versions.
+ * @module
+ */
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 //

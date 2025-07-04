@@ -11,7 +11,11 @@ import type {
   GetResponseOutput,
   MaybePromise,
 } from "./types";
-import { smartDeserialize, smartSerialize } from "./internal/utils";
+import {
+  smartDeserialize,
+  smartSerialize,
+  type HttpErrorResponse,
+} from "./internal/utils";
 import type {
   GetAppRoutes,
   App,
@@ -90,6 +94,7 @@ export function createAppClient<TApp extends App>(
           throw new RequestError(
             (response as any)?.message ?? "Unknown error",
             res.status,
+            response as HttpErrorResponse,
           );
         }
 
@@ -101,15 +106,23 @@ export function createAppClient<TApp extends App>(
   };
 }
 
+/**
+ * Helper for converting an `App` to the routes it exposes.
+ */
 export type GetClientRoutes<TApp> =
   TApp extends App<infer AppData>
     ? Fallback<ApplyAppDataPrefix<AppData>["routes"], {}>
     : never;
 
+/**
+ * Thrown by the client when the response is not OK. When an `HttpError` is
+ * thrown server-side, this is the error throw client-side.
+ */
 export class RequestError extends Error {
   constructor(
     message: string,
     public status: number,
+    public response: HttpErrorResponse,
     options?: ErrorOptions,
   ) {
     super(message, options);

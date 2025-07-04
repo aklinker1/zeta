@@ -110,6 +110,9 @@ export function createApp(options?: CreateAppOptions): App {
   return app;
 }
 
+/**
+ * Configure how the app is created.
+ */
 export type CreateAppOptions = {
   /**
    * The origin to use when constructing URLs.
@@ -125,9 +128,11 @@ export type CreateAppOptions = {
   openApi?: OpenAPIV3_1.Document;
 };
 
+/** @see {@link CreateAppOptions} */
 export type CreateAppOptionsWithPrefix<TPrefix extends BasePath> =
   CreateAppOptions & {
     prefix: TPrefix;
   };
 
+/** @see {@link CreateAppOptions} */
 export type CreateAppOptionsWithoutPrefix = Omit<CreateAppOptions, "prefix">;

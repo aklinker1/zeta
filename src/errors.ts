@@ -5,6 +5,9 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Status } from "./status";
 
+/**
+ * Thrown when validation fails. Refer to `.issues` for details on what went wrong.
+ */
 export class ValidationError extends Error {
   constructor(
     readonly input: any,
