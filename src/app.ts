@@ -200,6 +200,22 @@ export function createApp<TPrefix extends BasePrefix = "">(
       });
       return app;
     },
+    onError(callback: any) {
+      hooks.onError.push({
+        id: nextHookId(appId),
+        applyTo: "global",
+        callback,
+      });
+      return app;
+    },
+    afterResponse(callback: any) {
+      hooks.afterResponse.push({
+        id: nextHookId(appId),
+        applyTo: "global",
+        callback,
+      });
+      return app;
+    },
 
     get: (...args: any[]) =>
       app.method.apply(app, [Method.Get, ...args] as any) as any,

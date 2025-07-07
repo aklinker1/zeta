@@ -125,6 +125,29 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
 
   /**
+   * Add a callback that is called when an error is thrown. The callback can
+   * optionally return a `Response`, which will be used to respond to the
+   * client.
+   *
+   * @param callback The function to call.
+   */
+  onError(
+    callback: (
+      ctx: OnErrorContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<void>,
+  ): this;
+
+  /**
+   * Add a callback that is called after the response is sent.
+   * @param callback The function to call.
+   */
+  afterResponse(
+    callback: (
+      ctx: AfterResponseContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<void>,
+  ): this;
+
+  /**
    * Add an undocumented GET route to the app.
    */
   get<TPath extends BasePath>(
@@ -402,14 +425,14 @@ export type MapResponseHook = LifeCycleHook<
  * here.
  */
 export type OnErrorHook = LifeCycleHook<
-  (ctx: Simplify<OnErrorBaseContext>) => MaybePromise<Response | void>
+  (ctx: Simplify<OnErrorContext>) => MaybePromise<Response | void>
 >;
 
 /**
  * Called after the response is sent back to the client.
  */
 export type AfterResponseHook = LifeCycleHook<
-  (ctx: Simplify<AfterResponseBaseContext>) => MaybePromise<void>
+  (ctx: Simplify<AfterResponseContext>) => MaybePromise<void>
 >;
 
 export type LifeCycleHooks = {
@@ -498,10 +521,10 @@ export type AfterHandleBaseContext<TCtx extends BaseCtx = {}> =
 export type MapResponseBaseContext<TCtx extends BaseCtx = {}> =
   AfterHandleBaseContext<TCtx> & {};
 
-export type OnErrorBaseContext<TCtx extends BaseCtx = {}> =
-  OnRequestContext<TCtx> & Partial<MapResponseBaseContext> & { error: unknown };
+export type OnErrorContext<TCtx extends BaseCtx = {}> = OnRequestContext<TCtx> &
+  Partial<MapResponseBaseContext> & { error: unknown };
 
-export type AfterResponseBaseContext<TCtx extends BaseCtx = {}> =
+export type AfterResponseContext<TCtx extends BaseCtx = {}> =
   OnRequestContext<TCtx> &
     Partial<MapResponseBaseContext> & { response: Response };
 
