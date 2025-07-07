@@ -288,7 +288,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       for (const _name of Object.keys(hooks)) {
         const name = _name as keyof LifeCycleHooks;
         for (const hook of childApp["~zeta"].hooks[name]) {
-          if (hook.applyTo === "global" || app["~zeta"].exported) {
+          if (hook.applyTo === "global" || childApp["~zeta"].exported) {
             hooks[name].push(hook as LifeCycleHook<any>);
           }
         }

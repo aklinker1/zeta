@@ -378,7 +378,7 @@ describe("App", () => {
           };
         };
       }>();
-      expect(actual).not.toMatchObject({ a: "A" });
+      expect(actual).toMatchObject({ a: "A" });
     });
   });
 });
