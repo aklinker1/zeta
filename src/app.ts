@@ -141,12 +141,17 @@ export function createApp<TPrefix extends BasePrefix = "">(
           for (const hook of hooks.onError) {
             let res: any = hook.callback(ctx);
             res = res instanceof Promise ? await res : res;
-            if (res instanceof Response) return res;
+            if (res instanceof Response) {
+              ctx.response = res;
+              return res;
+            }
           }
 
           const status =
             err instanceof HttpError ? err.status : Status.InternalServerError;
-          return Response.json(serializeErrorResponse(err), { status });
+          const res = Response.json(serializeErrorResponse(err), { status });
+          ctx.response = res;
+          return res;
         } finally {
           // Defer calls to the `afterResponse` hooks until after the response is sent
           setTimeout(async () => {
