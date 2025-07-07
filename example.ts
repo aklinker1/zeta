@@ -2,6 +2,7 @@ import { createApp } from "./src";
 import { version } from "./package.json" with { type: "json" };
 import { z } from "zod/v4";
 import { NotFoundError } from "./src/errors";
+import { zodSchemaAdapter } from "./src/adapters/zod-schema-adapter";
 
 const Entry = z.object({
   id: z.number(),
@@ -17,7 +18,9 @@ type HealthResponse = z.infer<typeof HealthResponse>;
 
 const entries: Entry[] = [];
 
-const app = createApp()
+const app = createApp({
+  schemaAdapter: zodSchemaAdapter,
+})
   .get("/api/health", { response: HealthResponse }, (_ctx) => ({
     status: "ok" as const,
     version,

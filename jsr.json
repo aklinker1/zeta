@@ -13,6 +13,7 @@
     "./errors": "./src/errors.ts",
     "./client": "./src/client.ts",
     "./testing": "./src/testing.ts",
-    "./status": "./src/status.ts"
+    "./status": "./src/status.ts",
+    "./adapters/zod-schema-adapter": "./src/adapters/zod-schema-adapter.ts"
   }
 }

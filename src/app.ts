@@ -12,10 +12,12 @@ import type {
   LifeCycleHook,
   DefaultAppData,
   BasePrefix,
+  SchemaAdapter,
 } from "./types";
 import { addRoute, createRouter, findRoute } from "rou3";
 import { callCtxModifierHooks, serializeErrorResponse } from "./internal/utils";
 import type { OpenAPIV3_1 } from "openapi-types";
+import { buildOpenApiDocs, buildScalarHtml } from "./open-api";
 
 let appIdInc = 0;
 const nextAppId = () => `app-${appIdInc++}`;
@@ -102,7 +104,25 @@ export function createApp<TPrefix extends BasePrefix = "">(
     },
 
     build: () => {
-      app.get("/api/openapi", () => "TEST").get("/api/docs", () => "DOCS");
+      const jsonRoute = options?.openApiRoute ?? "/openapi.json";
+      const scalarRoute = options?.scalarRoute ?? "/scalar";
+      const docs = buildOpenApiDocs(options, app);
+
+      app.get(jsonRoute, () => {
+        if (docs.type === "error") throw docs.error;
+        return docs.docs;
+      });
+      if (docs.type === "success") {
+        const scalarHtml = buildScalarHtml(jsonRoute, options);
+        app.get(
+          scalarRoute,
+          () =>
+            new Response(scalarHtml, {
+              headers: { "content-type": "text/html;charset=utf-8" },
+            }),
+        );
+      }
+
       const router = createRouter<RouterData>();
       for (const [method, methodValue] of Object.entries(routes)) {
         for (const [path, data] of Object.entries(methodValue)) {
@@ -322,8 +342,41 @@ export type CreateAppOptions<TPrefix extends BasePrefix = ""> = {
    */
   prefix?: TPrefix;
 
+  /**
+   * Tell Zeta which library you're using for validation. OpenAPI docs cannot
+   * be served without a schema adapter.
+   *
+   * @example
+   * ```ts
+   * import { zodSchemaAdapter } from "@aklinker1/zeta/adapters/zod-schema-adapter"
+   *
+   * const app = createApp({
+   *   openApi: {
+   *     schemaAdapter: zodSchemaAdapter,
+   *   },
+   * });
+   * ```
+   */
+  schemaAdapter?: SchemaAdapter;
+
+  /**
+   * Where the OpenAPI JSON docs is hosted.
+   * @default "/openapi.json"
+   */
+  openApiRoute?: BasePath;
+  /**
+   * Where the Scalar UI is hosted.
+   * @default "/scalar"
+   */
+  scalarRoute?: BasePath;
+
   /** Configure how your application's OpenAPI docs are generated. */
-  openApi?: Partial<OpenAPIV3_1.Document>;
+  openApi?: Partial<OpenAPIV3_1.Document> & {};
+  /**
+   * Configure [Scalar](https://scalar.com/) UI docs.
+   * @see https://github.com/scalar/scalar/blob/main/documentation/configuration.md#list-of-all-attributes
+   */
+  scalar?: any;
 };
 
 /** @see {@link CreateAppOptions} */

@@ -7,6 +7,7 @@
  * @module
  */
 import type { StandardSchemaV1 } from "@standard-schema/spec";
+import type { OpenAPI } from "openapi-types";
 
 //
 // APP
@@ -470,13 +471,15 @@ export type BaseRoutes = {
   };
 };
 
-export type BaseDef = {
-  headers?: StandardSchemaV1<Record<string, any>>;
-  params?: StandardSchemaV1<Record<string, any>>;
-  query?: StandardSchemaV1<Record<string, any>>;
-  body?: StandardSchemaV1;
-  response?: StandardSchemaV1;
-};
+export type BaseDef = Simplify<
+  Omit<OpenAPI.Operation, "parameters" | "responses"> & {
+    headers?: StandardSchemaV1<Record<string, any>>;
+    params?: StandardSchemaV1<Record<string, any>>;
+    query?: StandardSchemaV1<Record<string, any>>;
+    body?: StandardSchemaV1;
+    response?: StandardSchemaV1;
+  }
+>;
 
 export type AnyDef = {
   headers: StandardSchemaV1<Record<string, string>>;
@@ -688,6 +691,28 @@ export type GetResponseOutput<
   : never;
 
 type GetDefParams<TDef extends BaseDef> = Omit<TDef, "response">;
+
+//
+// SCHEMA ADAPTER
+//
+
+/**
+ * To generate open API docs, Zeta needs to know how process and extract
+ * some information from your schema. This adapter is responsible for
+ * providing additional functions for parsing your schema.
+ */
+export interface SchemaAdapter {
+  toJsonSchema: (schema: any) => any;
+  /**
+   * Used to pull out the openapi parameters from a schema.
+   */
+  parseParamsRecord: (schema: StandardSchemaV1) => Array<{
+    name: string;
+    optional: boolean;
+    schema: StandardSchemaV1;
+    description?: string;
+  }>;
+}
 
 //
 // GENERAL UTILS

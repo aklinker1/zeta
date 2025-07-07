@@ -11,8 +11,8 @@ Personal alternative to [Elysia](https://elysiajs.com/) with better validation s
 - ✅ Full type safety
 - ✅ Type-safe Client
 - ✅ WinterCG compatible
-- ✏️ OpenAPI docs built-in (Scalar or Swagger or both)
-- ✏️ Plugin system
+- ✅ Plugin system
+- ✅ OpenAPI docs built-in
 
 ## Example Usage
 
