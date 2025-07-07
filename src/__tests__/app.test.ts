@@ -1,7 +1,9 @@
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect, mock } from "bun:test";
 import { createApp } from "../app";
 import { z } from "zod/v4";
 import { createTestAppClient } from "../testing";
+import { expectTypeOf } from "expect-type";
+import type { AnyDef, GetAppData } from "../types";
 
 describe("App", () => {
   describe("fetch", () => {
@@ -161,46 +163,58 @@ describe("App", () => {
   });
 
   describe("use", () => {
-    describe("app", () => {
-      it("should nest sub-apps inside other apps", async () => {
-        const expectedUsers: any[] = [];
-        const expectedHealth = "ok";
-        const expectedHtml = "Some html...";
-        const usersApp = createApp({ prefix: "/users" }).get(
-          "/",
-          () => expectedUsers,
-        );
-        const apiApp = createApp({ prefix: "/api" })
-          .use(usersApp)
-          .get("/health", () => expectedHealth);
-        const app = createApp()
-          .use(apiApp)
-          .get("/", () => expectedHtml);
+    it("should nest child apps inside other apps", async () => {
+      const expectedUsers: any[] = [];
+      const expectedHealth = "ok";
+      const expectedHtml = "Some html...";
+      const usersApp = createApp({ prefix: "/users" }).get(
+        "/",
+        () => expectedUsers,
+      );
+      const apiApp = createApp({ prefix: "/api" })
+        .use(usersApp)
+        .get("/health", () => expectedHealth);
+      const app = createApp()
+        .use(apiApp)
+        .get("/", () => expectedHtml);
 
-        const usersClient = createTestAppClient(usersApp);
-        const apiClient = createTestAppClient(apiApp);
-        const client = createTestAppClient(app);
+      const usersClient = createTestAppClient(usersApp);
+      const apiClient = createTestAppClient(apiApp);
+      const client = createTestAppClient(app);
 
-        const usersResArray = [
-          await usersClient.fetch("GET", "/users", {}),
-          await apiClient.fetch("GET", "/api/users", {}),
-          await client.fetch("GET", "/api/users", {}),
-        ];
-        for (const usersRes of usersResArray) {
-          expect(usersRes).toEqual(expectedUsers);
-        }
+      const usersResArray = [
+        await usersClient.fetch("GET", "/users", {}),
+        await apiClient.fetch("GET", "/api/users", {}),
+        await client.fetch("GET", "/api/users", {}),
+      ];
+      for (const usersRes of usersResArray) {
+        expect(usersRes).toEqual(expectedUsers);
+      }
 
-        const healthResArray = [
-          await apiClient.fetch("GET", "/api/health", {}),
-          await client.fetch("GET", "/api/health", {}),
-        ];
-        for (const healthRes of healthResArray) {
-          expect(healthRes).toBe(expectedHealth);
-        }
+      const healthResArray = [
+        await apiClient.fetch("GET", "/api/health", {}),
+        await client.fetch("GET", "/api/health", {}),
+      ];
+      for (const healthRes of healthResArray) {
+        expect(healthRes).toBe(expectedHealth);
+      }
 
-        const htmlRes = await client.fetch("GET", "/", {});
-        expect(htmlRes).toBe(expectedHtml);
-      });
+      const htmlRes = await client.fetch("GET", "/", {});
+      expect(htmlRes).toBe(expectedHtml);
+    });
+
+    it("should deduplicate global hooks when the same one is applied multiple times", async () => {
+      const onRequest = mock(() => {});
+      const plugin = createApp().onRequest(onRequest);
+      const app = createApp()
+        .use(plugin)
+        .use(plugin)
+        .get("/", () => {});
+      const client = createTestAppClient(app);
+
+      await client.fetch("GET", "/", {});
+
+      expect(onRequest).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -316,6 +330,55 @@ describe("App", () => {
         [key1]: value1,
         [key2]: value2,
       });
+    });
+
+    it("should not include decorated values to parent app by default", async () => {
+      const child = createApp().decorate("a", "A");
+
+      let actual: unknown;
+      const app = createApp({ prefix: "/app" })
+        .use(child)
+        .get("/", (ctx) => {
+          expectTypeOf<typeof ctx>().not.toHaveProperty("a");
+          actual = ctx;
+        });
+      const client = createTestAppClient(app);
+      await client.fetch("GET", "/app", {});
+
+      expectTypeOf<GetAppData<typeof app>>().toEqualTypeOf<{
+        ctx: {};
+        exported: false;
+        prefix: "/app";
+        routes: {
+          GET: {
+            "/": AnyDef;
+          };
+        };
+      }>();
+      expect(actual).not.toMatchObject({ a: "A" });
+    });
+
+    it("should include decorated values to parent app when child app is exported", async () => {
+      const child = createApp().decorate("a", "A").export();
+
+      let actual: unknown;
+      const app = createApp({ prefix: "/app" })
+        .use(child)
+        .get("/", (ctx) => void (actual = ctx));
+      const client = createTestAppClient(app);
+      await client.fetch("GET", "/app", {});
+
+      expectTypeOf<GetAppData<typeof app>>().toEqualTypeOf<{
+        ctx: { a: string };
+        exported: false;
+        prefix: "/app";
+        routes: {
+          GET: {
+            "/": AnyDef;
+          };
+        };
+      }>();
+      expect(actual).not.toMatchObject({ a: "A" });
     });
   });
 });

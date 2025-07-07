@@ -44,7 +44,6 @@ import type { App } from "./types";
  * @param app
  * @param options
  * @returns An app client used to test your server-side application.
- *
  */
 export function createTestAppClient<TApp extends App>(
   app: TApp,

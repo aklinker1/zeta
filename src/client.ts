@@ -3,13 +3,10 @@
  * backend are in separate projects, generate your client using the OpenAPI docs.
  * @module
  */
-
 import type {
   BaseRoutes,
-  Fallback,
   GetRequestParamsInput,
   GetResponseOutput,
-  MaybePromise,
 } from "./types";
 import {
   smartDeserialize,
@@ -135,7 +132,7 @@ export function createAppClient<TApp extends App>(
  */
 export type GetClientRoutes<TApp> =
   TApp extends App<infer AppData>
-    ? Fallback<ApplyAppDataPrefix<AppData>["routes"], {}>
+    ? ApplyAppDataPrefix<AppData>["routes"]
     : never;
 
 /**
@@ -157,7 +154,7 @@ export class RequestError extends Error {
 /**
  * Helper for converting an `App` type to `AppClient`.
  */
-export type GetAppClient<TApp extends App> = App extends { base: string }
+export type GetAppClient<TApp extends App> = App extends { prefix: string }
   ? GetAppClient<ApplyAppPrefix<TApp>>
   : AppClient<
       GetAppRoutes<TApp> extends BaseRoutes ? GetAppRoutes<TApp> : never

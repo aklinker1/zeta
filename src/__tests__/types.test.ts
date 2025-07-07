@@ -4,109 +4,20 @@ import type * as t from "../types";
 import { z } from "zod/v4";
 
 describe("Types", () => {
-  describe("SpreadObjects", () => {
-    it("should merge two objects together", () => {
-      type A = { a: "A" };
-      type B = { b: "B" };
-      type Expected = { a: "A"; b: "B" };
-
-      type Actual = t.ShallowMergeObjects<A, B>;
-
-      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
-    });
-
-    it("should use the second object's value when the key's conflict", () => {
-      type A = { a: "A" };
-      type B = { a: "B" };
-      type Expected = { a: "B" };
-
-      type Actual = t.ShallowMergeObjects<A, B>;
-
-      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
-    });
-  });
-
-  describe("Fallback", () => {
-    it("should return the fallback type when the first type is undefined", () => {
-      expectTypeOf<t.Fallback<undefined, boolean>>().toEqualTypeOf<boolean>();
-      expectTypeOf<t.Fallback<undefined, {}>>().toEqualTypeOf<{}>();
-      expectTypeOf<t.Fallback<undefined, string>>().toEqualTypeOf<string>();
-    });
-
-    it("should return the original type when it is not undefined", () => {
-      expectTypeOf<t.Fallback<boolean, never>>().toEqualTypeOf<boolean>();
-      expectTypeOf<t.Fallback<{}, never>>().toEqualTypeOf<{}>();
-      expectTypeOf<t.Fallback<number, never>>().toEqualTypeOf<number>();
-      expectTypeOf<t.Fallback<null, never>>().toEqualTypeOf<null>();
-    });
-  });
-
-  describe("MergeCtx", () => {
-    it("should return undefined when both contexts are undefined", () => {
-      type A = undefined;
-      type B = undefined;
-      type Expected = undefined;
-
-      type Actual = t.MergeCtx<A, B>;
-
-      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
-    });
-
-    it("should return the first context when the second is undefined", () => {
-      type A = { a: "A" };
-      type B = undefined;
-      type Expected = A;
-
-      type Actual = t.MergeCtx<A, B>;
-
-      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
-    });
-
-    it("should return the second context when the first is undefined", () => {
-      type A = undefined;
-      type B = { b: "B" };
-      type Expected = B;
-
-      type Actual = t.MergeCtx<A, B>;
-
-      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
-    });
-
-    it("should merge the two types when both are defined", () => {
-      type A = { a: "A" };
-      type B = { b: "B" };
-      type Expected = { a: "A"; b: "B" };
-
-      type Actual = t.MergeCtx<A, B>;
-
-      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
-    });
-
-    it("should return the second context's value when both contain the same key", () => {
-      type A = { a: "A" };
-      type B = { a: "B" };
-      type Expected = { a: "B" };
-
-      type Actual = t.MergeCtx<A, B>;
-
-      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
-    });
-  });
-
   describe("MergeRoutes", () => {
-    it("should return undefined when both routes are undefined", () => {
-      type A = undefined;
-      type B = undefined;
-      type Expected = undefined;
+    it("should return {} when both routes are empty", () => {
+      type A = {};
+      type B = {};
+      type Expected = {};
 
       type Actual = t.MergeRoutes<A, B>;
 
       expectTypeOf<Actual>().toEqualTypeOf<Expected>();
     });
 
-    it("should return the first context when the second is undefined", () => {
+    it("should return the first path when the second is empty", () => {
       type A = { GET: { "/a": {} } };
-      type B = undefined;
+      type B = {};
       type Expected = A;
 
       type Actual = t.MergeRoutes<A, B>;
@@ -114,8 +25,8 @@ describe("Types", () => {
       expectTypeOf<Actual>().toEqualTypeOf<Expected>();
     });
 
-    it("should return the second context when the first is undefined", () => {
-      type A = undefined;
+    it("should return the second context when the first is empty", () => {
+      type A = {};
       type B = { GET: { "/b": {} } };
       type Expected = B;
 
@@ -156,20 +67,29 @@ describe("Types", () => {
   });
 
   describe("MergeAppData", () => {
-    it("should merge two blank app data together", () => {
-      type A = {};
-      type B = {};
-      type Expected = {};
+    it("should merge two empty app data together", () => {
+      type A = t.DefaultAppData;
+      type B = t.DefaultAppData;
+      type Expected = t.DefaultAppData;
 
       type Actual = t.MergeAppData<A, B>;
 
       expectTypeOf<Actual>().toEqualTypeOf<Expected>();
     });
 
-    it("should merge two partial app data together", () => {
-      type A = { ctx: { a: "A" } };
-      type B = { routes: { GET: { "/b": {} } } };
+    it("should merge ctx into the first app data", () => {
+      type A = {
+        prefix: "";
+        routes: {};
+        exported: false;
+        ctx: { a: "A" };
+      };
+      type B = {
+        routes: { GET: { "/b": {} } };
+      };
       type Expected = {
+        prefix: A["prefix"];
+        exported: A["exported"];
         ctx: { a: "A" };
         routes: { GET: { "/b": {} } };
       };
@@ -179,10 +99,22 @@ describe("Types", () => {
       expectTypeOf<Actual>().toEqualTypeOf<Expected>();
     });
 
-    it("should merge two full app data together", () => {
-      type A = { ctx: { a: "A" }; routes: { GET: { "/a": {} } } };
-      type B = { ctx: { b: "B" }; routes: { GET: { "/b": {} } } };
+    it("should merge all the properties together", () => {
+      type A = {
+        prefix: "/api";
+        exported: false;
+        ctx: { a: "A" };
+        routes: { GET: { "/a": {} } };
+      };
+      type B = {
+        prefix: "/test";
+        exported: true;
+        ctx: { b: "B" };
+        routes: { GET: { "/b": {} } };
+      };
       type Expected = {
+        prefix: "/test";
+        exported: true;
         ctx: { a: "A"; b: "B" };
         routes: { GET: { "/a": {}; "/b": {} } };
       };
@@ -368,6 +300,9 @@ describe("Types", () => {
       type Path = "/api";
       type Def = t.AnyDef;
       type App = {
+        prefix: "";
+        exported: false;
+        ctx: {};
         routes: {
           GET: {
             [p in Path]: Def;
@@ -390,6 +325,8 @@ describe("Types", () => {
       type Def = t.AnyDef;
       type Ctx = { a: "A" };
       type App = {
+        prefix: "";
+        exported: false;
         ctx: Ctx;
         routes: {
           GET: {
@@ -408,6 +345,8 @@ describe("Types", () => {
       type Def = t.AnyDef;
       type Ctx = { a: "A" };
       type App = {
+        prefix: "";
+        exported: false;
         ctx: Ctx;
         routes: {
           GET: {
@@ -426,8 +365,11 @@ describe("Types", () => {
   });
 
   describe("ApplyAppPrefix", () => {
-    it("should do nothing if the app doesn't have a base", () => {
+    it("should do nothing if the app doesn't have a prefix", () => {
       type MyApp = t.App<{
+        prefix: "";
+        exported: false;
+        ctx: {};
         routes: {
           GET: { "/test": { body: z.ZodObject<{ id: z.ZodString }> } };
         };
@@ -439,20 +381,127 @@ describe("Types", () => {
       expectTypeOf<Actual>().toEqualTypeOf<Expected>();
     });
 
-    it("should do nothing if the app doesn't have a base", () => {
+    it("should do nothing if the app doesn't have a prefix", () => {
       type MyApp = t.App<{
-        base: "/api";
+        prefix: "/api";
+        ctx: {};
+        exported: false;
         routes: {
           GET: { "/test": { body: z.ZodObject<{ id: z.ZodString }> } };
         };
       }>;
       type Expected = t.App<{
+        prefix: "";
+        ctx: {};
+        exported: false;
         routes: {
           GET: { "/api/test": { body: z.ZodObject<{ id: z.ZodString }> } };
         };
       }>;
 
       type Actual = t.ApplyAppPrefix<MyApp>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+  });
+
+  describe("ApplyAppDataPrefix", () => {
+    it("should move the app's prefix into each of the routes", () => {
+      type AppData = {
+        ctx: {
+          a: "A";
+        };
+        exported: false;
+        prefix: "/api";
+        routes: {
+          GET: {
+            "/users": { body: z.ZodObject<{ id: z.ZodString }> };
+            "/users/:id": { params: z.ZodObject<{ id: z.ZodString }> };
+          };
+          POST: {
+            "/users": {
+              body: z.ZodObject<{
+                username: z.ZodString;
+                password: z.ZodString;
+              }>;
+            };
+          };
+        };
+      };
+      type Expected = {
+        ctx: AppData["ctx"];
+        exported: false;
+        prefix: "";
+        routes: {
+          GET: {
+            "/api/users": AppData["routes"]["GET"]["/users"];
+            "/api/users/:id": AppData["routes"]["GET"]["/users/:id"];
+          };
+          POST: {
+            "/api/users": AppData["routes"]["POST"]["/users"];
+          };
+        };
+      };
+
+      type Actual = t.ApplyAppDataPrefix<AppData>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+  });
+
+  describe("UseAppData", () => {
+    it("should not include ctx when child app is not exported", () => {
+      type ParentAppData = {
+        ctx: { a: "a" };
+        exported: false;
+        prefix: "/api";
+        routes: {};
+      };
+      type ChildAppData = {
+        ctx: { b: "b" };
+        exported: false;
+        prefix: "";
+        routes: {
+          GET: { "/users": t.AnyDef };
+        };
+      };
+      type Expected = {
+        ctx: { a: "a" };
+        exported: false;
+        prefix: "/api";
+        routes: ChildAppData["routes"];
+      };
+
+      type Actual = t.UseAppData<ParentAppData, ChildAppData>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+
+    it("should include ctx when child app is exported", () => {
+      type ParentAppData = {
+        ctx: { a: "a" };
+        exported: false;
+        prefix: "/api";
+        routes: {};
+      };
+      type ChildAppData = {
+        ctx: { b: "b" };
+        exported: true;
+        prefix: "";
+        routes: {
+          GET: { "/users": t.AnyDef };
+        };
+      };
+      type Expected = {
+        ctx: { a: "a"; b: "b" };
+        exported: false;
+        prefix: "/api";
+        routes: {
+          GET: { "/users": t.AnyDef };
+        };
+      };
+
+      type Actual = t.UseAppData<ParentAppData, ChildAppData>;
 
       expectTypeOf<Actual>().toEqualTypeOf<Expected>();
     });

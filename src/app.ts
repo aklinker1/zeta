@@ -7,17 +7,30 @@ import type {
   BaseDef,
   BasePath,
   ServerSideFetch,
+  OnRequestContext,
+  LifeCycleHooks,
+  LifeCycleHook,
+  DefaultAppData,
+  BasePrefix,
 } from "./types";
 import { addRoute, createRouter, findRoute } from "rou3";
-import { serializeErrorResponse } from "./internal/utils";
+import { callCtxModifierHooks, serializeErrorResponse } from "./internal/utils";
 import type { OpenAPIV3_1 } from "openapi-types";
+
+let appIdInc = 0;
+const nextAppId = () => `app-${appIdInc++}`;
+
+let _hookIdInc = 0;
+const nextHookId = (appId: string) => `${appId}/hook-${_hookIdInc++}`;
 
 /**
  * Create a server-side, Zeta application.
  *
- * Zeta provides simple support for serving applications using `Bun.serve` and `Deno.serve` by calling `app.listen(3000)`.
+ * Zeta provides simple support for serving applications using `Bun.serve` and
+ * `Deno.serve` by calling `app.listen(3000)`.
  *
- * If you need more customization, you can use the `build` method to create a `fetch` function and serve it however you like.
+ * If you need more customization, you can use the `build` method to create a
+ * `fetch` function and serve it however you like.
  *
  * @example
  * ```ts
@@ -25,9 +38,9 @@ import type { OpenAPIV3_1 } from "openapi-types";
  *
  * const app = createApp({ prefix: "/api" })
  *   .get("/health", () => "OK")
- *   .get("/users", () => ["user1", "user2"])
+ *   .get("/users", () => ["user1", "user2"]);
  *
- * app.listen(3000)
+ * app.listen(3000);
  *
  * // Or serve the app yourself
  * const fetch = app.build();
@@ -37,13 +50,26 @@ import type { OpenAPIV3_1 } from "openapi-types";
  *
  * @param options Configure application behavior.
  */
-export function createApp<TPrefix extends BasePath>(
-  options: CreateAppOptionsWithPrefix<TPrefix>,
-): App<{ base: TPrefix }>;
-export function createApp(options?: CreateAppOptionsWithoutPrefix): App;
-export function createApp(options?: CreateAppOptions): App {
+export function createApp<TPrefix extends BasePrefix = "">(
+  options?: CreateAppOptions<TPrefix>,
+): App<{
+  ctx: {};
+  exported: false;
+  prefix: TPrefix;
+  routes: {};
+}> {
+  const appId = nextAppId();
+
   const { origin = "http://localhost", prefix = "" } = options ?? {};
-  const decorators: Record<string, any> = {};
+  const hooks: App["~zeta"]["hooks"] = {
+    afterHandle: [],
+    afterResponse: [],
+    beforeHandle: [],
+    mapResponse: [],
+    onError: [],
+    onRequest: [],
+    transform: [],
+  };
   const routes: App["~zeta"]["routes"] = {};
 
   const addRoutesEntry = (method: string, route: string, data: RouterData) => {
@@ -54,17 +80,25 @@ export function createApp(options?: CreateAppOptions): App {
     routes[method][route] = data;
   };
 
-  const createPluginData = (): RouterData["pluginData"] => ({
-    decorators: { ...decorators },
+  const cloneHooks = () => ({
+    afterHandle: [...hooks.afterHandle],
+    afterResponse: [...hooks.afterResponse],
+    beforeHandle: [...hooks.beforeHandle],
+    mapResponse: [...hooks.mapResponse],
+    onError: [...hooks.onError],
+    onRequest: [...hooks.onRequest],
+    transform: [...hooks.transform],
   });
 
-  const app: App = {
+  const app: App<DefaultAppData> = {
     // @ts-expect-error
     [Symbol.toStringTag]: "ZetaApp",
 
     "~zeta": {
+      id: appId,
       prefix,
       routes,
+      hooks,
     },
 
     build: () => {
@@ -86,15 +120,48 @@ export function createApp(options?: CreateAppOptions): App {
         findRoute(router, method, path);
 
       return async (request) => {
+        const url = new URL(request.url, origin);
+        const ctx: any = {
+          path: url.pathname,
+          url,
+          request,
+          method: request.method,
+        } satisfies OnRequestContext;
+
         try {
-          const url = new URL(request.url, origin);
-          return await callHandler(request, url, getRoute2);
+          await callCtxModifierHooks(ctx, hooks.onRequest);
+
+          const response = await callHandler(ctx, getRoute2);
+          ctx.response = response;
+
+          return response;
         } catch (err) {
+          ctx.error = err;
+
+          for (const hook of hooks.onError) {
+            let res: any = hook.callback(ctx);
+            res = res instanceof Promise ? await res : res;
+            if (res instanceof Response) return res;
+          }
+
           const status =
             err instanceof HttpError ? err.status : Status.InternalServerError;
           return Response.json(serializeErrorResponse(err), { status });
+        } finally {
+          // Defer calls to the `afterResponse` hooks until after the response is sent
+          setTimeout(async () => {
+            for (const hook of hooks.afterResponse) {
+              let res = hook.callback(ctx);
+              if (res instanceof Promise) await res;
+            }
+          });
         }
       };
+    },
+
+    export: () => {
+      app["~zeta"].exported = true;
+      return app as any;
     },
 
     listen: (port, cb) => {
@@ -113,25 +180,37 @@ export function createApp(options?: CreateAppOptions): App {
     },
 
     decorate: (...args: any[]) => {
-      if (args.length === 2) {
-        const [key, value] = args;
-        decorators[key] = value;
-      } else {
-        Object.assign(decorators, args[0]);
-      }
+      const obj: Record<string, any> =
+        args.length === 2 ? { [args[0]]: args[1] } : args[0];
+
+      hooks.transform.push({
+        id: nextHookId(appId),
+        applyTo: "local",
+        callback: () => obj,
+      });
+
+      return app;
+    },
+
+    onRequest(callback: any) {
+      hooks.onRequest.push({
+        id: nextHookId(appId),
+        applyTo: "global",
+        callback,
+      });
       return app;
     },
 
     get: (...args: any[]) =>
-      app.method.apply(app, [Method.Get, ...args] as any),
+      app.method.apply(app, [Method.Get, ...args] as any) as any,
     post: (...args: any[]) =>
-      app.method.apply(app, [Method.Post, ...args] as any),
+      app.method.apply(app, [Method.Post, ...args] as any) as any,
     put: (...args: any[]) =>
-      app.method.apply(app, [Method.Put, ...args] as any),
+      app.method.apply(app, [Method.Put, ...args] as any) as any,
     delete: (...args: any[]) =>
-      app.method.apply(app, [Method.Delete, ...args] as any),
+      app.method.apply(app, [Method.Delete, ...args] as any) as any,
     any: (...args: any[]) =>
-      app.method.apply(app, [Method.Any, ...args] as any),
+      app.method.apply(app, [Method.Any, ...args] as any) as any,
 
     method(method: string, path: BasePath, ...args: any[]) {
       const def: BaseDef = args.length === 2 ? args[0] : undefined;
@@ -141,7 +220,7 @@ export function createApp(options?: CreateAppOptions): App {
         def,
         handler,
         route,
-        pluginData: createPluginData(),
+        hooks: cloneHooks(),
       });
       return app;
     },
@@ -167,43 +246,63 @@ export function createApp(options?: CreateAppOptions): App {
         def,
         fetch,
         route,
-        pluginData: createPluginData(),
+        hooks: cloneHooks(),
       });
 
-      return app;
+      return app as any;
     },
 
-    use: (subApp) => {
+    use: (childApp) => {
+      // Bring in routes
       for (const [method, methodValue] of Object.entries(
-        subApp["~zeta"].routes,
+        childApp["~zeta"].routes,
       )) {
         for (const [subRoute, routeValue] of Object.entries(methodValue)) {
           const route = `${prefix}${subRoute}`;
           addRoutesEntry(method, route, { ...routeValue, route });
         }
       }
-      return app;
+
+      // Add global hooks to parent app's hooks
+      for (const _name of Object.keys(hooks)) {
+        const name = _name as keyof LifeCycleHooks;
+        for (const hook of childApp["~zeta"].hooks[name]) {
+          if (hook.applyTo === "global" || app["~zeta"].exported) {
+            hooks[name].push(hook as LifeCycleHook<any>);
+          }
+        }
+        let seen = new Set<string>();
+        hooks[name] = hooks[name].filter((hook) => {
+          if (seen.has(hook.id)) return false;
+          seen.add(hook.id);
+          return true;
+        }) as LifeCycleHook<any>[];
+      }
+
+      return app as any;
     },
   };
-  return app;
+
+  return app as any;
 }
 
 /**
  * Configure how the app is created.
  */
-export type CreateAppOptions = {
+export type CreateAppOptions<TPrefix extends BasePrefix = ""> = {
   /**
    * The origin to use when constructing URLs.
    * @default "http://localhost"
    */
   origin?: string;
+
   /**
    * Add a prefix to the beginning of all routes in the app.
    */
-  prefix?: BasePath;
+  prefix?: TPrefix;
 
   /** Configure how your application's OpenAPI docs are generated. */
-  openApi?: OpenAPIV3_1.Document;
+  openApi?: Partial<OpenAPIV3_1.Document>;
 };
 
 /** @see {@link CreateAppOptions} */

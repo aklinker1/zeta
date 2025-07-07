@@ -1,7 +1,8 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { HttpError, ValidationError } from "../errors";
 import { Status } from "../status";
-import type { App } from "../types";
+import type { App, LifeCycleHook, MaybePromise, RouterData } from "../types";
+import type { MatchedRoute } from "rou3";
 
 export function validateSchema<T>(
   schema: StandardSchemaV1<T, T>,
@@ -118,13 +119,25 @@ export function isApp(obj: unknown): obj is App<any> {
   return (obj as any)[Symbol.toStringTag] === "ZetaApp";
 }
 
-export function getUrlQuery(url: URL): Record<string, string> {
+export function getRawQuery(url: URL): Record<string, string> {
   const query: Record<string, string> = {};
   const params = url.searchParams;
   const entries = params.entries();
 
   for (const entry of entries) query[entry[0]] = entry[1];
   return query;
+}
+
+export function getRawParams(
+  route: MatchedRoute<RouterData>,
+): Record<string, string> {
+  const rawParams = route.params ?? {};
+  // Rename _ to ** for validation and consistency
+  if ("_" in rawParams) {
+    rawParams["**"] = rawParams["_"];
+    delete rawParams["_"];
+  }
+  return rawParams;
 }
 
 export function getErrorStack(err: Error): string[] | undefined {
@@ -170,4 +183,17 @@ export function serializeErrorResponse(err: unknown): HttpErrorResponse {
     status: Status.InternalServerError,
     stack: getErrorStack(err as Error),
   };
+}
+
+export async function callCtxModifierHooks(
+  ctx: any,
+  hooks: LifeCycleHook<
+    (ctx: any) => MaybePromise<Record<string, any> | void>
+  >[],
+): Promise<void> {
+  for (const hook of hooks) {
+    let res = hook.callback(ctx);
+    res = res instanceof Promise ? await res : res;
+    if (res) Object.assign(ctx, res);
+  }
 }

@@ -2,7 +2,9 @@ import { type MatchedRoute } from "rou3";
 import type { RouterData } from "../types";
 import { NotFoundError } from "../errors";
 import {
-  getUrlQuery,
+  callCtxModifierHooks,
+  getRawParams,
+  getRawQuery,
   smartDeserialize,
   smartSerialize,
   validateInputSchema,
@@ -11,72 +13,76 @@ import {
 import { Status } from "../status";
 
 export async function callHandler(
-  request: Request,
-  url: URL,
+  ctx: any,
   getRoute: (
     method: string,
     path: string,
   ) => MatchedRoute<RouterData> | undefined,
 ): Promise<Response> {
-  const route = getRoute(request.method, url.pathname);
+  const route = getRoute(ctx.method, ctx.path);
   if (route == null) {
     throw new NotFoundError(undefined, {
-      method: request.method,
-      path: url.pathname,
+      method: ctx.method,
+      path: ctx.path,
     });
   }
 
   if ("fetch" in route.data) {
-    const res = route.data.fetch(request);
+    const res = route.data.fetch(ctx.request);
     return res instanceof Promise ? await res : res;
   }
 
-  const rawBody = await smartDeserialize(request);
+  const rawBody = await smartDeserialize(ctx.request);
+  const rawQuery = getRawQuery(ctx.url);
+  const rawParams = getRawParams(route);
+  ctx.route = route.data.route;
+  ctx.params = rawParams;
+  ctx.query = rawQuery;
+  ctx.body = rawBody;
 
-  const rawParams = route.params ?? {};
-  // Rename _ to ** for validation and consistency
-  if ("_" in rawParams) {
-    rawParams["**"] = rawParams["_"];
-    delete rawParams["_"];
+  if (route.data.hooks.transform.length > 0)
+    await callCtxModifierHooks(ctx, route.data.hooks.transform);
+
+  if (route.data.def?.body)
+    ctx.body = validateInputSchema(route.data.def?.body, rawBody);
+  if (route.data.def?.query)
+    ctx.query = validateInputSchema(route.data.def?.query, rawQuery);
+  if (route.data.def?.params)
+    ctx.params = validateInputSchema(route.data.def?.params, rawParams);
+
+  if (route.data.hooks.beforeHandle.length > 0)
+    await callCtxModifierHooks(ctx, route.data.hooks.beforeHandle);
+
+  let response: any = route.data.handler(ctx);
+  if (response instanceof Promise) response = await response;
+
+  ctx.response = response;
+
+  for (const hook of route.data.hooks.afterHandle) {
+    let res = hook.callback(ctx);
+    res = res instanceof Promise ? await res : res;
+    if (res instanceof Response) return res;
+    ctx.response = res;
   }
-  const params = route.data.def?.params
-    ? validateInputSchema(route.data.def.params, rawParams)
-    : rawParams;
-
-  const rawQuery = getUrlQuery(url);
-  const query = route.data.def?.query
-    ? validateInputSchema(route.data.def?.query, rawQuery)
-    : rawQuery;
-
-  const body = route.data.def?.body
-    ? validateInputSchema(route.data.def?.body, rawBody)
-    : rawBody;
-
-  const ctx = {
-    request,
-    url,
-    path: url.pathname,
-    method: request.method,
-    body,
-    params,
-    query,
-    ...route.data.pluginData.decorators,
-  };
-
-  let res = (route.data as any).handler(ctx as any);
-  if (res instanceof Promise) res = await res;
 
   if (route.data.def?.response) {
     if ("~standard" in route.data.def.response) {
-      res = validateOutputSchema(route.data.def.response, res);
+      ctx.response = validateOutputSchema(route.data.def.response, response);
     } else {
       throw Error("TODO: Validate response map");
     }
   }
 
-  if (res instanceof Response) return res;
+  if (response instanceof Response) return response;
 
-  const resBody = smartSerialize(res);
+  for (const hook of route.data.hooks.mapResponse) {
+    let res = hook.callback(ctx);
+    res = res instanceof Promise ? await res : res;
+    if (res instanceof Response) return res;
+    ctx.response = res;
+  }
+
+  const resBody = smartSerialize(response);
   if (!resBody) return new Response(undefined, { status: Status.Ok });
 
   return new Response(resBody.serialized, {

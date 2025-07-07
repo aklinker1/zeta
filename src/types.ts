@@ -12,25 +12,75 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 // APP
 //
 
-export interface App<TAppData extends BaseAppData = {}> {
+export interface App<TAppData extends BaseAppData = BaseAppData> {
+  /**
+   * Internal references for implementing routing and calling registered
+   * handlers. Subject to breaking changes outside of major versions.
+   * @internal
+   */
   "~zeta": {
     /**
+     * Used for deduplication of hooks.
+     */
+    id: string;
+
+    /**
+     * When true, hooks defined on this app should be added to any app that
+     * imports this app.
+     */
+    exported?: boolean;
+
+    /**
      * Path prefix from `CreateAppOptions.prefix`.
-     * @internal
      */
     prefix: string;
 
     /**
      * List of routes registered with the app.
-     * @internal
      */
     routes: { [method: string]: { [path: string]: RouterData } };
+
+    /**
+     * Stores arrays of hooks registered on the app.
+     */
+    hooks: LifeCycleHooks;
   };
 
   /**
    * Merge and simplify all the app routes into a single fetch function.
    */
   build: () => ServerSideFetch;
+
+  /**
+   * Mark the app as "exported". When an exported app is `use`d by a
+   * parent app, the parent app will inherit all of it's hooks and modifiers.
+   *
+   * Regular, non-exported apps isolate their hooks and modifiers from the
+   * parent app (except for the global hooks, `onRequest`, `onError`, and
+   * `afterResponse`, which are always inherited by the parent app).
+   *
+   * The basic example is you can't access a decorated value from a parent app
+   * unless the child app is exported.
+   *
+   * @example
+   * ```ts
+   * const child = createApp()
+   *   .decorate("a", "A");
+   *
+   * const bad = createApp()
+   *   .use(child)
+   *   .get("/", ({ a }) => {
+   *     console.log(a); // => undefined
+   *   });
+   *
+   * const good = createApp()
+   *   .use(child.export())
+   *   .get("/", ({ a }) => {
+   *     console.log(a); // => "A"
+   *   });
+   * ```
+   */
+  export: () => App<MergeAppData<TAppData, { exported: true }>>;
 
   /**
    * Detect the current environment and use `Bun.serve` or `Deno.serve` to serve the app over a port.
@@ -45,13 +95,34 @@ export interface App<TAppData extends BaseAppData = {}> {
   decorate<TKey extends string, TValue>(
     key: TKey,
     value: TValue,
-  ): App<MergeAppData<TAppData, { ctx: { [key in TKey]: Readonly<TValue> } }>>;
+  ): App<
+    Simplify<
+      MergeAppData<TAppData, { ctx: { [key in TKey]: Readonly<TValue> } }>
+    >
+  >;
   /**
    * Add multiple static values to the handler context.
    */
   decorate<TValues extends Record<string, any>>(
     values: TValues,
-  ): App<MergeAppData<TAppData, { ctx: TValues }>>;
+  ): App<Simplify<MergeAppData<TAppData, { ctx: TValues }>>>;
+
+  /**
+   * Add a callback that is called before the route is matched. If the callback
+   * returns a value, it will be merged into the `ctx` object.
+   *
+   * @param callback The function to call.
+   */
+  onRequest(
+    callback: (
+      ctx: OnRequestContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<void>,
+  ): this;
+  onRequest<TNewCtx extends Record<string, any>>(
+    callback: (
+      ctx: OnRequestContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<TNewCtx>,
+  ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
 
   /**
    * Add an undocumented GET route to the app.
@@ -187,9 +258,7 @@ export interface App<TAppData extends BaseAppData = {}> {
    */
   mount(
     fetch: ServerSideFetch,
-  ): App<
-    MergeAppData<TAppData, { routes: { ANY: { [path in "/**"]: AnyDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { ANY: { "/**": AnyDef } } }>>;
   /**
    * Mount another fetch function at `${path}/**`.
    */
@@ -221,22 +290,22 @@ export interface App<TAppData extends BaseAppData = {}> {
    */
   use<TNewApp extends App>(
     app: TNewApp,
-  ): MergeApp<this, ApplyAppPrefix<TNewApp>>;
+  ): App<UseAppData<TAppData, GetAppData<TNewApp>>>;
 }
 
 export type GetAppData<TApp extends App> =
   TApp extends App<infer TAppData> ? TAppData : never;
 
-export type GetAppRoutes<TApp extends App> =
-  TApp extends App<infer TAppData> ? TAppData["routes"] : never;
+export type GetAppRoutes<TApp extends App> = GetAppData<TApp>["routes"];
 
 export type RouterData = {
   def?: BaseDef;
   route: string;
-  pluginData: {
-    decorators: Record<string, any>;
-  };
-} & ({ fetch: ServerSideFetch } | { handler: (ctx: any) => Promise<any> });
+  hooks: LifeCycleHooks;
+} & (
+  | { fetch: ServerSideFetch }
+  | { handler: (ctx: BeforeHandleContext) => Promise<any> }
+);
 
 //
 // HANDLERS
@@ -260,32 +329,121 @@ export type GetRouteHandler<
     : never
   : never;
 
-export type BuildHandlerContext<
-  TAppData extends BaseAppData,
-  TPath extends BasePath,
-  TDef extends BaseDef,
-> = Simplify<
-  (TAppData extends { ctx: infer Ctx } ? Ctx : {}) & {
-    route: TPath;
-    request: Request;
-  } & GetRequestParamsOutputFromDef<TDef>
+//
+// LIFECYCLE HOOKS
+//
+
+export type LifeCycleHook<TCallback extends Function> = {
+  /**
+   * Used for deducplication.
+   */
+  id: string;
+  /**
+   * Where this plugin should be applied.
+   * - `global`: Global plugins are hoisted to the top-level app.
+   * - `local`: Local plugins are applied to the app they were added to.
+   * @default "local"
+   */
+  applyTo: "global" | "local";
+  /**
+   * The function called when the hook is triggered.
+   */
+  callback: TCallback;
+};
+
+/**
+ * Called immediately after receiving the request. Returned record is merged
+ * into the handler context.
+ */
+export type OnRequestHook = LifeCycleHook<
+  (ctx: Simplify<OnRequestContext>) => MaybePromise<Record<string, any> | void>
 >;
+
+/**
+ * Called before validating the request inputs. Returned record is merged into
+ * the handler context.
+ */
+export type TransformHook = LifeCycleHook<
+  (ctx: Simplify<TransformContext>) => MaybePromise<Record<string, any> | void>
+>;
+
+/**
+ * Called before calling the route handler. Returned record is merged into the
+ * handler context.
+ */
+export type BeforeHandleHook = LifeCycleHook<
+  (
+    ctx: Simplify<BeforeHandleContext>,
+  ) => MaybePromise<Record<string, any> | void>
+>;
+
+/**
+ * Called after calling the route handler. If there is a return value, it
+ * replaces the return value from the handler. Similar to the `transform` hook,
+ * but for the response.
+ */
+export type AfterHandleHook = LifeCycleHook<
+  (ctx: Simplify<AfterHandleBaseContext>) => MaybePromise<unknown | void>
+>;
+
+/**
+ * Called after validating the handler return value. Used to transform the
+ * return value into a `Response`.
+ */
+export type MapResponseHook = LifeCycleHook<
+  (ctx: Simplify<MapResponseBaseContext>) => MaybePromise<Response | void>
+>;
+
+/**
+ * Called if an error is thrown in any other hook other than `afterResponse`.
+ * Use this hook to transform custom errors into a `Response`.
+ *
+ * Zeta will handle any `HttpError`s thrown, but you can handle your own errors
+ * here.
+ */
+export type OnErrorHook = LifeCycleHook<
+  (ctx: Simplify<OnErrorBaseContext>) => MaybePromise<Response | void>
+>;
+
+/**
+ * Called after the response is sent back to the client.
+ */
+export type AfterResponseHook = LifeCycleHook<
+  (ctx: Simplify<AfterResponseBaseContext>) => MaybePromise<void>
+>;
+
+export type LifeCycleHooks = {
+  onRequest: OnRequestHook[];
+  transform: TransformHook[];
+  beforeHandle: BeforeHandleHook[];
+  afterHandle: AfterHandleHook[];
+  mapResponse: MapResponseHook[];
+  onError: OnErrorHook[];
+  afterResponse: AfterResponseHook[];
+};
 
 //
 // BASE TYPES
 //
 
 export type BaseAppData = {
-  base?: BasePath;
-  ctx?: BaseCtx;
-  routes?: BaseRoutes;
+  exported: boolean;
+  prefix: BasePrefix;
+  ctx: BaseCtx;
+  routes: BaseRoutes;
+};
+export type DefaultAppData = {
+  exported: false;
+  prefix: "";
+  ctx: {};
+  routes: {};
 };
 
 export type BaseCtx = Record<string, any>;
 
 export type BaseRoutes = {
   [method: string]: {
-    [path: string]: BaseDef;
+    [path: BasePath]: BaseDef;
   };
 };
 
@@ -305,11 +463,82 @@ export type AnyDef = {
   response: StandardSchemaV1<any>;
 };
 
+export type BasePrefix = BasePath | "";
+
 export type BasePath = `/${string}`;
+
+//
+// CONTEXT OBJECTS
+//
+
+export type OnRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
+  request: Request;
+  url: URL;
+  path: string;
+  method: string;
+};
+
+export type TransformContext<TCtx extends BaseCtx = {}> =
+  OnRequestContext<TCtx> & {
+    route: string;
+    params?: Record<string, string>;
+    query?: Record<string, string>;
+    headers?: Record<string, string>;
+    body?: any;
+  };
+
+export type BeforeHandleContext<TCtx extends BaseCtx = {}> =
+  TransformContext<TCtx>;
+
+export type AfterHandleBaseContext<TCtx extends BaseCtx = {}> =
+  TransformContext<TCtx> & {
+    response?: unknown;
+  };
+
+export type MapResponseBaseContext<TCtx extends BaseCtx = {}> =
+  AfterHandleBaseContext<TCtx> & {};
+
+export type OnErrorBaseContext<TCtx extends BaseCtx = {}> =
+  OnRequestContext<TCtx> & Partial<MapResponseBaseContext> & { error: unknown };
+
+export type AfterResponseBaseContext<TCtx extends BaseCtx = {}> =
+  OnRequestContext<TCtx> &
+    Partial<MapResponseBaseContext> & { response: Response };
+
+export type GetAppDataCtx<TAppData extends BaseAppData> = TAppData extends {
+  ctx: infer TCtx;
+}
+  ? TCtx
+  : never;
+
+export type BuildHandlerContext<
+  TAppData extends BaseAppData,
+  TPath extends BasePath,
+  TDef extends BaseDef,
+> = Simplify<
+  GetAppDataCtx<TAppData> & {
+    route: TPath;
+    request: Request;
+  } & GetRequestParamsOutputFromDef<TDef>
+>;
 
 //
 // MERGING OBJECTS
 //
+
+export type UseApp<TParent extends App, TChild extends App> = App<
+  Simplify<UseAppData<GetAppData<TParent>, GetAppData<TChild>>>
+>;
+
+export type UseAppData<
+  TParentData extends BaseAppData,
+  TChildData extends BaseAppData,
+> = TChildData extends { exported: true }
+  ? MergeAppData<
+      TParentData,
+      Pick<ApplyAppDataPrefix<TChildData>, "ctx" | "routes">
+    >
+  : MergeAppData<TParentData, Pick<ApplyAppDataPrefix<TChildData>, "routes">>;
 
 export type MergeApp<T1, T2> =
   T1 extends App<infer D1>
@@ -320,85 +549,47 @@ export type MergeApp<T1, T2> =
 
 export type MergeAppData<
   T1 extends BaseAppData,
-  T2 extends BaseAppData,
+  T2 extends Partial<BaseAppData>,
 > = Simplify<{
-  [key in keyof T1 | keyof T2]: key extends "ctx"
-    ? MergeCtx<
-        T1 extends { ctx: infer C1 } ? C1 : undefined,
-        T2 extends { ctx: infer C2 } ? C2 : undefined
-      >
-    : key extends "routes"
-      ? MergeRoutes<
-          T1 extends { routes: infer R1 } ? R1 : undefined,
-          T2 extends { routes: infer R2 } ? R2 : undefined
-        >
-      : key extends keyof T2
-        ? T2[key]
-        : key extends keyof T1
-          ? T1[key]
-          : never;
+  prefix: T2["prefix"] extends string ? T2["prefix"] : T1["prefix"];
+  ctx: T2["ctx"] extends BaseCtx
+    ? Simplify<Spread<T1["ctx"], T2["ctx"]>>
+    : T1["ctx"];
+  exported: T2["exported"] extends boolean ? T2["exported"] : T1["exported"];
+  routes: T2["routes"] extends BaseRoutes
+    ? Simplify<MergeRoutes<T1["routes"], T2["routes"]>>
+    : T1["routes"];
 }>;
 
-export type MergeCtx<
-  T1 extends BaseCtx | undefined,
-  T2 extends BaseCtx | undefined,
-> = T1 extends BaseCtx
-  ? T2 extends BaseCtx
-    ? Simplify<ShallowMergeObjects<T1, T2>>
-    : T1
-  : T2;
-
 export type MergeRoutes<
-  T1 extends BaseRoutes | undefined,
-  T2 extends BaseRoutes | undefined,
-> = T2 extends BaseRoutes
-  ? T1 extends BaseRoutes
-    ? {
-        [method in keyof T1 | keyof T2]: method extends keyof T2
-          ? method extends keyof T1
-            ? Simplify<ShallowMergeObjects<T1[method], T2[method]>>
-            : T2[method]
-          : method extends keyof T1
-            ? T1[method]
-            : never;
-      }
-    : T2
-  : T1;
-
-export type ShallowMergeObjects<
-  T1 extends Record<string, any>,
-  T2 extends Record<string, any>,
-> = {
-  [K in keyof T1 | keyof T2]: K extends keyof T2
-    ? T2[K]
-    : K extends keyof T1
-      ? T1[K]
-      : never;
-};
+  A extends Record<string, any>,
+  B extends Record<string, any>,
+> = Simplify<Merge<A, B>>;
 
 //
 // APPLY PREFIX
 //
 
-export type ApplyAppPrefix<TApp extends App> = App<
-  ApplyAppDataPrefix<GetAppData<TApp>>
->;
+export type ApplyAppPrefix<
+  TApp extends App,
+  TNewPrefix extends BasePrefix = "",
+> = App<Simplify<ApplyAppDataPrefix<GetAppData<TApp>, TNewPrefix>>>;
 
-export type ApplyAppDataPrefix<TAppData extends BaseAppData> =
-  TAppData extends {
-    base: BasePath;
-    routes: BaseRoutes;
-  }
+export type ApplyAppDataPrefix<
+  TAppData extends BaseAppData,
+  TNewPrefix extends BasePrefix = "",
+> = {
+  ctx: TAppData["ctx"];
+  exported: TAppData["exported"];
+  prefix: TNewPrefix;
+  routes: TAppData["prefix"] extends BasePath
     ? {
-        [key in keyof Omit<TAppData, "base">]: key extends "routes"
-          ? {
-              [TMethod in keyof TAppData["routes"]]: Simplify<
-                PrefixObjectKeys<TAppData["base"], TAppData["routes"][TMethod]>
-              >;
-            }
-          : TAppData[key];
+        [TMethod in keyof TAppData["routes"]]: Simplify<
+          PrefixObjectKeys<TAppData["prefix"], TAppData["routes"][TMethod]>
+        >;
       }
-    : TAppData;
+    : TAppData["routes"];
+};
 
 //
 // SCHEMA CONVERSION
@@ -422,7 +613,9 @@ export type GetRequestParamsInput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
   TPath extends keyof TRoutes[TMethod],
-> = GetRequestParamsInputFromDef<TRoutes[TMethod][TPath]>;
+> = TPath extends BasePath
+  ? GetRequestParamsInputFromDef<TRoutes[TMethod][TPath]>
+  : never;
 
 export type GetResponseInputFromDef<TDef extends BaseDef> = TDef extends {
   response: infer TResponse;
@@ -436,7 +629,9 @@ export type GetResponseInput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
   TPath extends keyof TRoutes[TMethod],
-> = GetResponseInputFromDef<TRoutes[TMethod][TPath]>;
+> = TPath extends BasePath
+  ? GetResponseInputFromDef<TRoutes[TMethod][TPath]>
+  : never;
 
 type ToStandardSchemaOutputs<T> = T extends StandardSchemaV1
   ? StandardSchemaV1.InferOutput<T>
@@ -451,7 +646,9 @@ export type GetRequestParamsOutput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
   TPath extends keyof TRoutes[TMethod],
-> = GetRequestParamsOutputFromDef<TRoutes[TMethod][TPath]>;
+> = TPath extends BasePath
+  ? GetRequestParamsOutputFromDef<TRoutes[TMethod][TPath]>
+  : never;
 
 export type GetResponseOutputFromDef<TDef extends BaseDef> = TDef extends {
   response: infer TSchema extends StandardSchemaV1;
@@ -463,7 +660,9 @@ export type GetResponseOutput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
   TPath extends keyof TRoutes[TMethod],
-> = GetResponseOutputFromDef<TRoutes[TMethod][TPath]>;
+> = TPath extends BasePath
+  ? GetResponseOutputFromDef<TRoutes[TMethod][TPath]>
+  : never;
 
 type GetDefParams<TDef extends BaseDef> = Omit<TDef, "response">;
 
@@ -478,8 +677,6 @@ export type Simplify<T> = T extends { [key: string]: any }
   ? { [K in keyof T]: T[K] }
   : T;
 
-export type Fallback<T1, T2> = T1 extends undefined ? T2 : T1;
-
 export type MaybePromise<T> = Promise<T> | T;
 
 /**
@@ -492,4 +689,23 @@ export type PrefixObjectKeys<
   TObject extends Record<string, unknown>,
 > = {
   [K in keyof TObject as `${TPrefix}${string & K extends "/" ? "" : string & K}`]: TObject[K];
+};
+
+/**
+ * A helper type that models a single-level object spread: { ...L, ...R }
+ * It takes all properties from R, and all properties from L that are not in R.
+ */
+type Spread<L, R> = Omit<L, keyof R> & R;
+
+/**
+ * Merges two objects, A and B, two levels deep.
+ *
+ * It combines the keys from both A and B.
+ * - If a key exists only in A or only in B, it's carried over.
+ * - If a key exists in *both* A and B, it recursively merges their
+ *   values using a single-level spread (`Spread<A[K], B[K]>`).
+ * This ensures properties from B's inner objects overwrite those from A's.
+ */
+export type Merge<A, B> = Omit<A, keyof B> & {
+  [K in keyof B]: K extends keyof A ? Simplify<Spread<A[K], B[K]>> : B[K];
 };
