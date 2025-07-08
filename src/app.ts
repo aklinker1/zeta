@@ -136,7 +136,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       }
 
       // const getRoute = compileRouter(router);
-      const getRoute2 = (method: string, path: string) =>
+      const getRoute = (method: string, path: string) =>
         findRoute(router, method, path);
 
       return async (request) => {
@@ -146,12 +146,16 @@ export function createApp<TPrefix extends BasePrefix = "">(
           url,
           request,
           method: request.method,
+          set: {
+            status: Status.Ok,
+            headers: {},
+          },
         } satisfies OnRequestContext;
 
         try {
           await callCtxModifierHooks(ctx, hooks.onRequest);
 
-          const response = await callHandler(ctx, getRoute2);
+          const response = await callHandler(ctx, getRoute);
           ctx.response = response;
 
           return response;

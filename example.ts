@@ -21,16 +21,20 @@ const entries: Entry[] = [];
 const app = createApp({
   schemaAdapter: zodSchemaAdapter,
 })
-  .get("/api/health", { response: HealthResponse }, (_ctx) => ({
-    status: "ok" as const,
-    version,
-  }))
+  .get("/api/health", { response: HealthResponse }, ({ set }) => {
+    set.headers.test = "test";
+    return {
+      status: "ok" as const,
+      version,
+    };
+  })
 
   .get("/api/entries", { response: Entry.array() }, () => entries)
 
   // curl -X POST -H "Content-Type: application/json" -d '{"id":1,"text":"one"}' http://localhost:3000/api/entries
-  .post("/api/entries", { body: Entry }, ({ body }) => {
+  .post("/api/entries", { body: Entry }, ({ body, set }) => {
     entries.push(body);
+    set.status = 201;
   })
 
   .get(

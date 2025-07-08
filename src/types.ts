@@ -502,6 +502,7 @@ export type OnRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
   url: URL;
   path: string;
   method: string;
+  set: Setter;
 };
 
 export type TransformContext<TCtx extends BaseCtx = {}> =
@@ -545,6 +546,7 @@ export type BuildHandlerContext<
   GetAppDataCtx<TAppData> & {
     route: TPath;
     request: Request;
+    set: Setter;
   } & GetRequestParamsOutputFromDef<TDef>
 >;
 
@@ -712,6 +714,15 @@ export interface SchemaAdapter {
     schema: StandardSchemaV1;
     description?: string;
   }>;
+}
+
+//
+// SETTER
+//
+
+export interface Setter {
+  status: number;
+  headers: Record<string, string>;
 }
 
 //

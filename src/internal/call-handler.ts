@@ -10,7 +10,6 @@ import {
   validateInputSchema,
   validateOutputSchema,
 } from "./utils";
-import { Status } from "../status";
 
 export async function callHandler(
   ctx: any,
@@ -83,10 +82,17 @@ export async function callHandler(
   }
 
   const resBody = smartSerialize(response);
-  if (!resBody) return new Response(undefined, { status: Status.Ok });
+  if (!resBody)
+    return new Response(undefined, {
+      status: ctx.set.status,
+      headers: ctx.set.headers,
+    });
 
   return new Response(resBody.serialized, {
-    status: Status.Ok,
-    headers: { "Content-Type": resBody.contentType },
+    status: ctx.set.status,
+    headers: {
+      "Content-Type": resBody.contentType,
+      ...ctx.set.headers,
+    },
   });
 }
