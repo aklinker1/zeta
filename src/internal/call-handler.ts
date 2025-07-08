@@ -39,8 +39,13 @@ export async function callHandler(
   ctx.query = rawQuery;
   ctx.body = rawBody;
 
-  if (route.data.hooks.transform.length > 0)
-    await callCtxModifierHooks(ctx, route.data.hooks.transform);
+  if (route.data.hooks.transform.length > 0) {
+    const transformResponse = await callCtxModifierHooks(
+      ctx,
+      route.data.hooks.transform,
+    );
+    if (transformResponse) return transformResponse;
+  }
 
   if (route.data.def?.body)
     ctx.body = validateInputSchema(route.data.def?.body, rawBody);
@@ -49,8 +54,10 @@ export async function callHandler(
   if (route.data.def?.params)
     ctx.params = validateInputSchema(route.data.def?.params, rawParams);
 
-  if (route.data.hooks.beforeHandle.length > 0)
-    await callCtxModifierHooks(ctx, route.data.hooks.beforeHandle);
+  if (route.data.hooks.beforeHandle.length > 0) {
+    const res = await callCtxModifierHooks(ctx, route.data.hooks.beforeHandle);
+    if (res) return res;
+  }
 
   let response: any = route.data.handler(ctx);
   if (response instanceof Promise) response = await response;

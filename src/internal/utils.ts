@@ -190,10 +190,11 @@ export async function callCtxModifierHooks(
   hooks: LifeCycleHook<
     (ctx: any) => MaybePromise<Record<string, any> | void>
   >[],
-): Promise<void> {
+): Promise<Response | undefined> {
   for (const hook of hooks) {
     let res = hook.callback(ctx);
     res = res instanceof Promise ? await res : res;
+    if (res instanceof Response) return res;
     if (res) Object.assign(ctx, res);
   }
 }

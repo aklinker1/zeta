@@ -153,7 +153,14 @@ export function createApp<TPrefix extends BasePrefix = "">(
         } satisfies OnRequestContext;
 
         try {
-          await callCtxModifierHooks(ctx, hooks.onRequest);
+          const onRequestResponse = await callCtxModifierHooks(
+            ctx,
+            hooks.onRequest,
+          );
+          if (onRequestResponse) {
+            ctx.response = onRequestResponse;
+            return onRequestResponse;
+          }
 
           const response = await callHandler(ctx, getRoute);
           ctx.response = response;

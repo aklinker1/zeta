@@ -110,7 +110,8 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
 
   /**
    * Add a callback that is called before the route is matched. If the callback
-   * returns a value, it will be merged into the `ctx` object.
+   * returns a value, it will be merged into the `ctx` object. If the callback
+   * returns a `Response`, it will be returned immediately.
    *
    * @param callback The function to call.
    */
@@ -118,6 +119,11 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
     callback: (
       ctx: OnRequestContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<void>,
+  ): this;
+  onRequest(
+    callback: (
+      ctx: OnRequestContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<Response>,
   ): this;
   onRequest<TNewCtx extends Record<string, any>>(
     callback: (
@@ -128,7 +134,8 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   /**
    * Add a callback that is called after the route is matched and before the
    * inputs are validated. If the callback returns a value, it will be merged
-   * into the `ctx` object.
+   * into the `ctx` object. If the callback returns a `Response`, it will be
+   * returned immediately.
    *
    * @param callback The function to call.
    */
@@ -136,6 +143,11 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
     callback: (
       ctx: TransformContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<void>,
+  ): this;
+  transform(
+    callback: (
+      ctx: TransformContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<Response>,
   ): this;
   transform<TNewCtx extends Record<string, any>>(
     callback: (
@@ -146,7 +158,8 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   /**
    * Add a callback that is called after inputs are validated and before the
    * handler is called. If the callback returns a value, it will be merged into
-   * the `ctx` object.
+   * the `ctx` object. If the callback returns a `Response`, it will be returned
+   * immediately.
    *
    * @param callback The function to call.
    */
@@ -154,6 +167,11 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
     callback: (
       ctx: BeforeHandleContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<void>,
+  ): this;
+  beforeHandle(
+    callback: (
+      ctx: BeforeHandleContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<Response>,
   ): this;
   beforeHandle<TNewCtx extends Record<string, any>>(
     callback: (
