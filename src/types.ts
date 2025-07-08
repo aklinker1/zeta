@@ -126,6 +126,68 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
 
   /**
+   * Add a callback that is called after the route is matched and before the
+   * inputs are validated. If the callback returns a value, it will be merged
+   * into the `ctx` object.
+   *
+   * @param callback The function to call.
+   */
+  transform(
+    callback: (
+      ctx: TransformContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<void>,
+  ): this;
+  transform<TNewCtx extends Record<string, any>>(
+    callback: (
+      ctx: TransformContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<TNewCtx>,
+  ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
+
+  /**
+   * Add a callback that is called after inputs are validated and before the
+   * handler is called. If the callback returns a value, it will be merged into
+   * the `ctx` object.
+   *
+   * @param callback The function to call.
+   */
+  beforeHandle(
+    callback: (
+      ctx: BeforeHandleContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<void>,
+  ): this;
+  beforeHandle<TNewCtx extends Record<string, any>>(
+    callback: (
+      ctx: BeforeHandleContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<TNewCtx>,
+  ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
+
+  /**
+   * Add a callback that is called after the handler is called and before the
+   * response is validated. If the callback returns a value, it replaces the
+   * response with it.
+   *
+   * @param callback The function to call.
+   */
+  afterHandle(
+    callback: (
+      ctx: AfterHandleContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<unknown | void>,
+  ): this;
+
+  /**
+   * Add a callback that is called after the response is validated and before it
+   * is sent to the client. The callback can return a `Response` if you want to
+   * change how the response is built.
+   *
+   * @param callback The function to call.
+   */
+  mapResponse(
+    callback: (
+      ctx: AfterHandleContext<GetAppDataCtx<TAppData>>,
+    ) => MaybePromise<unknown | void>,
+  ): this;
+
+  /**
    * Add a callback that is called when an error is thrown. The callback can
    * optionally return a `Response`, which will be used to respond to the
    * client.
@@ -407,7 +469,7 @@ export type BeforeHandleHook = LifeCycleHook<
  * but for the response.
  */
 export type AfterHandleHook = LifeCycleHook<
-  (ctx: Simplify<AfterHandleBaseContext>) => MaybePromise<unknown | void>
+  (ctx: Simplify<AfterHandleContext>) => MaybePromise<unknown | void>
 >;
 
 /**
@@ -517,13 +579,13 @@ export type TransformContext<TCtx extends BaseCtx = {}> =
 export type BeforeHandleContext<TCtx extends BaseCtx = {}> =
   TransformContext<TCtx>;
 
-export type AfterHandleBaseContext<TCtx extends BaseCtx = {}> =
+export type AfterHandleContext<TCtx extends BaseCtx = {}> =
   TransformContext<TCtx> & {
     response?: unknown;
   };
 
 export type MapResponseBaseContext<TCtx extends BaseCtx = {}> =
-  AfterHandleBaseContext<TCtx> & {};
+  AfterHandleContext<TCtx> & {};
 
 export type OnErrorContext<TCtx extends BaseCtx = {}> = OnRequestContext<TCtx> &
   Partial<MapResponseBaseContext> & { error: unknown };

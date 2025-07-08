@@ -229,6 +229,38 @@ export function createApp<TPrefix extends BasePrefix = "">(
       });
       return app;
     },
+    transform(callback: any) {
+      hooks.transform.push({
+        id: nextHookId(appId),
+        applyTo: "local",
+        callback,
+      });
+      return app;
+    },
+    beforeHandle(callback: any) {
+      hooks.beforeHandle.push({
+        id: nextHookId(appId),
+        applyTo: "local",
+        callback,
+      });
+      return app;
+    },
+    afterHandle(callback: any) {
+      hooks.afterHandle.push({
+        id: nextHookId(appId),
+        applyTo: "local",
+        callback,
+      });
+      return app;
+    },
+    mapResponse(callback: any) {
+      hooks.mapResponse.push({
+        id: nextHookId(appId),
+        applyTo: "local",
+        callback,
+      });
+      return app;
+    },
     onError(callback: any) {
       hooks.onError.push({
         id: nextHookId(appId),
