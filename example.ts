@@ -3,6 +3,7 @@ import { version } from "./package.json" with { type: "json" };
 import { z } from "zod/v4";
 import { NotFoundError } from "./src/errors";
 import { zodSchemaAdapter } from "./src/adapters/zod-schema-adapter";
+import { Status } from "./src/status";
 
 const Entry = z.object({
   id: z.number(),
@@ -20,26 +21,74 @@ const entries: Entry[] = [];
 
 const app = createApp({
   schemaAdapter: zodSchemaAdapter,
-})
-  .get("/api/health", { response: HealthResponse }, ({ set }) => {
-    set.headers.test = "test";
-    return {
-      status: "ok" as const,
+  openApi: {
+    info: {
+      title: "Example API Reference",
       version,
-    };
-  })
+      description: "API reference for the example application",
+    },
+    tags: [
+      { name: "Entries", description: "Manage entries in the system" },
+      { name: "System" },
+    ],
+  },
+})
+  .get(
+    "/api/health",
+    {
+      operationId: "getHealth",
+      summary: "Health check",
+      description: "Check if the server is healthy",
+      tags: ["System"],
+      response: HealthResponse,
+    },
+    ({ set }) => {
+      set.headers.test = "test";
+      return {
+        status: "ok" as const,
+        version,
+      };
+    },
+  )
 
-  .get("/api/entries", { response: Entry.array() }, () => entries)
+  .get(
+    "/api/entries",
+    {
+      operationId: "listEntries",
+      summary: "List all entries",
+      description: "List all entries in the system",
+      tags: ["Entries"],
+      response: Entry.array(),
+    },
+    () => entries,
+  )
 
   // curl -X POST -H "Content-Type: application/json" -d '{"id":1,"text":"one"}' http://localhost:3000/api/entries
-  .post("/api/entries", { body: Entry }, ({ body, set }) => {
-    entries.push(body);
-    set.status = 201;
-  })
+  .post(
+    "/api/entries",
+    {
+      operationId: "createEntry",
+      summary: "Create entry",
+      description: "Create a new entry",
+      tags: ["Entries"],
+      body: Entry,
+    },
+    ({ body, set }) => {
+      entries.push(body);
+      set.status = Status.Accepted;
+    },
+  )
 
   .get(
     "/api/entries/:id",
-    { params: z.object({ id: z.coerce.number() }), response: Entry },
+    {
+      operationId: "getEntryById",
+      summary: "Get entry by ID",
+      description: "Get an entry by ID",
+      tags: ["Entries"],
+      params: z.object({ id: z.coerce.number() }),
+      response: Entry,
+    },
     ({ params }) => {
       const entry = entries.find((entry) => entry.id === params.id);
       if (!entry) throw new NotFoundError(undefined, { entryId: params.id });
