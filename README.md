@@ -19,13 +19,13 @@ Personal alternative to [Elysia](https://elysiajs.com/) with better validation s
 ```ts
 // Server-side
 import { createApp } from "@aklinker1/zeta";
-import { zodSchemaAdapter } from '@aklinker1/zeta/adapters/zod-schema-adapter'
+import { zodSchemaAdapter } from "@aklinker1/zeta/adapters/zod-schema-adapter";
 import { version } from "../package.json";
 import { z } from "zod/v4";
 
 const app = createApp({
   prefix: "/api",
-  schemaAdapter: zodSchemaAdapter
+  schemaAdapter: zodSchemaAdapter,
 }).get(
   "/health",
   {
