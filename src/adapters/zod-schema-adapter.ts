@@ -1,6 +1,7 @@
 import type { SchemaAdapter } from "../types";
 
-const { z } = await import("zod/v4");
+const zod = "zod/v4";
+const { z } = await import(zod);
 
 export const zodSchemaAdapter: SchemaAdapter = {
   toJsonSchema: (schema) => {
