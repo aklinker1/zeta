@@ -185,12 +185,14 @@ export function createApp<TPrefix extends BasePrefix = "">(
           return res;
         } finally {
           // Defer calls to the `afterResponse` hooks until after the response is sent
-          setTimeout(async () => {
-            for (const hook of hooks.afterResponse) {
-              let res = hook.callback(ctx);
-              if (res instanceof Promise) await res;
-            }
-          });
+          if (hooks.afterResponse.length > 0) {
+            setTimeout(async () => {
+              for (const hook of hooks.afterResponse) {
+                let res = hook.callback(ctx);
+                if (res instanceof Promise) await res;
+              }
+            }, 0);
+          }
         }
       };
     },
