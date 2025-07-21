@@ -294,9 +294,9 @@ graph LR
 
 There are two types of hooks: global and isolated.
 
-- Global: Added to any parent apps and ran on the top level, regardless of which app or what order these hooks are called.
+- **Global**: Added to any parent apps and ran on the top level, regardless of which app or what order these hooks are called.
   - You usually only want to add these to the top level app, but they will run if you add them to another.
-- Isolated: These hooks are only ran on endpoints of the app the hooks is defined on. Additionally, they're only ran if they are added to an app before the route is defined.
+- **Isolated**: These hooks are only ran on endpoints of the app the hooks is defined on. Additionally, they're only ran if they are added to an app before the route is defined.
 
 Here's an example combining several different hooks:
 
@@ -405,7 +405,7 @@ Deno.serve(app.build());
 
 ## OpenAPI and Validation
 
-Zeta supports any validation library that implements the ["Standard Schema" spec](https://standardschema.dev/#what-schema-libraries-implement-the-spec). However, the spec does not include standards for defining JSON schemas, required to generate OpenAPI specs.
+Zeta supports any validation library that implements the ["Standard Schema" spec](https://standardschema.dev/#what-schema-libraries-implement-the-spec). However, the spec does not include standards for creating JSON schemas, required to generate OpenAPI specs.
 
 So for Zeta to properly generate OpenAPI specs, you need to pass in a `schemaAdapter` to the top-level app instance.
 
@@ -515,7 +515,7 @@ const app = createApp().get("/users", {}, () => {
 -> GET /users
 <- 501 Not Implemented
 <- {
-<-   "name": "NotImplementedError",
+<-   "name": "HttpError",
 <-   "message": "TODO",
 <-   "status": 501,
 <-   "stack": [...],
@@ -563,7 +563,7 @@ const app = createApp()
 
 ## `createClient`
 
-If you're client-side code is located in the same project as your backend, you can use the typescript definition of the top-level app to define a type-safe API client.
+If your client-side code is located in the same project as your backend, you can use the TS definition of the top-level app to define a type-safe API client.
 
 ```ts
 // server/main.ts
@@ -595,7 +595,7 @@ console.log(response); // { status: "up" }
 
 The client is type-safe, both input parameters and the response types.
 
-When the response status is &gte; 400, a `ClientError` is thrown instead of returning a response. It contains the same details as the error thrown on the server.
+When the response status is ≥400, a `ClientError` is thrown instead of returning a response. It contains the same details as the error thrown on the server.
 
 ```ts
 try {
