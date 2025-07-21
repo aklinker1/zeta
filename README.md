@@ -415,7 +415,20 @@ import { zodSchemaAdapter } from "@aklinker1/zeta/adapters/zod-schema-adapter";
 
 const app = createApp({
   schemaAdapter: zodSchemaAdapter,
-});
+}).get(
+  "/health",
+  {
+    // You can pass some OpenAPI metadata here:
+    summary: "Health Check",
+    tags: ["Server"],
+    description: "Returns a JSON object with the app's health status",
+    operationId: "getHealth",
+    // ...
+  },
+  () => {
+    // ...
+  },
+);
 
 app.listen(3000);
 ```
