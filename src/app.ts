@@ -4,7 +4,7 @@ import { Status } from "./status";
 import type {
   App,
   RouterData,
-  BaseDef,
+  RouteDef,
   BasePath,
   ServerSideFetch,
   OnRequestContext,
@@ -299,7 +299,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       app.method.apply(app, [Method.Any, ...args] as any) as any,
 
     method(method: string, path: BasePath, ...args: any[]) {
-      const def: BaseDef = args.length === 2 ? args[0] : undefined;
+      const def: RouteDef = args.length === 2 ? args[0] : undefined;
       const handler = args[1] ?? args[0];
       const route = `${prefix}${path}`;
       addRoutesEntry(method, route, {

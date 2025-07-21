@@ -13,7 +13,11 @@ import type { OpenAPI } from "openapi-types";
 // APP
 //
 
-export interface App<TAppData extends BaseAppData = BaseAppData> {
+/**
+ * Represents an App object. TAppData represents additional type information not
+ * always stored on the app object itself.
+ */
+export interface App<TAppData extends AppData = AppData> {
   /**
    * Internal references for implementing routing and calling registered
    * handlers. Subject to breaking changes outside of major versions.
@@ -240,12 +244,12 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   /**
    * Add a documented GET route to the app.
    */
-  get<TPath extends BasePath, TDef extends BaseDef>(
+  get<TPath extends BasePath, TRouteDef extends RouteDef>(
     path: TPath,
-    def: TDef,
-    handler: RouteHandler<TAppData, TPath, TDef>,
+    def: TRouteDef,
+    handler: RouteHandler<TAppData, TPath, TRouteDef>,
   ): App<
-    MergeAppData<TAppData, { routes: { GET: { [path in TPath]: TDef } } }>
+    MergeAppData<TAppData, { routes: { GET: { [path in TPath]: TRouteDef } } }>
   >;
 
   /**
@@ -260,12 +264,12 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   /**
    * Add a documented POST route to the app.
    */
-  post<TPath extends BasePath, TDef extends BaseDef>(
+  post<TPath extends BasePath, TRouteDef extends RouteDef>(
     path: TPath,
-    def: TDef,
-    handler: RouteHandler<TAppData, TPath, TDef>,
+    def: TRouteDef,
+    handler: RouteHandler<TAppData, TPath, TRouteDef>,
   ): App<
-    MergeAppData<TAppData, { routes: { POST: { [path in TPath]: TDef } } }>
+    MergeAppData<TAppData, { routes: { POST: { [path in TPath]: TRouteDef } } }>
   >;
 
   /**
@@ -280,12 +284,12 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   /**
    * Add a documented PUT route to the app.
    */
-  put<TPath extends BasePath, TDef extends BaseDef>(
+  put<TPath extends BasePath, TRouteDef extends RouteDef>(
     path: TPath,
-    def: TDef,
-    handler: RouteHandler<TAppData, TPath, TDef>,
+    def: TRouteDef,
+    handler: RouteHandler<TAppData, TPath, TRouteDef>,
   ): App<
-    MergeAppData<TAppData, { routes: { PUT: { [path in TPath]: TDef } } }>
+    MergeAppData<TAppData, { routes: { PUT: { [path in TPath]: TRouteDef } } }>
   >;
 
   /**
@@ -300,12 +304,15 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   /**
    * Add a documented DELETE route to the app.
    */
-  delete<TPath extends BasePath, TDef extends BaseDef>(
+  delete<TPath extends BasePath, TRouteDef extends RouteDef>(
     path: TPath,
-    def: TDef,
-    handler: RouteHandler<TAppData, TPath, TDef>,
+    def: TRouteDef,
+    handler: RouteHandler<TAppData, TPath, TRouteDef>,
   ): App<
-    MergeAppData<TAppData, { routes: { DELETE: { [path in TPath]: TDef } } }>
+    MergeAppData<
+      TAppData,
+      { routes: { DELETE: { [path in TPath]: TRouteDef } } }
+    >
   >;
 
   /**
@@ -321,12 +328,12 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   /**
    * Add an documented route to the app that responds to any method used.
    */
-  any<TPath extends BasePath, TDef extends BaseDef>(
+  any<TPath extends BasePath, TRouteDef extends RouteDef>(
     path: TPath,
-    def: TDef,
+    def: TRouteDef,
     handler: RouteHandler<TAppData, TPath, AnyDef>,
   ): App<
-    MergeAppData<TAppData, { routes: { ANY: { [path in TPath]: TDef } } }>
+    MergeAppData<TAppData, { routes: { ANY: { [path in TPath]: TRouteDef } } }>
   >;
 
   /**
@@ -345,15 +352,19 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   /**
    * Add a documented route to the app using a custom method.
    */
-  method<TMethod extends string, TPath extends BasePath, TDef extends BaseDef>(
+  method<
+    TMethod extends string,
+    TPath extends BasePath,
+    TRouteDef extends RouteDef,
+  >(
     method: TMethod,
     path: TPath,
-    def: TDef,
-    handler: RouteHandler<TAppData, TPath, TDef>,
+    def: TRouteDef,
+    handler: RouteHandler<TAppData, TPath, TRouteDef>,
   ): App<
     MergeAppData<
       TAppData,
-      { routes: { [method in TMethod]: { [path in TPath]: TDef } } }
+      { routes: { [method in TMethod]: { [path in TPath]: TRouteDef } } }
     >
   >;
 
@@ -378,14 +389,14 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   /**
    * Mount another fetch function at `${path}/**`.
    */
-  mount<TPath extends BasePath, TDef extends BaseDef>(
+  mount<TPath extends BasePath, TRouteDef extends RouteDef>(
     path: TPath,
-    def: TDef,
+    def: TRouteDef,
     fetch: ServerSideFetch,
   ): App<
     MergeAppData<
       TAppData,
-      { routes: { ANY: { [path in `${TPath}/**`]: TDef } } }
+      { routes: { ANY: { [path in `${TPath}/**`]: TRouteDef } } }
     >
   >;
 
@@ -397,13 +408,22 @@ export interface App<TAppData extends BaseAppData = BaseAppData> {
   ): App<UseAppData<TAppData, GetAppData<TNewApp>>>;
 }
 
+/**
+ * Given an `App`, return it's `AppData`.
+ */
 export type GetAppData<TApp extends App> =
   TApp extends App<infer TAppData> ? TAppData : never;
 
+/**
+ * Given an `App`, return the routes defined on it.
+ */
 export type GetAppRoutes<TApp extends App> = GetAppData<TApp>["routes"];
 
+/**
+ * Data stored internally for each route inside the `rou3` router.
+ */
 export type RouterData = {
-  def?: BaseDef;
+  def?: RouteDef;
   route: string;
   hooks: LifeCycleHooks;
 } & (
@@ -415,21 +435,31 @@ export type RouterData = {
 // HANDLERS
 //
 
+/**
+ * Type of the callback function used for each route.
+ */
 export type RouteHandler<
-  TAppData extends BaseAppData,
+  TAppData extends AppData,
   TPath extends BasePath,
-  TDef extends BaseDef,
+  TRouteDef extends RouteDef,
 > = (
-  ctx: BuildHandlerContext<TAppData, TPath, TDef>,
-) => MaybePromise<GetResponseInputFromDef<TDef>>;
+  ctx: BuildHandlerContext<TAppData, TPath, TRouteDef>,
+) => MaybePromise<GetResponseInputFromDef<TRouteDef>>;
 
+/**
+ * Given an `App`, a method, and a route, return the handler function's type.
+ */
 export type GetRouteHandler<
   TApp extends App,
   TMethod extends keyof GetAppRoutes<TApp>,
-  TPath extends keyof GetAppRoutes<TApp>[TMethod],
-> = TPath extends BasePath
-  ? GetAppRoutes<TApp>[TMethod][TPath] extends BaseDef
-    ? RouteHandler<GetAppData<TApp>, TPath, GetAppRoutes<TApp>[TMethod][TPath]>
+  TRoute extends keyof GetAppRoutes<TApp>[TMethod],
+> = TRoute extends BasePath
+  ? GetAppRoutes<TApp>[TMethod][TRoute] extends RouteDef
+    ? RouteHandler<
+        GetAppData<TApp>,
+        TRoute,
+        GetAppRoutes<TApp>[TMethod][TRoute]
+      >
     : never
   : never;
 
@@ -437,6 +467,9 @@ export type GetRouteHandler<
 // LIFECYCLE HOOKS
 //
 
+/**
+ * Internal type used to store a hook on an app.
+ */
 export type LifeCycleHook<TCallback extends Function> = {
   /**
    * Used for deducplication.
@@ -495,7 +528,7 @@ export type AfterHandleHook = LifeCycleHook<
  * return value into a `Response`.
  */
 export type MapResponseHook = LifeCycleHook<
-  (ctx: Simplify<MapResponseBaseContext>) => MaybePromise<Response | void>
+  (ctx: Simplify<MapResponseContext>) => MaybePromise<Response | void>
 >;
 
 /**
@@ -530,12 +563,19 @@ export type LifeCycleHooks = {
 // BASE TYPES
 //
 
-export type BaseAppData = {
+/**
+ * Base data type associated with each app.
+ */
+export type AppData = {
   exported: boolean;
   prefix: BasePrefix;
   ctx: BaseCtx;
   routes: BaseRoutes;
 };
+
+/**
+ * Minimal data type that works with `AppData`.
+ */
 export type DefaultAppData = {
   exported: false;
   prefix: "";
@@ -543,15 +583,24 @@ export type DefaultAppData = {
   routes: {};
 };
 
+/**
+ * Minimal data type that matches `AppData["ctx"]`.
+ */
 export type BaseCtx = Record<string, any>;
 
+/**
+ * Minimal data type that matches `AppData["routes"]`.
+ */
 export type BaseRoutes = {
   [method: string]: {
-    [path: BasePath]: BaseDef;
+    [path: BasePath]: RouteDef;
   };
 };
 
-export type BaseDef = Simplify<
+/**
+ * Minimal data type that matches `AppData["routes"][method][path]`, containing information about the route.
+ */
+export type RouteDef = Simplify<
   Omit<OpenAPI.Operation, "parameters" | "responses"> & {
     headers?: StandardSchemaV1<Record<string, any>>;
     params?: StandardSchemaV1<Record<string, any>>;
@@ -561,6 +610,9 @@ export type BaseDef = Simplify<
   }
 >;
 
+/**
+ * Used for `TDef` when a route definition is not passed. Essentially removes type-safety from a route.
+ */
 export type AnyDef = {
   headers: StandardSchemaV1<Record<string, string>>;
   params: StandardSchemaV1<Record<string, string>>;
@@ -569,14 +621,23 @@ export type AnyDef = {
   response: StandardSchemaV1<any>;
 };
 
+/**
+ * Base type representing what strings can be passed as a `prefix` when creating an app.
+ */
 export type BasePrefix = BasePath | "";
 
+/**
+ * Base type representing what a route's string must look like.
+ */
 export type BasePath = `/${string}`;
 
 //
 // CONTEXT OBJECTS
 //
 
+/**
+ * `ctx` type used in the `onRequest` hook.
+ */
 export type OnRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
   request: Request;
   url: URL;
@@ -585,6 +646,9 @@ export type OnRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
   set: Setter;
 };
 
+/**
+ * `ctx` type used in the `transform` hook.
+ */
 export type TransformContext<TCtx extends BaseCtx = {}> =
   OnRequestContext<TCtx> & {
     route: string;
@@ -594,53 +658,77 @@ export type TransformContext<TCtx extends BaseCtx = {}> =
     body?: any;
   };
 
+/**
+ * `ctx` type used in the `beforeHandle` hook.
+ */
 export type BeforeHandleContext<TCtx extends BaseCtx = {}> =
   TransformContext<TCtx>;
 
+/**
+ * `ctx` type used in the `afterHandle` hook.
+ */
 export type AfterHandleContext<TCtx extends BaseCtx = {}> =
   TransformContext<TCtx> & {
     response?: unknown;
   };
 
-export type MapResponseBaseContext<TCtx extends BaseCtx = {}> =
+/**
+ * `ctx` type used in the `mapResponse` hook.
+ */
+export type MapResponseContext<TCtx extends BaseCtx = {}> =
   AfterHandleContext<TCtx> & {};
 
+/**
+ * `ctx` type used in the `onError` hook.
+ */
 export type OnErrorContext<TCtx extends BaseCtx = {}> = OnRequestContext<TCtx> &
-  Partial<MapResponseBaseContext> & { error: unknown };
+  Partial<MapResponseContext> & { error: unknown };
 
+/**
+ * `ctx` type used in the `afterResponse` hook.
+ */
 export type AfterResponseContext<TCtx extends BaseCtx = {}> =
-  OnRequestContext<TCtx> &
-    Partial<MapResponseBaseContext> & { response: Response };
+  OnRequestContext<TCtx> & Partial<MapResponseContext> & { response: Response };
 
-export type GetAppDataCtx<TAppData extends BaseAppData> = TAppData extends {
+/**
+ * Given an `AppData` type, return the type of it's `ctx`.
+ */
+export type GetAppDataCtx<TAppData extends AppData> = TAppData extends {
   ctx: infer TCtx;
 }
   ? TCtx
   : never;
 
+/**
+ * Build the `ctx` type used for request handlers.
+ */
 export type BuildHandlerContext<
-  TAppData extends BaseAppData,
+  TAppData extends AppData,
   TPath extends BasePath,
-  TDef extends BaseDef,
+  TRouteDef extends RouteDef,
 > = Simplify<
-  GetAppDataCtx<TAppData> & {
+  BeforeHandleContext<GetAppDataCtx<TAppData>> & {
     route: TPath;
-    request: Request;
-    set: Setter;
-  } & GetRequestParamsOutputFromDef<TDef>
+  } & GetRequestParamsOutputFromDef<TRouteDef>
 >;
 
 //
 // MERGING OBJECTS
 //
 
+/**
+ * Given two `App`s, merge their data to match the behavior of `TParent.use(TChild)`.
+ */
 export type UseApp<TParent extends App, TChild extends App> = App<
   Simplify<UseAppData<GetAppData<TParent>, GetAppData<TChild>>>
 >;
 
+/**
+ * Same as `UseApp`, but instead of app instances, it merges the `AppData` of each.
+ */
 export type UseAppData<
-  TParentData extends BaseAppData,
-  TChildData extends BaseAppData,
+  TParentData extends AppData,
+  TChildData extends AppData,
 > = TChildData extends { exported: true }
   ? MergeAppData<
       TParentData,
@@ -648,6 +736,9 @@ export type UseAppData<
     >
   : MergeAppData<TParentData, Pick<ApplyAppDataPrefix<TChildData>, "routes">>;
 
+/**
+ * Merge two `App` types together. See `MergeAppData` for details.
+ */
 export type MergeApp<T1, T2> =
   T1 extends App<infer D1>
     ? T2 extends App<infer D2>
@@ -655,9 +746,18 @@ export type MergeApp<T1, T2> =
       : never
     : never;
 
+/**
+ * Merge two `AppData` types together.
+ * - `prefix`: The second app's prefix overrides the first if present.
+ * - `ctx`: The second app's context gets merged with the first if present. Any
+ *   existing keys are overwritten to match the second app's context.
+ * - `exported`: The second app's exported status overrides the first if
+ *   present.
+ * - `routes`: See `MergeRoutes` for details.
+ */
 export type MergeAppData<
-  T1 extends BaseAppData,
-  T2 extends Partial<BaseAppData>,
+  T1 extends AppData,
+  T2 extends Partial<AppData>,
 > = Simplify<{
   prefix: T2["prefix"] extends string ? T2["prefix"] : T1["prefix"];
   ctx: T2["ctx"] extends BaseCtx
@@ -669,6 +769,10 @@ export type MergeAppData<
     : T1["routes"];
 }>;
 
+/**
+ * Merges two route objects together, 2 levels deep. If the same method/path
+ * combination exists in both apps, the second app's route overrides the first.
+ */
 export type MergeRoutes<
   A extends Record<string, any>,
   B extends Record<string, any>,
@@ -678,13 +782,21 @@ export type MergeRoutes<
 // APPLY PREFIX
 //
 
+/**
+ * Given an app and a new prefix, return a new app type with app's original
+ * prefix applied to each route, and with the new prefix stored in the
+ * `AppData`.
+ */
 export type ApplyAppPrefix<
   TApp extends App,
   TNewPrefix extends BasePrefix = "",
 > = App<Simplify<ApplyAppDataPrefix<GetAppData<TApp>, TNewPrefix>>>;
 
+/**
+ * Same as `ApplyAppPrefix`, but at the `AppData` level.
+ */
 export type ApplyAppDataPrefix<
-  TAppData extends BaseAppData,
+  TAppData extends AppData,
   TNewPrefix extends BasePrefix = "",
 > = {
   ctx: TAppData["ctx"];
@@ -703,8 +815,11 @@ export type ApplyAppDataPrefix<
 // SCHEMA CONVERSION
 //
 
-export type GetRequestParamsInputFromDef<TDef extends BaseDef> =
-  TDef extends AnyDef
+/**
+ * Given a route definition, return the input types of all the params.
+ */
+export type GetRequestParamsInputFromDef<TRouteDef extends RouteDef> =
+  TRouteDef extends AnyDef
     ? {
         headers?: Record<string, string>;
         params?: Record<string, string>;
@@ -712,27 +827,39 @@ export type GetRequestParamsInputFromDef<TDef extends BaseDef> =
         body?: any;
       }
     : Simplify<{
-        [key in keyof GetDefParams<TDef>]: TDef[key] extends StandardSchemaV1
-          ? StandardSchemaV1.InferInput<TDef[key]>
+        [key in keyof GetDefParams<TRouteDef>]: TRouteDef[key] extends StandardSchemaV1
+          ? StandardSchemaV1.InferInput<TRouteDef[key]>
           : never;
       }>;
 
+/**
+ * Given a set of routes, a method, and a route, return the input types of all
+ * the schemas in the route definition.
+ */
 export type GetRequestParamsInput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
-  TPath extends keyof TRoutes[TMethod],
-> = TPath extends BasePath
-  ? GetRequestParamsInputFromDef<TRoutes[TMethod][TPath]>
+  TRoute extends keyof TRoutes[TMethod],
+> = TRoute extends BasePath
+  ? GetRequestParamsInputFromDef<TRoutes[TMethod][TRoute]>
   : never;
 
-export type GetResponseInputFromDef<TDef extends BaseDef> = TDef extends {
-  response: infer TResponse;
-}
-  ? TResponse extends StandardSchemaV1
-    ? StandardSchemaV1.InferInput<TResponse>
-    : never
-  : void;
+/**
+ * Given a route definition, return the input type of the response schema.
+ */
+export type GetResponseInputFromDef<TRouteDef extends RouteDef> =
+  TRouteDef extends {
+    response: infer TResponse;
+  }
+    ? TResponse extends StandardSchemaV1
+      ? StandardSchemaV1.InferInput<TResponse>
+      : never
+    : void;
 
+/**
+ * Given a set of routes, a method, and a route, return the input type of the
+ * response schema in the route definition.
+ */
 export type GetResponseInput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
@@ -741,29 +868,48 @@ export type GetResponseInput<
   ? GetResponseInputFromDef<TRoutes[TMethod][TPath]>
   : never;
 
+/**
+ * Helper type for converting a schema or object containing schemas to their
+ * output types.
+ */
 type ToStandardSchemaOutputs<T> = T extends StandardSchemaV1
   ? StandardSchemaV1.InferOutput<T>
   : T extends { [key in keyof T]: any }
     ? { [key in keyof T]: ToStandardSchemaOutputs<T[key]> }
     : never;
 
-export type GetRequestParamsOutputFromDef<TDef extends BaseDef> =
-  ToStandardSchemaOutputs<GetDefParams<TDef>>;
+/**
+ * Given a route definition, return the output type of the param schemas.
+ */
+export type GetRequestParamsOutputFromDef<TRouteDef extends RouteDef> =
+  ToStandardSchemaOutputs<GetDefParams<TRouteDef>>;
 
+/**
+ * Given a set of routes, a method, and a route, return the output type of the
+ * param schemas.
+ */
 export type GetRequestParamsOutput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
-  TPath extends keyof TRoutes[TMethod],
-> = TPath extends BasePath
-  ? GetRequestParamsOutputFromDef<TRoutes[TMethod][TPath]>
+  TRoute extends keyof TRoutes[TMethod],
+> = TRoute extends BasePath
+  ? GetRequestParamsOutputFromDef<TRoutes[TMethod][TRoute]>
   : never;
 
-export type GetResponseOutputFromDef<TDef extends BaseDef> = TDef extends {
-  response: infer TSchema extends StandardSchemaV1;
-}
-  ? StandardSchemaV1.InferOutput<TSchema>
-  : void;
+/**
+ * Given a route definition, return the response's output type.
+ */
+export type GetResponseOutputFromDef<TRouteDef extends RouteDef> =
+  TRouteDef extends {
+    response: infer TSchema extends StandardSchemaV1;
+  }
+    ? StandardSchemaV1.InferOutput<TSchema>
+    : void;
 
+/**
+ * Given a set of routes, a method, and a route, return the output type of the
+ * response schema.
+ */
 export type GetResponseOutput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
@@ -772,7 +918,10 @@ export type GetResponseOutput<
   ? GetResponseOutputFromDef<TRoutes[TMethod][TPath]>
   : never;
 
-type GetDefParams<TDef extends BaseDef> = Omit<TDef, "response">;
+/**
+ * Given a route definition, return the same type minus the response.
+ */
+type GetDefParams<TRouteDef extends RouteDef> = Omit<TRouteDef, "response">;
 
 //
 // SCHEMA ADAPTER
@@ -784,9 +933,16 @@ type GetDefParams<TDef extends BaseDef> = Omit<TDef, "response">;
  * providing additional functions for parsing your schema.
  */
 export interface SchemaAdapter {
+  /**
+   * Convert a standard schema definition to it's JSON schema.
+   * @param schema The schema to convert.
+   * @returns The JSON schema.
+   */
   toJsonSchema: (schema: any) => any;
   /**
    * Used to pull out the openapi parameters from a schema.
+   * @param schema The schema to parse.
+   * @returns An array of objects used to generate the OpenAPI docs.
    */
   parseParamsRecord: (schema: StandardSchemaV1) => Array<{
     name: string;
@@ -800,8 +956,17 @@ export interface SchemaAdapter {
 // SETTER
 //
 
+/**
+ * Basic object type used to store custom status and headers set while handling the request.
+ */
 export interface Setter {
+  /**
+   * Set this value to change the status code returned.
+   */
   status: number;
+  /**
+   * Set a value on this header to change which headers are sent in the response.
+   */
   headers: Record<string, string>;
 }
 
@@ -816,6 +981,9 @@ export type Simplify<T> = T extends { [key: string]: any }
   ? { [K in keyof T]: T[K] }
   : T;
 
+/**
+ * Returns either a Promise of a type or just the type itself.
+ */
 export type MaybePromise<T> = Promise<T> | T;
 
 /**
@@ -823,6 +991,9 @@ export type MaybePromise<T> = Promise<T> | T;
  */
 export type ServerSideFetch = (request: Request) => MaybePromise<Response>;
 
+/**
+ * Apply a string prefix to all the keys of an object.
+ */
 export type PrefixObjectKeys<
   TPrefix extends string,
   TObject extends Record<string, unknown>,

@@ -7,6 +7,17 @@ import type { SchemaAdapter } from "../types";
 const zod = "zod/v4";
 const { z } = await import(zod);
 
+/**
+ * Usage:
+ *
+ * ```ts
+ * import { zodSchemaAdapter } from "@aklinker1/zeta/adapters/zod-schema-adapter";
+ *
+ * const app = createApp({
+ *   schemaAdapter: zodSchemaAdapter,
+ * });
+ * ```
+ */
 export const zodSchemaAdapter: SchemaAdapter = {
   toJsonSchema: (schema) => {
     if (!("_zod" in schema)) throw Error("input schema is not a Zod schema");
