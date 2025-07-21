@@ -424,15 +424,6 @@ export type CreateAppOptions<TPrefix extends BasePrefix = ""> = {
   scalar?: any;
 };
 
-/** @see {@link CreateAppOptions} */
-export type CreateAppOptionsWithPrefix<TPrefix extends BasePath> =
-  CreateAppOptions & {
-    prefix: TPrefix;
-  };
-
-/** @see {@link CreateAppOptions} */
-export type CreateAppOptionsWithoutPrefix = Omit<CreateAppOptions, "prefix">;
-
 enum Method {
   Get = "GET",
   Post = "POST",
