@@ -4,7 +4,7 @@
 
 Personal alternative to [Elysia](https://elysiajs.com/) with better validation support.
 
-## Features
+**Features**
 
 - ✅ Standard schema support (Zod, Arktype, Valibot, etc)
 - 🧩 Composable apps, plugins, and routes
@@ -13,9 +13,7 @@ Personal alternative to [Elysia](https://elysiajs.com/) with better validation s
 - 🧪 Easy to test
 - 📄 OpenAPI docs built-in
 
-## Server-Side Usage
-
-### `createApp`
+## `createApp`
 
 Use `createApp` to create an app instance.
 
@@ -61,7 +59,7 @@ const app = createApp({
 
 For more details about composing app instances together, see [`App#use`](#appuse).
 
-### `App#listen`
+## `App#listen`
 
 > [!WARNING]
 > The `listen` method only works in the Bun and Deno runtimes. To serve your app in a different runtime, use [`build`](#appbuild) instead.
@@ -83,7 +81,7 @@ You can then make requests to it:
 <- 404 Not Found
 ```
 
-### Defining Routes
+## Defining Routes
 
 You can add a route to your app using any of the following methods:
 
@@ -124,7 +122,7 @@ const app = createApp()
 2. `definition`: Define parameters and OpenAPI docs about the route.
 3. `handler`: The callback function executed when a matching request is received.
 
-#### Path Parameters
+### Path Parameters
 
 Internally, Zeta uses [`rou3`](https://www.npmjs.com/package/rou3) to match routes. To add a path parameter, you can use `:name`, `**`, or `**:name`. For type safety, you can use a validation framework to define an object schema for the path parameters.
 
@@ -170,7 +168,7 @@ const app = createApp()
 
 > Note that path parameters are strings. If your validation framework supports converting strings to other types, like with Zod's [`z.coerce`](https://zod.dev/api?id=coercion) or [`z.stringbool`](https://zod.dev/api?id=stringbool), you can use it to convert the string values to the desired type.
 
-#### Query Parameters
+### Query Parameters
 
 ```ts
 import { z } from "zod";
@@ -200,7 +198,7 @@ const app = createApp().get(
 );
 ```
 
-#### Body
+### Body
 
 ```ts
 import { z } from "zod";
@@ -219,7 +217,7 @@ const app = createApp().post(
 );
 ```
 
-#### Response
+### Response
 
 Right now, you can only define a single response schema. By default, a `200 OK` status code is returned.
 
@@ -251,7 +249,7 @@ const app = createApp().get("/path", {}, ({ set }) => {
 
 > As of right now, you can't add custom status codes to the OpenAPI docs or as apart of the response schema. The OpenAPI spec will always show `200 OK` as the response.
 
-### Life Cycle Hooks
+## Life Cycle Hooks
 
 You can use any of the following APIs to hook into the request lifecycle:
 
@@ -342,7 +340,7 @@ const app = createApp()
   .use(apiApp)
 ```
 
-### `App#decorate`
+## `App#decorate`
 
 Shorthand for `.transform(() => { ...decorators })`, just adding values to the request context.
 
@@ -362,7 +360,7 @@ const app = createApp()
   })
 ```
 
-### `App#mount`
+## `App#mount`
 
 You can add another server-side `fetch` function to the app using the `mount` function:
 
@@ -372,7 +370,7 @@ const app = createApp().mount((request: Request) => new Response());
 
 If no other route defined on the app is matched, the mounted `fetch` function will be called instead.
 
-### `App#build`
+## `App#build`
 
 Zeta is WinterCG compatible, meaning it takes in a [`Request` object](https://developer.mozilla.org/en-US/docs/Web/API/Request) and returns a [`Response` object](https://developer.mozilla.org/en-US/docs/Web/API/Response), similar to client-side `fetch` API.
 
@@ -405,7 +403,7 @@ Additionally, you can use the `build` method to serve the app in whatever way yo
 Deno.serve(app.build());
 ```
 
-### OpenAPI and Validation
+## OpenAPI and Validation
 
 Zeta supports any validation library that implements the ["Standard Schema" spec](https://standardschema.dev/#what-schema-libraries-implement-the-spec). However, the spec does not include standards for defining JSON schemas, required to generate OpenAPI specs.
 
@@ -422,9 +420,9 @@ const app = createApp({
 app.listen(3000);
 ```
 
-Without a schema adapter, Zeta will throw an error when trying to access the `/openapi.json` endpoint.
+Without a schema adapter, Zeta will throw an error when trying to access the `/openapi.json` endpoint, but it's not needed if you only want to validate inputs and response bodies.
 
-### Composing Multiple Apps
+## Composing Multiple Apps
 
 By default, apps are "isolated" from any apps they're added to. That means hooks added to the child app (other than global hooks) are NOT "added" to the parent app by default.
 
@@ -500,7 +498,7 @@ app.listen(3000);
 
 This lets you break your app up into smaller, reusable chunks. If a child app or plugin is used multiple times throuhout the root app, it is automatically deduplicated so hooks are not ran more than once.
 
-### Error Handling
+## Error Handling
 
 By default, Zeta provides built-in error handling. It also provides useful error classes that, when throw, set the specified http status code and maps the error to the response body.
 
@@ -544,7 +542,7 @@ const app = createApp()
 
 When a non-`HttpError` value is thrown, Zeta returns a `500 Internal Server Error` with the original error as the `cause`.
 
-### Status Codes
+## Status Codes
 
 Zeta provides an enum of all HTTP status codes. You should use this instead of literal values.
 
@@ -563,7 +561,7 @@ const app = createApp()
   );
 ```
 
-### `createClient`
+## `createClient`
 
 If you're client-side code is located in the same project as your backend, you can use the typescript definition of the top-level app to define a type-safe API client.
 
@@ -617,7 +615,7 @@ The `ClientError` is very similar to the `HttpError` server-side, but it is spec
 
 If your frontend code is in a different project, since Zeta supports OpenAPI out-of-the-box, you can also use an [OpenAPI code generator](https://duckduckgo.com/?t=ffab&q=openapi+codegen+js&ia=web) to generate an API client for your backend.
 
-### `createTestClient`
+## `createTestClient`
 
 For testing, it's nice to have a type-safe client as well! You can use `createTestClient` to create a client around an app instance.
 
@@ -638,6 +636,8 @@ await expect(
 ```
 
 > `createTestClient` uses `createClient` and `app.build` to return the same client instance you would use client-side, but it calls the app's `fetch` function without serving the app on a port.
+
+---
 
 ## For Developers
 
