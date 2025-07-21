@@ -410,12 +410,12 @@ Zeta supports any validation library that implements the ["Standard Schema" spec
 So for Zeta to properly generate OpenAPI specs, you need to pass in a `schemaAdapter` to the top-level app instance.
 
 ```ts
-import { createApp } from '@aklinker1/zeta';
-import { zodSchemaAdapter } from '@aklinker1/zeta/adapters/zod-schema-adapter';
+import { createApp } from "@aklinker1/zeta";
+import { zodSchemaAdapter } from "@aklinker1/zeta/adapters/zod-schema-adapter";
 
 const app = createApp({
   schemaAdapter: zodSchemaAdapter,
-})
+});
 
 app.listen(3000);
 ```
@@ -621,6 +621,7 @@ For testing, it's nice to have a type-safe client as well! You can use `createTe
 
 ```ts
 import { usersApp } from "../users.ts"; // For tests, you need to import the real app value, NOT it's type.
+import { createTestClient } from "@aklinker1/zeta/testing";
 
 const client = createTestClient(usersApp);
 

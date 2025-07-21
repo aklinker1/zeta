@@ -5,11 +5,10 @@ import {
   callCtxModifierHooks,
   getRawParams,
   getRawQuery,
-  smartDeserialize,
-  smartSerialize,
   validateInputSchema,
   validateOutputSchema,
 } from "./utils";
+import { smartDeserialize, smartSerialize } from "./serialization";
 
 export async function callHandler(
   ctx: any,

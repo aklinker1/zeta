@@ -8,11 +8,8 @@ import type {
   GetRequestParamsInput,
   GetResponseOutput,
 } from "./types";
-import {
-  smartDeserialize,
-  smartSerialize,
-  type HttpErrorResponse,
-} from "./internal/utils";
+import type { HttpErrorResponse } from "./internal/utils";
+import { smartDeserialize, smartSerialize } from "./internal/serialization";
 import type {
   GetAppRoutes,
   App,

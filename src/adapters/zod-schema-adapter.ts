@@ -1,3 +1,7 @@
+/**
+ * Contains a schema adapter for app's using [`zod`](https://npmjs.com/package/zod).
+ * @module
+ */
 import type { SchemaAdapter } from "../types";
 
 const zod = "zod/v4";
