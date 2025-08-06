@@ -289,6 +289,7 @@ graph LR
 - `mapResponse` (isolated): Convert the return value into a [`Response` object](https://developer.mozilla.org/en-US/docs/Web/API/Response).
   - If a `Response` value is returned, send it to the client.
   - If a `Response` value is not returned, Zeta infers the response content type based on the handler's response value.
+- `onError` (global): If an error is thrown at any point in the lifecycle (other than `afterResponse`), this hook will be called giving you the opportunity to report the error or change the response format.
 - `afterResponse` (global): Called after the response is sent to the client.
   - Return value is ignored.
 
@@ -509,11 +510,11 @@ const app = createApp().use(apiApp);
 app.listen(3000);
 ```
 
-This lets you break your app up into smaller, reusable chunks. If a child app or plugin is used multiple times throuhout the root app, it is automatically deduplicated so hooks are not ran more than once.
+This lets you break your app up into smaller, reusable chunks. If a child app or plugin is used multiple times throughout the root app, it is automatically deduplicated so hooks are not ran more than once.
 
 ## Error Handling
 
-By default, Zeta provides built-in error handling. It also provides useful error classes that, when throw, set the specified http status code and maps the error to the response body.
+By default, Zeta provides built-in error handling. It also provides useful error classes that, when thrown, set the specified http status code and maps the error to the response body.
 
 ```ts
 import { HttpError } from "@aklinker1/zeta/errors";
@@ -536,6 +537,8 @@ const app = createApp().get("/users", {}, () => {
 <- }
 ```
 
+> To not return a stack trace, set `NODE_ENV=production` in the environment variables.
+
 Alternatively, you can use the specific error class that extends `HttpError` so you don't have to manually pass the status:
 
 ```diff
@@ -550,8 +553,6 @@ const app = createApp()
     },
   );
 ```
-
-> To not return a stack trace, set `NODE_ENV=production` in the environment variables.
 
 When a non-`HttpError` value is thrown, Zeta returns a `500 Internal Server Error` with the original error as the `cause`.
 
