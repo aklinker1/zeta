@@ -343,7 +343,7 @@ const app = createApp()
 
 ## `App#decorate`
 
-Shorthand for `.transform(() => { ...decorators })`, just adding values to the request context.
+Shorthand for `.transform(() => decorators)`, just adding values to the request context.
 
 ```ts
 const db = ...;
