@@ -13,6 +13,35 @@ Personal alternative to [Elysia](https://elysiajs.com/) with better validation s
 - 🧪 Easy to test
 - 📄 OpenAPI docs built-in
 
+## Quick Start
+
+Create a file `index.ts` and add the following code:
+
+```ts
+import { createApp } from "@aklinker1/zeta";
+
+const app = createApp()
+  .get("/", {}, () => {
+    return { message: "Hello World!" };
+  });
+
+app.listen(3000);
+
+console.log("Server running at http://localhost:3000");
+```
+
+Run the app with Bun or Deno:
+
+```sh
+# With Bun
+bun run index.ts
+
+# With Deno
+deno run --allow-net index.ts
+```
+
+Now, if you visit <http://localhost:3000> in your browser or with `curl`, you will see `{"message":"Hello World!"}`.
+
 ## `createApp`
 
 Use `createApp` to create an app instance.
@@ -38,7 +67,7 @@ const app = createApp(/* options */);
 - **`scalarRoute`** (top-level app only): Where the Scalar API Reference will be served from.
   - _Default: `"/scalar"`_
 
-Based on the options available, you might be able to infer that there are two types of apps: top-level and child apps.
+Zeta's design revolves around composing multiple app instances. The main app, which you call `.listen()` or `.build()` on, is considered the **top-level app**. Any app instance that you pass into another app's `.use()` method is considered a **child app**. Certain options, like OpenAPI configuration, only make sense on the top-level app.
 
 ```ts
 import { createApp } from "@aklinker1/zeta";
@@ -262,42 +291,42 @@ graph LR
     B[onRequest] -- "Route Matched" --> D
     B -- "Not Found" --> C
     C[onError] ---> J
-    D[transform] -- "Validate Inputs" --> E
+    D[onTransform] -- "Validate Inputs" --> E
     D -- "Error thrown" --> C
-    E[beforeHandle] ---> F
+    E[onBeforeHandle] ---> F
     E -- "Error thrown" --> C
     F((Handler)) --> G
     F -- "Error thrown" --> C
-    G[afterHandle] -- "Validate Response" --> H
+    G[onAfterHandle] -- "Validate Response" --> H
     G -- "Error thrown" --> C
-    H[mapResponse] ---> J
+    H[onMapResponse] ---> J
     H -- "Error thrown" --> C
     J@{ shape: sm-circ } -.-> K
     J ---> L
     K((Client))
-    L["afterResponse (deferred)"]
+    L["onAfterResponse (deferred)"]
 ```
 
 - `onRequest` (global): Called as soon as a request is made to the app.
   - Return value is shallow merged into the `ctx` object for future callbacks.
-- `transform` (isolated): Called before input parameters have been validated, can be used to transform input values before validation occurs.
+- `onTransform` (isolated): Called before input parameters have been validated, can be used to transform input values before validation occurs.
   - Return value is shallow merged into the `ctx` object for future callbacks.
-- `beforeHandle` (isolated): Called after inputs have been validated, right before the route handler is executed.
+- `onBeforeHandle` (isolated): Called after inputs have been validated, right before the route handler is executed.
   - Return value is shallow merged into the `ctx` object for future callbacks.
-- `afterHandle` (isolated): Called after the route handler is executed.
+- `onAfterHandle` (isolated): Called after the route handler is executed.
   - Return value replaces the value returned from the handler.
-- `mapResponse` (isolated): Convert the return value into a [`Response` object](https://developer.mozilla.org/en-US/docs/Web/API/Response).
+- `onMapResponse` (isolated): Convert the return value into a [`Response` object](https://developer.mozilla.org/en-US/docs/Web/API/Response).
   - If a `Response` value is returned, send it to the client.
   - If a `Response` value is not returned, Zeta infers the response content type based on the handler's response value.
-- `onError` (global): If an error is thrown at any point in the lifecycle (other than `afterResponse`), this hook will be called giving you the opportunity to report the error or change the response format.
-- `afterResponse` (global): Called after the response is sent to the client.
+- `onAfterResponse` (global): Called after the response is sent to the client.
   - Return value is ignored.
+- `onError` (global): If an error is thrown at any point in the lifecycle (other than `onAfterResponse`), this hook will be called giving you the opportunity to report the error or change the response format by optionally returning a `Response` object.
 
 There are two types of hooks: global and isolated.
 
-- **Global**: Added to any parent apps and ran on the top level, regardless of which app or what order these hooks are called.
+- **Global**: These hooks are registered on the final, root application, regardless of where they are defined in your app's composition tree. They always run for every request that hits the server. Use these for cross-cutting concerns like logging or authentication.
   - You usually only want to add these to the top level app, but they will run if you add them to another.
-- **Isolated**: These hooks are only ran on endpoints of the app the hooks is defined on. Additionally, they're only ran if they are added to an app before the route is defined.
+- **Isolated**: These hooks only apply to routes defined on the *same app instance*, *after* the hook is declared. They are perfect for setting up context or running middleware specific to a group of routes (e.g., a plugin).
 
 Here's an example combining several different hooks:
 
@@ -309,12 +338,12 @@ const usersApp = createApp({ prefix: "/api/users" })
   .get("/", {}, () => {
     return [];
   })
-  .transform(({ path }) => {
+  .onTransform(({ path }) => {
     return {
-      path: { ...path, userId: Number(path.userId },
+      path: { ...path, userId: Number(path.userId) },
     };
   })
-  .beforeHandler(async ({ path }) => {
+  .onBeforeHandle(async ({ path }) => {
     const user = await getUser(path.userId);
     if (user == null) throw new NotFoundError("User not found");
 
@@ -334,7 +363,7 @@ const app = createApp()
       startTime: performance.now(),
     };
   })
-  .afterResponse(({ startTime }) => {
+  .onAfterResponse(({ startTime }) => {
     const endTime = performance.now()
     console.log(`Request duration: ${endTime - startTime} ms`);
   })
@@ -343,7 +372,7 @@ const app = createApp()
 
 ## `App#decorate`
 
-Shorthand for `.transform(() => decorators)`, just adding values to the request context.
+Shorthand for `.onTransform(() => decorators)`, just adding values to the request context.
 
 ```ts
 const db = ...;
@@ -370,6 +399,16 @@ const app = createApp().mount((request: Request) => new Response());
 ```
 
 If no other route defined on the app is matched, the mounted `fetch` function will be called instead.
+
+The mount function is useful for adding another framekwork to your app. My main use-case for `mount` is using [`@aklinker1/aframe`'s `fetchStatic` method](https://github.com/aklinker1/aframe) to serve static files.
+
+```ts
+import { fetchStatic } from "@aklinker1/aframe/server";
+
+const app = createApp()
+  .use(apiApp)
+  .mount(fetchStatic())
+```
 
 ## `App#build`
 
@@ -438,7 +477,9 @@ Without a schema adapter, Zeta will throw an error when trying to access the `/o
 
 ## Composing Multiple Apps
 
-By default, apps are "isolated" from any apps they're added to. That means hooks added to the child app (other than global hooks) are NOT "added" to the parent app by default.
+By default, an app's context (hooks, decorators) is isolated. To make a child app's context available to its parent, you must explicitly chain `.export()` at the end of its definition. This effectively merges its isolated lifecycle hooks into the parent's.
+
+For example. If a child app decorates the context with a database connection, the parent app does not have access to it by default. You will get a type error if you try to access the `db` property from the parent app.
 
 ```ts
 const childApp = createApp()
@@ -455,9 +496,7 @@ const parentApp = createApp()
   })
 ```
 
-> You will get a type error if you try an access a value that is not available.
-
-However, it is possible to "export" a child app so that the parent app get's access to any hooks defined on the child. Just add `.export()` to the end of the child app.
+However, after adding `.export()` to the child app, the parent app will have access to the `db` property.
 
 ```diff
 const childApp = createApp()
