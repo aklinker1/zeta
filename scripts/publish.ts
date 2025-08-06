@@ -81,7 +81,6 @@ const changedFiles = (await Bun.$`git diff --name-only`)
   .split("\n")
   .map((line) => line.trim())
   .filter((line) => line !== "");
-console.log(changedFiles);
 
 const expectedFiles = ["CHANGELOG.md", "jsr.json", "package.json"].sort();
 const actualFiles = changedFiles.sort();
