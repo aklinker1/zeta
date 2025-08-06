@@ -651,17 +651,3 @@ await expect(
 ```
 
 > `createTestClient` uses `createClient` and `app.build` to return the same client instance you would use client-side, but it calls the app's `fetch` function without serving the app on a port.
-
----
-
-## For Developers
-
-### Publishing
-
-To publish a new version of Zeta, run:
-
-```sh
-bun run publish X.Y.Z
-```
-
-`patch`, `minor`, and `major` cannot be passed into the `publish` script.
