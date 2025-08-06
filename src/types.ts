@@ -61,8 +61,8 @@ export interface App<TAppData extends AppData = AppData> {
    * parent app, the parent app will inherit all of it's hooks and modifiers.
    *
    * Regular, non-exported apps isolate their hooks and modifiers from the
-   * parent app (except for the global hooks, `onRequest`, `onError`, and
-   * `afterResponse`, which are always inherited by the parent app).
+   * parent app (except for the global hooks, `onGlobalRequest`, `onGlobalError`, and
+   * `onGlobalAfterResponse`, which are always inherited by the parent app).
    *
    * The basic example is you can't access a decorated value from a parent app
    * unless the child app is exported.
@@ -119,19 +119,19 @@ export interface App<TAppData extends AppData = AppData> {
    *
    * @param callback The function to call.
    */
-  onRequest(
+  onGlobalRequest(
     callback: (
-      ctx: OnRequestContext<GetAppDataCtx<TAppData>>,
+      ctx: OnGlobalRequestContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<void>,
   ): this;
-  onRequest(
+  onGlobalRequest(
     callback: (
-      ctx: OnRequestContext<GetAppDataCtx<TAppData>>,
+      ctx: OnGlobalRequestContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<Response>,
   ): this;
-  onRequest<TNewCtx extends Record<string, any>>(
+  onGlobalRequest<TNewCtx extends Record<string, any>>(
     callback: (
-      ctx: OnRequestContext<GetAppDataCtx<TAppData>>,
+      ctx: OnGlobalRequestContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<TNewCtx>,
   ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
 
@@ -143,19 +143,19 @@ export interface App<TAppData extends AppData = AppData> {
    *
    * @param callback The function to call.
    */
-  transform(
+  onTransform(
     callback: (
-      ctx: TransformContext<GetAppDataCtx<TAppData>>,
+      ctx: OnTransformContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<void>,
   ): this;
-  transform(
+  onTransform(
     callback: (
-      ctx: TransformContext<GetAppDataCtx<TAppData>>,
+      ctx: OnTransformContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<Response>,
   ): this;
-  transform<TNewCtx extends Record<string, any>>(
+  onTransform<TNewCtx extends Record<string, any>>(
     callback: (
-      ctx: TransformContext<GetAppDataCtx<TAppData>>,
+      ctx: OnTransformContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<TNewCtx>,
   ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
 
@@ -167,19 +167,19 @@ export interface App<TAppData extends AppData = AppData> {
    *
    * @param callback The function to call.
    */
-  beforeHandle(
+  onBeforeHandle(
     callback: (
-      ctx: BeforeHandleContext<GetAppDataCtx<TAppData>>,
+      ctx: OnBeforeHandleContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<void>,
   ): this;
-  beforeHandle(
+  onBeforeHandle(
     callback: (
-      ctx: BeforeHandleContext<GetAppDataCtx<TAppData>>,
+      ctx: OnBeforeHandleContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<Response>,
   ): this;
-  beforeHandle<TNewCtx extends Record<string, any>>(
+  onBeforeHandle<TNewCtx extends Record<string, any>>(
     callback: (
-      ctx: BeforeHandleContext<GetAppDataCtx<TAppData>>,
+      ctx: OnBeforeHandleContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<TNewCtx>,
   ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
 
@@ -190,7 +190,7 @@ export interface App<TAppData extends AppData = AppData> {
    *
    * @param callback The function to call.
    */
-  afterHandle(
+  onAfterHandle(
     callback: (
       ctx: AfterHandleContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<unknown | void>,
@@ -203,7 +203,7 @@ export interface App<TAppData extends AppData = AppData> {
    *
    * @param callback The function to call.
    */
-  mapResponse(
+  onMapResponse(
     callback: (
       ctx: AfterHandleContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<unknown | void>,
@@ -216,9 +216,9 @@ export interface App<TAppData extends AppData = AppData> {
    *
    * @param callback The function to call.
    */
-  onError(
+  onGlobalError(
     callback: (
-      ctx: OnErrorContext<GetAppDataCtx<TAppData>>,
+      ctx: OnGlobalErrorContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<void>,
   ): this;
 
@@ -226,7 +226,7 @@ export interface App<TAppData extends AppData = AppData> {
    * Add a callback that is called after the response is sent.
    * @param callback The function to call.
    */
-  afterResponse(
+  onGlobalAfterResponse(
     callback: (
       ctx: AfterResponseContext<GetAppDataCtx<TAppData>>,
     ) => MaybePromise<void>,
@@ -428,7 +428,7 @@ export type RouterData = {
   hooks: LifeCycleHooks;
 } & (
   | { fetch: ServerSideFetch }
-  | { handler: (ctx: BeforeHandleContext) => Promise<any> }
+  | { handler: (ctx: OnBeforeHandleContext) => Promise<any> }
 );
 
 //
@@ -492,34 +492,38 @@ export type LifeCycleHook<TCallback extends Function> = {
  * Called immediately after receiving the request. Returned record is merged
  * into the handler context.
  */
-export type OnRequestHook = LifeCycleHook<
-  (ctx: Simplify<OnRequestContext>) => MaybePromise<Record<string, any> | void>
+export type OnGlobalRequestHook = LifeCycleHook<
+  (
+    ctx: Simplify<OnGlobalRequestContext>,
+  ) => MaybePromise<Record<string, any> | void>
 >;
 
 /**
  * Called before validating the request inputs. Returned record is merged into
  * the handler context.
  */
-export type TransformHook = LifeCycleHook<
-  (ctx: Simplify<TransformContext>) => MaybePromise<Record<string, any> | void>
+export type OnTransformHook = LifeCycleHook<
+  (
+    ctx: Simplify<OnTransformContext>,
+  ) => MaybePromise<Record<string, any> | void>
 >;
 
 /**
  * Called before calling the route handler. Returned record is merged into the
  * handler context.
  */
-export type BeforeHandleHook = LifeCycleHook<
+export type OnBeforeHandleHook = LifeCycleHook<
   (
-    ctx: Simplify<BeforeHandleContext>,
+    ctx: Simplify<OnBeforeHandleContext>,
   ) => MaybePromise<Record<string, any> | void>
 >;
 
 /**
  * Called after calling the route handler. If there is a return value, it
- * replaces the return value from the handler. Similar to the `transform` hook,
+ * replaces the return value from the handler. Similar to the `onTransform` hook,
  * but for the response.
  */
-export type AfterHandleHook = LifeCycleHook<
+export type OnAfterHandleHook = LifeCycleHook<
   (ctx: Simplify<AfterHandleContext>) => MaybePromise<unknown | void>
 >;
 
@@ -527,36 +531,36 @@ export type AfterHandleHook = LifeCycleHook<
  * Called after validating the handler return value. Used to transform the
  * return value into a `Response`.
  */
-export type MapResponseHook = LifeCycleHook<
-  (ctx: Simplify<MapResponseContext>) => MaybePromise<Response | void>
+export type OnMapResponseHook = LifeCycleHook<
+  (ctx: Simplify<OnMapResponseContext>) => MaybePromise<Response | void>
 >;
 
 /**
- * Called if an error is thrown in any other hook other than `afterResponse`.
+ * Called if an error is thrown in any other hook other than `onGlobalAfterResponse`.
  * Use this hook to transform custom errors into a `Response`.
  *
  * Zeta will handle any `HttpError`s thrown, but you can handle your own errors
  * here.
  */
-export type OnErrorHook = LifeCycleHook<
-  (ctx: Simplify<OnErrorContext>) => MaybePromise<Response | void>
+export type OnGlobalErrorHoos = LifeCycleHook<
+  (ctx: Simplify<OnGlobalErrorContext>) => MaybePromise<Response | void>
 >;
 
 /**
  * Called after the response is sent back to the client.
  */
-export type AfterResponseHook = LifeCycleHook<
+export type OnGlobalAfterResponseHook = LifeCycleHook<
   (ctx: Simplify<AfterResponseContext>) => MaybePromise<void>
 >;
 
 export type LifeCycleHooks = {
-  onRequest: OnRequestHook[];
-  transform: TransformHook[];
-  beforeHandle: BeforeHandleHook[];
-  afterHandle: AfterHandleHook[];
-  mapResponse: MapResponseHook[];
-  onError: OnErrorHook[];
-  afterResponse: AfterResponseHook[];
+  onGlobalRequest: OnGlobalRequestHook[];
+  onTransform: OnTransformHook[];
+  onBeforeHandle: OnBeforeHandleHook[];
+  onAfterHandle: OnAfterHandleHook[];
+  onMapResponse: OnMapResponseHook[];
+  onGlobalError: OnGlobalErrorHoos[];
+  onGlobalAfterResponse: OnGlobalAfterResponseHook[];
 };
 
 //
@@ -636,9 +640,9 @@ export type BasePath = `/${string}`;
 //
 
 /**
- * `ctx` type used in the `onRequest` hook.
+ * `ctx` type used in the `onGlobalRequest` hook.
  */
-export type OnRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
+export type OnGlobalRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
   request: Request;
   url: URL;
   path: string;
@@ -647,10 +651,10 @@ export type OnRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
 };
 
 /**
- * `ctx` type used in the `transform` hook.
+ * `ctx` type used in the `onTransform` hook.
  */
-export type TransformContext<TCtx extends BaseCtx = {}> =
-  OnRequestContext<TCtx> & {
+export type OnTransformContext<TCtx extends BaseCtx = {}> =
+  OnGlobalRequestContext<TCtx> & {
     route: string;
     params?: Record<string, string>;
     query?: Record<string, string>;
@@ -659,36 +663,38 @@ export type TransformContext<TCtx extends BaseCtx = {}> =
   };
 
 /**
- * `ctx` type used in the `beforeHandle` hook.
+ * `ctx` type used in the `onBeforeHandle` hook.
  */
-export type BeforeHandleContext<TCtx extends BaseCtx = {}> =
-  TransformContext<TCtx>;
+export type OnBeforeHandleContext<TCtx extends BaseCtx = {}> =
+  OnTransformContext<TCtx>;
 
 /**
- * `ctx` type used in the `afterHandle` hook.
+ * `ctx` type used in the `onAfterHandle` hook.
  */
 export type AfterHandleContext<TCtx extends BaseCtx = {}> =
-  TransformContext<TCtx> & {
+  OnTransformContext<TCtx> & {
     response?: unknown;
   };
 
 /**
- * `ctx` type used in the `mapResponse` hook.
+ * `ctx` type used in the `onMapResponse` hook.
  */
-export type MapResponseContext<TCtx extends BaseCtx = {}> =
+export type OnMapResponseContext<TCtx extends BaseCtx = {}> =
   AfterHandleContext<TCtx> & {};
 
 /**
- * `ctx` type used in the `onError` hook.
+ * `ctx` type used in the `onGlobalError` hook.
  */
-export type OnErrorContext<TCtx extends BaseCtx = {}> = OnRequestContext<TCtx> &
-  Partial<MapResponseContext> & { error: unknown };
+export type OnGlobalErrorContext<TCtx extends BaseCtx = {}> =
+  OnGlobalRequestContext<TCtx> &
+    Partial<OnMapResponseContext> & { error: unknown };
 
 /**
- * `ctx` type used in the `afterResponse` hook.
+ * `ctx` type used in the `onGlobalAfterResponse` hook.
  */
 export type AfterResponseContext<TCtx extends BaseCtx = {}> =
-  OnRequestContext<TCtx> & Partial<MapResponseContext> & { response: Response };
+  OnGlobalRequestContext<TCtx> &
+    Partial<OnMapResponseContext> & { response: Response };
 
 /**
  * Given an `AppData` type, return the type of it's `ctx`.
@@ -707,7 +713,7 @@ export type BuildHandlerContext<
   TPath extends BasePath,
   TRouteDef extends RouteDef,
 > = Simplify<
-  BeforeHandleContext<GetAppDataCtx<TAppData>> & {
+  OnBeforeHandleContext<GetAppDataCtx<TAppData>> & {
     route: TPath;
   } & GetRequestParamsOutputFromDef<TRouteDef>
 >;

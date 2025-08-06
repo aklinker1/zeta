@@ -204,8 +204,8 @@ describe("App", () => {
     });
 
     it("should deduplicate global hooks when the same one is applied multiple times", async () => {
-      const onRequest = mock(() => {});
-      const plugin = createApp().onRequest(onRequest);
+      const onGlobalRequest = mock(() => {});
+      const plugin = createApp().onGlobalRequest(onGlobalRequest);
       const app = createApp()
         .use(plugin)
         .use(plugin)
@@ -214,7 +214,7 @@ describe("App", () => {
 
       await client.fetch("GET", "/", {});
 
-      expect(onRequest).toHaveBeenCalledTimes(1);
+      expect(onGlobalRequest).toHaveBeenCalledTimes(1);
     });
   });
 

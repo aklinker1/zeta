@@ -38,12 +38,12 @@ export async function callHandler(
   ctx.query = rawQuery;
   ctx.body = rawBody;
 
-  if (route.data.hooks.transform.length > 0) {
-    const transformResponse = await callCtxModifierHooks(
+  if (route.data.hooks.onTransform.length > 0) {
+    const onTransformResponse = await callCtxModifierHooks(
       ctx,
-      route.data.hooks.transform,
+      route.data.hooks.onTransform,
     );
-    if (transformResponse) return transformResponse;
+    if (onTransformResponse) return onTransformResponse;
   }
 
   if (route.data.def?.body)
@@ -53,8 +53,11 @@ export async function callHandler(
   if (route.data.def?.params)
     ctx.params = validateInputSchema(route.data.def?.params, rawParams);
 
-  if (route.data.hooks.beforeHandle.length > 0) {
-    const res = await callCtxModifierHooks(ctx, route.data.hooks.beforeHandle);
+  if (route.data.hooks.onBeforeHandle.length > 0) {
+    const res = await callCtxModifierHooks(
+      ctx,
+      route.data.hooks.onBeforeHandle,
+    );
     if (res) return res;
   }
 
@@ -63,7 +66,7 @@ export async function callHandler(
 
   ctx.response = response;
 
-  for (const hook of route.data.hooks.afterHandle) {
+  for (const hook of route.data.hooks.onAfterHandle) {
     let res = hook.callback(ctx);
     res = res instanceof Promise ? await res : res;
     if (res instanceof Response) return res;
@@ -80,7 +83,7 @@ export async function callHandler(
 
   if (response instanceof Response) return response;
 
-  for (const hook of route.data.hooks.mapResponse) {
+  for (const hook of route.data.hooks.onMapResponse) {
     let res = hook.callback(ctx);
     res = res instanceof Promise ? await res : res;
     if (res instanceof Response) return res;

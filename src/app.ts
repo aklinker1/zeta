@@ -7,7 +7,7 @@ import type {
   RouteDef,
   BasePath,
   ServerSideFetch,
-  OnRequestContext,
+  OnGlobalRequestContext,
   LifeCycleHooks,
   LifeCycleHook,
   DefaultAppData,
@@ -64,13 +64,13 @@ export function createApp<TPrefix extends BasePrefix = "">(
 
   const { origin = "http://localhost", prefix = "" } = options ?? {};
   const hooks: App["~zeta"]["hooks"] = {
-    afterHandle: [],
-    afterResponse: [],
-    beforeHandle: [],
-    mapResponse: [],
-    onError: [],
-    onRequest: [],
-    transform: [],
+    onAfterHandle: [],
+    onGlobalAfterResponse: [],
+    onBeforeHandle: [],
+    onMapResponse: [],
+    onGlobalError: [],
+    onGlobalRequest: [],
+    onTransform: [],
   };
   const routes: App["~zeta"]["routes"] = {};
 
@@ -83,13 +83,13 @@ export function createApp<TPrefix extends BasePrefix = "">(
   };
 
   const cloneHooks = () => ({
-    afterHandle: [...hooks.afterHandle],
-    afterResponse: [...hooks.afterResponse],
-    beforeHandle: [...hooks.beforeHandle],
-    mapResponse: [...hooks.mapResponse],
-    onError: [...hooks.onError],
-    onRequest: [...hooks.onRequest],
-    transform: [...hooks.transform],
+    onAfterHandle: [...hooks.onAfterHandle],
+    onGlobalAfterResponse: [...hooks.onGlobalAfterResponse],
+    onBeforeHandle: [...hooks.onBeforeHandle],
+    onMapResponse: [...hooks.onMapResponse],
+    onGlobalError: [...hooks.onGlobalError],
+    onGlobalRequest: [...hooks.onGlobalRequest],
+    onTransform: [...hooks.onTransform],
   });
 
   const app: App<DefaultAppData> = {
@@ -150,16 +150,16 @@ export function createApp<TPrefix extends BasePrefix = "">(
             status: Status.Ok,
             headers: {},
           },
-        } satisfies OnRequestContext;
+        } satisfies OnGlobalRequestContext;
 
         try {
-          const onRequestResponse = await callCtxModifierHooks(
+          const onGlobalRequestResponse = await callCtxModifierHooks(
             ctx,
-            hooks.onRequest,
+            hooks.onGlobalRequest,
           );
-          if (onRequestResponse) {
-            ctx.response = onRequestResponse;
-            return onRequestResponse;
+          if (onGlobalRequestResponse) {
+            ctx.response = onGlobalRequestResponse;
+            return onGlobalRequestResponse;
           }
 
           const response = await callHandler(ctx, getRoute);
@@ -169,7 +169,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
         } catch (err) {
           ctx.error = err;
 
-          for (const hook of hooks.onError) {
+          for (const hook of hooks.onGlobalError) {
             let res: any = hook.callback(ctx);
             res = res instanceof Promise ? await res : res;
             if (res instanceof Response) {
@@ -184,10 +184,10 @@ export function createApp<TPrefix extends BasePrefix = "">(
           ctx.response = res;
           return res;
         } finally {
-          // Defer calls to the `afterResponse` hooks until after the response is sent
-          if (hooks.afterResponse.length > 0) {
+          // Defer calls to the `onGlobalAfterResponse` hooks until after the response is sent
+          if (hooks.onGlobalAfterResponse.length > 0) {
             setTimeout(async () => {
-              for (const hook of hooks.afterResponse) {
+              for (const hook of hooks.onGlobalAfterResponse) {
                 let res = hook.callback(ctx);
                 if (res instanceof Promise) await res;
               }
@@ -221,7 +221,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       const obj: Record<string, any> =
         args.length === 2 ? { [args[0]]: args[1] } : args[0];
 
-      hooks.transform.push({
+      hooks.onTransform.push({
         id: nextHookId(appId),
         applyTo: "local",
         callback: () => obj,
@@ -230,56 +230,56 @@ export function createApp<TPrefix extends BasePrefix = "">(
       return app;
     },
 
-    onRequest(callback: any) {
-      hooks.onRequest.push({
+    onGlobalRequest(callback: any) {
+      hooks.onGlobalRequest.push({
         id: nextHookId(appId),
         applyTo: "global",
         callback,
       });
       return app;
     },
-    transform(callback: any) {
-      hooks.transform.push({
+    onTransform(callback: any) {
+      hooks.onTransform.push({
         id: nextHookId(appId),
         applyTo: "local",
         callback,
       });
       return app;
     },
-    beforeHandle(callback: any) {
-      hooks.beforeHandle.push({
+    onBeforeHandle(callback: any) {
+      hooks.onBeforeHandle.push({
         id: nextHookId(appId),
         applyTo: "local",
         callback,
       });
       return app;
     },
-    afterHandle(callback: any) {
-      hooks.afterHandle.push({
+    onAfterHandle(callback: any) {
+      hooks.onAfterHandle.push({
         id: nextHookId(appId),
         applyTo: "local",
         callback,
       });
       return app;
     },
-    mapResponse(callback: any) {
-      hooks.mapResponse.push({
+    onMapResponse(callback: any) {
+      hooks.onMapResponse.push({
         id: nextHookId(appId),
         applyTo: "local",
         callback,
       });
       return app;
     },
-    onError(callback: any) {
-      hooks.onError.push({
+    onGlobalError(callback: any) {
+      hooks.onGlobalError.push({
         id: nextHookId(appId),
         applyTo: "global",
         callback,
       });
       return app;
     },
-    afterResponse(callback: any) {
-      hooks.afterResponse.push({
+    onGlobalAfterResponse(callback: any) {
+      hooks.onGlobalAfterResponse.push({
         id: nextHookId(appId),
         applyTo: "global",
         callback,

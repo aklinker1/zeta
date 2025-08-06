@@ -1,5 +1,5 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { HttpError, ValidationError } from "../errors";
+import { HttpError, ValidationGlobalError } from "../errors";
 import { Status } from "../status";
 import type { App, LifeCycleHook, MaybePromise, RouterData } from "../types";
 import type { MatchedRoute } from "rou3";
@@ -11,7 +11,7 @@ export function validateSchema<T>(
   let res = schema["~standard"].validate(input);
   if (res instanceof Promise) throw Error("Async validation not supported");
 
-  if (res.issues) throw new ValidationError(input, res.issues);
+  if (res.issues) throw new ValidationGlobalError(input, res.issues);
 
   return res.value;
 }
@@ -21,7 +21,7 @@ function createHttpSchemaValidator(status: Status, message: string) {
     try {
       return validateSchema<T>(schema, input);
     } catch (err) {
-      if (err instanceof ValidationError) {
+      if (err instanceof ValidationGlobalError) {
         throw new HttpError(status, message, {
           issues: err.issues,
           input: err.input,

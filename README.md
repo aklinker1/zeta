@@ -20,10 +20,9 @@ Create a file `index.ts` and add the following code:
 ```ts
 import { createApp } from "@aklinker1/zeta";
 
-const app = createApp()
-  .get("/", {}, () => {
-    return { message: "Hello World!" };
-  });
+const app = createApp().get("/", {}, () => {
+  return { message: "Hello World!" };
+});
 
 app.listen(3000);
 
@@ -288,9 +287,9 @@ title: Request Life Cycle
 ---
 graph LR
     A((Client)) -.-> B
-    B[onRequest] -- "Route Matched" --> D
+    B[onGlobalRequest] -- "Route Matched" --> D
     B -- "Not Found" --> C
-    C[onError] ---> J
+    C[onGlobalError] ---> J
     D[onTransform] -- "Validate Inputs" --> E
     D -- "Error thrown" --> C
     E[onBeforeHandle] ---> F
@@ -304,35 +303,34 @@ graph LR
     J@{ shape: sm-circ } -.-> K
     J ---> L
     K((Client))
-    L["onAfterResponse (deferred)"]
+    L["onGlobalAfterResponse (deferred)"]
 ```
 
-- `onRequest` (global): Called as soon as a request is made to the app.
+- `onGlobalRequest`: Called as soon as a request is made to the app.
   - Return value is shallow merged into the `ctx` object for future callbacks.
-- `onTransform` (isolated): Called before input parameters have been validated, can be used to transform input values before validation occurs.
+- `onTransform`: Called before input parameters have been validated, can be used to transform input values before validation occurs.
   - Return value is shallow merged into the `ctx` object for future callbacks.
-- `onBeforeHandle` (isolated): Called after inputs have been validated, right before the route handler is executed.
+- `onBeforeHandle`: Called after inputs have been validated, right before the route handler is executed.
   - Return value is shallow merged into the `ctx` object for future callbacks.
-- `onAfterHandle` (isolated): Called after the route handler is executed.
+- `onAfterHandle`: Called after the route handler is executed.
   - Return value replaces the value returned from the handler.
-- `onMapResponse` (isolated): Convert the return value into a [`Response` object](https://developer.mozilla.org/en-US/docs/Web/API/Response).
+- `onMapResponse`: Convert the return value into a [`Response` object](https://developer.mozilla.org/en-US/docs/Web/API/Response).
   - If a `Response` value is returned, send it to the client.
   - If a `Response` value is not returned, Zeta infers the response content type based on the handler's response value.
-- `onAfterResponse` (global): Called after the response is sent to the client.
+- `onGlobalAfterResponse`: Called after the response is sent to the client.
   - Return value is ignored.
-- `onError` (global): If an error is thrown at any point in the lifecycle (other than `onAfterResponse`), this hook will be called giving you the opportunity to report the error or change the response format by optionally returning a `Response` object.
+- `onGlobalError`: If an error is thrown at any point in the lifecycle (other than `onGlobalAfterResponse`), this hook will be called giving you the opportunity to report the error or change the response format by optionally returning a `Response` object.
 
 There are two types of hooks: global and isolated.
 
 - **Global**: These hooks are registered on the final, root application, regardless of where they are defined in your app's composition tree. They always run for every request that hits the server. Use these for cross-cutting concerns like logging or authentication.
-  - You usually only want to add these to the top level app, but they will run if you add them to another.
-- **Isolated**: These hooks only apply to routes defined on the *same app instance*, *after* the hook is declared. They are perfect for setting up context or running middleware specific to a group of routes (e.g., a plugin).
+- **Isolated**: These hooks only apply to routes defined on the _same app instance_, _after_ the hook is declared. They are perfect for setting up context or running middleware specific to a group of routes (e.g., a plugin).
 
 Here's an example combining several different hooks:
 
 ```ts
-import { createApp } from '@aklinker1/zeta';
-import { NotFoundError } from '@aklinker1/zeta/errors';
+import { createApp } from "@aklinker1/zeta";
+import { NotFoundError } from "@aklinker1/zeta/errors";
 
 const usersApp = createApp({ prefix: "/api/users" })
   .get("/", {}, () => {
@@ -358,16 +356,16 @@ const usersApp = createApp({ prefix: "/api/users" })
   });
 
 const app = createApp()
-  .onRequest(() => {
+  .onGlobalRequest(() => {
     return {
       startTime: performance.now(),
     };
   })
-  .onAfterResponse(({ startTime }) => {
-    const endTime = performance.now()
+  .onGlobalAfterResponse(({ startTime }) => {
+    const endTime = performance.now();
     console.log(`Request duration: ${endTime - startTime} ms`);
   })
-  .use(apiApp)
+  .use(apiApp);
 ```
 
 ## `App#decorate`
@@ -405,9 +403,7 @@ The mount function is useful for adding another framekwork to your app. My main 
 ```ts
 import { fetchStatic } from "@aklinker1/aframe/server";
 
-const app = createApp()
-  .use(apiApp)
-  .mount(fetchStatic())
+const app = createApp().use(apiApp).mount(fetchStatic());
 ```
 
 ## `App#build`
