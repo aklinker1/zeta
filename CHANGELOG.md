@@ -1,6 +1,28 @@
 # Changelog
 
-## v0.3.1
+## v0.4.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.3.1...v0.4.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Allow customizing the response content type on OpenAPI docs ([2721e7f](https://github.com/aklinker1/zeta/commit/2721e7f))
+
+### 📖 Documentation
+
+- Add changelog badge to README ([471232d](https://github.com/aklinker1/zeta/commit/471232d))
+
+### 🏡 Chore
+
+- Remove log from publish script ([4b300d6](https://github.com/aklinker1/zeta/commit/4b300d6))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Allow customizing the response content type on OpenAPI docs ([2721e7f](https://github.com/aklinker1/zeta/commit/2721e7f))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.3.0...v0.3.1)
 
