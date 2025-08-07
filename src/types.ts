@@ -956,6 +956,7 @@ export interface SchemaAdapter {
     schema: StandardSchemaV1;
     description?: string;
   }>;
+  getResponseContentType: (schema: StandardSchemaV1) => string | undefined;
 }
 
 //

@@ -277,6 +277,14 @@ const app = createApp().get("/path", {}, ({ set }) => {
 
 > As of right now, you can't add custom status codes to the OpenAPI docs or as apart of the response schema. The OpenAPI spec will always show `200 OK` as the response.
 
+By default, Zeta will show `application/json` as the content type in the OpenAPI docs. you can override this by setting the `contentType` metadata on your schema:
+
+```ts
+app.get("/csv", {
+  response: z.string().meta({ contentType: "text/csv" })
+}, () => "...")
+```
+
 ## Life Cycle Hooks
 
 You can use any of the following APIs to hook into the request lifecycle:

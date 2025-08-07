@@ -40,4 +40,8 @@ export const zodSchemaAdapter: SchemaAdapter = {
       }),
     );
   },
+  getResponseContentType: (schema: any) => {
+    const meta = z.globalRegistry.get(schema);
+    return meta?.contentType ?? meta?.["content-type"];
+  },
 };

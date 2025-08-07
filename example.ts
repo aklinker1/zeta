@@ -95,6 +95,14 @@ const app = createApp({
 
       return entry;
     },
+  )
+
+  .get(
+    "/api/csv",
+    {
+      response: z.string().meta({ contentType: "text/csv" }),
+    },
+    () => "test",
   );
 
 console.log(

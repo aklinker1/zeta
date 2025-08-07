@@ -62,9 +62,10 @@ export function buildOpenApiDocs(
           requestBody: body
             ? {
                 content: {
-                  "application/json": {
-                    schema: adapter.toJsonSchema(body),
-                  },
+                  [adapter.getResponseContentType(body) ?? "application/json"]:
+                    {
+                      schema: adapter.toJsonSchema(body),
+                    },
                 },
               }
             : undefined,
@@ -78,7 +79,8 @@ export function buildOpenApiDocs(
               200: {
                 description: "OK",
                 content: {
-                  "application/json": {
+                  [adapter.getResponseContentType(response) ??
+                  "application/json"]: {
                     schema: adapter.toJsonSchema(response),
                   },
                 },
