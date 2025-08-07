@@ -1,6 +1,20 @@
 # Changelog
 
-## v0.4.0
+## v0.5.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.4.0...v0.5.0)
+
+### 🏡 Chore
+
+- ⚠️  Generalize the `getResponseContentType` adapter method to `getMeta` ([246519b](https://github.com/aklinker1/zeta/commit/246519b))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Generalize the `getResponseContentType` adapter method to `getMeta` ([246519b](https://github.com/aklinker1/zeta/commit/246519b))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.3.1...v0.4.0)
 
