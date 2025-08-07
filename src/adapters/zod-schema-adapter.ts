@@ -40,7 +40,7 @@ export const zodSchemaAdapter: SchemaAdapter = {
       }),
     );
   },
-  getResponseContentType: (schema: any) => {
+  getMeta: (schema: any) => {
     const meta = z.globalRegistry.get(schema);
     return meta?.contentType ?? meta?.["content-type"];
   },
