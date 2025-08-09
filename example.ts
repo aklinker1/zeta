@@ -51,7 +51,6 @@ const app = createApp({
       };
     },
   )
-
   .get(
     "/api/entries",
     {
@@ -63,7 +62,6 @@ const app = createApp({
     },
     () => entries,
   )
-
   // curl -X POST -H "Content-Type: application/json" -d '{"id":1,"text":"one"}' http://localhost:3000/api/entries
   .post(
     "/api/entries",
@@ -79,7 +77,6 @@ const app = createApp({
       set.status = Status.Accepted;
     },
   )
-
   .get(
     "/api/entries/:id",
     {
@@ -100,7 +97,6 @@ const app = createApp({
       return status(Status.Ok, entry);
     },
   )
-
   .get(
     "/api/csv",
     {
