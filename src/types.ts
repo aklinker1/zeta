@@ -549,13 +549,12 @@ export type OnMapResponseHook = LifeCycleHook<
 
 /**
  * Called if an error is thrown in any other hook other than `onGlobalAfterResponse`.
- * Use this hook to transform custom errors into a `Response`.
  *
  * Zeta will handle any `HttpError`s thrown, but you can handle your own errors
  * here.
  */
-export type OnGlobalErrorHoos = LifeCycleHook<
-  (ctx: Simplify<OnGlobalErrorContext>) => MaybePromise<Response | void>
+export type OnGlobalErrorHooks = LifeCycleHook<
+  (ctx: Simplify<OnGlobalErrorContext>) => MaybePromise<void>
 >;
 
 /**
@@ -571,7 +570,7 @@ export type LifeCycleHooks = {
   onBeforeHandle: OnBeforeHandleHook[];
   onAfterHandle: OnAfterHandleHook[];
   onMapResponse: OnMapResponseHook[];
-  onGlobalError: OnGlobalErrorHoos[];
+  onGlobalError: OnGlobalErrorHooks[];
   onGlobalAfterResponse: OnGlobalAfterResponseHook[];
 };
 

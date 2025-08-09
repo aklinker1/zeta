@@ -331,7 +331,7 @@ graph LR
   - If a `Response` value is not returned, Zeta infers the response content type based on the handler's response value.
 - `onGlobalAfterResponse`: Called after the response is sent to the client.
   - Return value is ignored.
-- `onGlobalError`: If an error is thrown at any point in the lifecycle (other than `onGlobalAfterResponse`), this hook will be called giving you the opportunity to report the error or change the response format by optionally returning a `Response` object.
+- `onGlobalError`: If an error is thrown at any point in the lifecycle, this hook will be called giving you the opportunity to report the error.
 
 There are two types of hooks: global and isolated.
 
