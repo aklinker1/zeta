@@ -444,7 +444,16 @@ export type RouteHandler<
   TRouteDef extends RouteDef,
 > = (
   ctx: BuildHandlerContext<TAppData, TPath, TRouteDef>,
-) => MaybePromise<GetResponseInputFromDef<TRouteDef>>;
+) => MaybePromise<GetRouteHandlerReturnType<TRouteDef>>;
+
+export type GetRouteHandlerReturnType<TRouteDef extends RouteDef> =
+  TRouteDef["responses"] extends undefined
+    ? void
+    : TRouteDef["responses"] extends StandardSchemaV1<infer TResponses>
+      ? TResponses
+      : TRouteDef["responses"] extends Record<number, StandardSchemaV1<any>>
+        ? StatusResult
+        : never;
 
 /**
  * Given an `App`, a method, and a route, return the handler function's type.
@@ -610,11 +619,7 @@ export type RouteDef = Simplify<
     params?: StandardSchemaV1<Record<string, any>>;
     query?: StandardSchemaV1<Record<string, any>>;
     body?: StandardSchemaV1;
-    /**
-     * @deprecated Use `responses` instead.
-     */
-    response?: StandardSchemaV1;
-    responses?: Record<number, StandardSchemaV1<any>>;
+    responses?: StandardSchemaV1 | Record<number, StandardSchemaV1>;
   }
 >;
 
@@ -626,7 +631,7 @@ export type AnyDef = {
   params: StandardSchemaV1<Record<string, string>>;
   query: StandardSchemaV1<Record<string, string>>;
   body: StandardSchemaV1<any>;
-  response: StandardSchemaV1<any>;
+  responses: StandardSchemaV1<any>;
 };
 
 /**
@@ -711,15 +716,17 @@ export type GetAppDataCtx<TAppData extends AppData> = TAppData extends {
 
 export declare const HandlerResult: unique symbol;
 
-type StatusFn<TResponses extends Record<number, StandardSchemaV1>> = <
+export type StatusFn<TResponses extends Record<number, StandardSchemaV1>> = <
   TStatus extends keyof TResponses,
 >(
   status: TStatus,
-  body: StandardSchemaV1.InferOutput<TResponses[TStatus]>,
-) => {
+  body: StandardSchemaV1.InferInput<TResponses[TStatus]>,
+) => StatusResult;
+
+export type StatusResult = {
   [HandlerResult]: true;
-  status: TStatus;
-  body: StandardSchemaV1.InferOutput<TResponses[TStatus]>;
+  status: number;
+  body: unknown;
 };
 
 /**
@@ -734,11 +741,13 @@ export type BuildHandlerContext<
     route: TPath;
   } & GetRequestParamsOutputFromDef<TRouteDef> &
     (TRouteDef extends {
-      responses: infer TResponses extends Record<number, StandardSchemaV1>;
+      responses: infer TResponses;
     }
-      ? {
-          status: StatusFn<TResponses>;
-        }
+      ? TResponses extends Record<number, StandardSchemaV1>
+        ? {
+            status: StatusFn<TResponses>;
+          }
+        : {}
       : {})
 >;
 
@@ -878,24 +887,11 @@ export type GetRequestParamsInput<
  * Given a route definition, return the input type of the response schema.
  */
 export type GetResponseInputFromDef<TRouteDef extends RouteDef> =
-  // If `responses` is defined, use it
-  TRouteDef extends {
-    responses: infer TResponses extends Record<number, StandardSchemaV1>;
-  }
-    ? {
-        [TStatus in keyof TResponses]: {
-          status: TStatus;
-          body: StandardSchemaV1.InferInput<TResponses[TStatus]>;
-        };
-      }[keyof TResponses]
-    : // If `response` is defined, use it
-      TRouteDef extends {
-          response: infer TResponse;
-        }
-      ? TResponse extends StandardSchemaV1
-        ? StandardSchemaV1.InferInput<TResponse>
-        : never
-      : void;
+  TRouteDef["responses"] extends undefined
+    ? undefined
+    : TRouteDef["responses"] extends StandardSchemaV1
+      ? StandardSchemaV1.InferInput<TRouteDef["responses"]>
+      : never;
 
 /**
  * Given a set of routes, a method, and a route, return the input type of the
@@ -948,17 +944,11 @@ export type GetRequestParamsOutput<
  * If neither is defined, it will be `void`.
  */
 export type GetResponseOutputFromDef<TRouteDef extends RouteDef> =
-  // If `responses` is defined, use it
-  TRouteDef extends {
-    responses: infer TResponses extends Record<number, StandardSchemaV1>;
-  }
-    ? ReturnType<StatusFn<TResponses>>
-    : // If `response` is defined, use it
-      TRouteDef extends {
-          response: infer TSchema extends StandardSchemaV1;
-        }
-      ? StandardSchemaV1.InferOutput<TSchema>
-      : void;
+  TRouteDef["responses"] extends undefined
+    ? undefined
+    : TRouteDef["responses"] extends StandardSchemaV1
+      ? StandardSchemaV1.InferOutput<TRouteDef["responses"]>
+      : never;
 
 /**
  * Given a set of routes, a method, and a route, return the output type of the
