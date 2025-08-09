@@ -610,7 +610,11 @@ export type RouteDef = Simplify<
     params?: StandardSchemaV1<Record<string, any>>;
     query?: StandardSchemaV1<Record<string, any>>;
     body?: StandardSchemaV1;
+    /**
+     * @deprecated Use `responses` instead.
+     */
     response?: StandardSchemaV1;
+    responses?: Record<number, StandardSchemaV1<any>>;
   }
 >;
 
@@ -705,6 +709,19 @@ export type GetAppDataCtx<TAppData extends AppData> = TAppData extends {
   ? TCtx
   : never;
 
+export declare const HandlerResult: unique symbol;
+
+type StatusFn<TResponses extends Record<number, StandardSchemaV1>> = <
+  TStatus extends keyof TResponses,
+>(
+  status: TStatus,
+  body: StandardSchemaV1.InferOutput<TResponses[TStatus]>,
+) => {
+  [HandlerResult]: true;
+  status: TStatus;
+  body: StandardSchemaV1.InferOutput<TResponses[TStatus]>;
+};
+
 /**
  * Build the `ctx` type used for request handlers.
  */
@@ -715,7 +732,14 @@ export type BuildHandlerContext<
 > = Simplify<
   OnBeforeHandleContext<GetAppDataCtx<TAppData>> & {
     route: TPath;
-  } & GetRequestParamsOutputFromDef<TRouteDef>
+  } & GetRequestParamsOutputFromDef<TRouteDef> &
+    (TRouteDef extends {
+      responses: infer TResponses extends Record<number, StandardSchemaV1>;
+    }
+      ? {
+          status: StatusFn<TResponses>;
+        }
+      : {})
 >;
 
 //
@@ -854,13 +878,24 @@ export type GetRequestParamsInput<
  * Given a route definition, return the input type of the response schema.
  */
 export type GetResponseInputFromDef<TRouteDef extends RouteDef> =
+  // If `responses` is defined, use it
   TRouteDef extends {
-    response: infer TResponse;
+    responses: infer TResponses extends Record<number, StandardSchemaV1>;
   }
-    ? TResponse extends StandardSchemaV1
-      ? StandardSchemaV1.InferInput<TResponse>
-      : never
-    : void;
+    ? {
+        [TStatus in keyof TResponses]: {
+          status: TStatus;
+          body: StandardSchemaV1.InferInput<TResponses[TStatus]>;
+        };
+      }[keyof TResponses]
+    : // If `response` is defined, use it
+      TRouteDef extends {
+          response: infer TResponse;
+        }
+      ? TResponse extends StandardSchemaV1
+        ? StandardSchemaV1.InferInput<TResponse>
+        : never
+      : void;
 
 /**
  * Given a set of routes, a method, and a route, return the input type of the
@@ -903,14 +938,27 @@ export type GetRequestParamsOutput<
   : never;
 
 /**
- * Given a route definition, return the response's output type.
+ * Given a `RouteDef`, return a union of all possible handler return values.
+ *
+ * If `responses` is defined, it will be a discriminated union of objects
+ * containing the status and body.
+ *
+ * If only `response` is defined, it will be the output of that schema.
+ *
+ * If neither is defined, it will be `void`.
  */
 export type GetResponseOutputFromDef<TRouteDef extends RouteDef> =
+  // If `responses` is defined, use it
   TRouteDef extends {
-    response: infer TSchema extends StandardSchemaV1;
+    responses: infer TResponses extends Record<number, StandardSchemaV1>;
   }
-    ? StandardSchemaV1.InferOutput<TSchema>
-    : void;
+    ? ReturnType<StatusFn<TResponses>>
+    : // If `response` is defined, use it
+      TRouteDef extends {
+          response: infer TSchema extends StandardSchemaV1;
+        }
+      ? StandardSchemaV1.InferOutput<TSchema>
+      : void;
 
 /**
  * Given a set of routes, a method, and a route, return the output type of the
