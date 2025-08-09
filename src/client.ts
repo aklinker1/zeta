@@ -8,7 +8,7 @@ import type {
   GetRequestParamsInput,
   GetResponseOutput,
 } from "./types";
-import type { HttpErrorResponse } from "./internal/utils";
+import type { ErrorResponse } from "./error-response";
 import { smartDeserialize, smartSerialize } from "./internal/serialization";
 import type {
   GetAppRoutes,
@@ -113,7 +113,7 @@ export function createAppClient<TApp extends App>(
           throw new RequestError(
             (response as any)?.message ?? "Unknown error",
             res.status,
-            response as HttpErrorResponse,
+            response as ErrorResponse,
           );
         }
         return response as any;
@@ -140,7 +140,7 @@ export class RequestError extends Error {
   constructor(
     message: string,
     public status: number,
-    public response: HttpErrorResponse,
+    public response: ErrorResponse,
     options?: ErrorOptions,
   ) {
     super(message, options);

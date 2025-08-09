@@ -41,7 +41,6 @@ export const zodSchemaAdapter: SchemaAdapter = {
     );
   },
   getMeta: (schema: any) => {
-    const meta = z.globalRegistry.get(schema);
-    return meta?.contentType ?? meta?.["content-type"];
+    return z.globalRegistry.get(schema);
   },
 };

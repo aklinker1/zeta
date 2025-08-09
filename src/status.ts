@@ -1,9 +1,4 @@
 /**
- * Contains an enum of all HTTP status codes. Safe for use on both client and server side.
- * @module
- */
-
-/**
  * Enum containing all HTTP status codes.
  */
 export enum Status {
@@ -70,4 +65,79 @@ export enum Status {
   LoopDetected = 508,
   NotExtended = 510,
   NetworkAuthenticationRequired = 511,
+}
+
+const STATUS_NAME_MAP: Record<Status, string> = {
+  [Status.Continue]: "Continue",
+  [Status.SwitchingProtocols]: "Switching Protocols",
+  [Status.ProcessingDeprecated]: "Processing",
+  [Status.EarlyHints]: "Early Hints",
+  [Status.Ok]: "OK",
+  [Status.Created]: "Created",
+  [Status.Accepted]: "Accepted",
+  [Status.NonAuthoritativeInformation]: "Non-Authoritative Information",
+  [Status.NoContent]: "No Content",
+  [Status.ResetContent]: "Reset Content",
+  [Status.PartialContent]: "Partial Content",
+  [Status.MultiStatus]: "Multi-Status",
+  [Status.AlreadyReported]: "Already Reported",
+  [Status.ImUsed]: "IM Used",
+  [Status.MultipleChoices]: "Multiple Choices",
+  [Status.MovedPermanently]: "Moved Permanently",
+  [Status.Found]: "Found",
+  [Status.SeeOther]: "See Other",
+  [Status.NotModified]: "Not Modified",
+  [Status.UseProxyDeprecated]: "Use Proxy",
+  [Status.Unused]: "Unused",
+  [Status.TemporaryRedirect]: "Temporary Redirect",
+  [Status.PermanentRedirect]: "Permanent Redirect",
+  [Status.BadRequest]: "Bad Request",
+  [Status.Unauthorized]: "Unauthorized",
+  [Status.PaymentRequired]: "Payment Required",
+  [Status.Forbidden]: "Forbidden",
+  [Status.NotFound]: "Not Found",
+  [Status.MethodNotAllowed]: "Method Not Allowed",
+  [Status.NotAcceptable]: "Not Acceptable",
+  [Status.ProxyAuthenticationRequired]: "Proxy Authentication Required",
+  [Status.RequestTimeout]: "Request Timeout",
+  [Status.Conflict]: "Conflict",
+  [Status.Gone]: "Gone",
+  [Status.LengthRequired]: "Length Required",
+  [Status.PreconditionFailed]: "Precondition Failed",
+  [Status.ContentTooLarge]: "Content Too Large",
+  [Status.UriTooLong]: "URI Too Long",
+  [Status.UnsupportedMediaType]: "Unsupported Media Type",
+  [Status.RangeNotSatisfiable]: "Range Not Satisfiable",
+  [Status.ExpectationFailed]: "Expectation Failed",
+  [Status.ImATeapot]: "I'm a Teapot",
+  [Status.MisdirectedRequest]: "Misdirected Request",
+  [Status.UnprocessableEntity]: "Unprocessable Entity",
+  [Status.Locked]: "Locked",
+  [Status.FailedDependency]: "Failed Dependency",
+  [Status.TooEarly]: "Too Early",
+  [Status.UpgradeRequired]: "Upgrade Required",
+  [Status.PreconditionRequired]: "Precondition Required",
+  [Status.TooManyRequests]: "Too Many Requests",
+  [Status.RequestHeaderFieldsTooLarge]: "Request Header Fields Too Large",
+  [Status.UnavailableForLegalReasons]: "Unavailable For Legal Reasons",
+  [Status.InternalServerError]: "Internal Server Error",
+  [Status.NotImplemented]: "Not Implemented",
+  [Status.BadGateway]: "Bad Gateway",
+  [Status.ServiceUnavailable]: "Service Unavailable",
+  [Status.GatewayTimeout]: "Gateway Timeout",
+  [Status.HttpVersionNotSupported]: "HTTP Version Not Supported",
+  [Status.VariantAlsoNegotiates]: "Variant Also Negotiates",
+  [Status.InsufficientStorage]: "Insufficient Storage",
+  [Status.LoopDetected]: "Loop Detected",
+  [Status.NotExtended]: "Not Extended",
+  [Status.NetworkAuthenticationRequired]: "Network Authentication Required",
+};
+
+/**
+ * Returns the name of the HTTP status code (200 -> "OK").
+ * @param status The HTTP status code.
+ * @returns The name of the HTTP status code or `undefined` if the status code is not recognized.
+ */
+export function getStatusName(status: number): string | undefined {
+  return STATUS_NAME_MAP[status as Status];
 }

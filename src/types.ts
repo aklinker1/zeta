@@ -8,6 +8,7 @@
  */
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { OpenAPI } from "openapi-types";
+import type { IsStatusResult } from "./internal/utils";
 
 //
 // APP
@@ -444,7 +445,18 @@ export type RouteHandler<
   TRouteDef extends RouteDef,
 > = (
   ctx: BuildHandlerContext<TAppData, TPath, TRouteDef>,
-) => MaybePromise<GetResponseInputFromDef<TRouteDef>>;
+) => MaybePromise<GetRouteHandlerReturnType<TRouteDef>>;
+
+export type GetRouteHandlerReturnType<TRouteDef extends RouteDef> =
+  TRouteDef extends { responses: symbol } // is any check
+    ? any
+    : TRouteDef extends { responses: infer TResponses }
+      ? TResponses extends StandardSchemaV1<infer TResponse>
+        ? TResponse
+        : TRouteDef["responses"] extends Record<number, StandardSchemaV1<any>>
+          ? StatusResult
+          : never
+      : void;
 
 /**
  * Given an `App`, a method, and a route, return the handler function's type.
@@ -537,13 +549,12 @@ export type OnMapResponseHook = LifeCycleHook<
 
 /**
  * Called if an error is thrown in any other hook other than `onGlobalAfterResponse`.
- * Use this hook to transform custom errors into a `Response`.
  *
  * Zeta will handle any `HttpError`s thrown, but you can handle your own errors
  * here.
  */
-export type OnGlobalErrorHoos = LifeCycleHook<
-  (ctx: Simplify<OnGlobalErrorContext>) => MaybePromise<Response | void>
+export type OnGlobalErrorHooks = LifeCycleHook<
+  (ctx: Simplify<OnGlobalErrorContext>) => MaybePromise<void>
 >;
 
 /**
@@ -559,7 +570,7 @@ export type LifeCycleHooks = {
   onBeforeHandle: OnBeforeHandleHook[];
   onAfterHandle: OnAfterHandleHook[];
   onMapResponse: OnMapResponseHook[];
-  onGlobalError: OnGlobalErrorHoos[];
+  onGlobalError: OnGlobalErrorHooks[];
   onGlobalAfterResponse: OnGlobalAfterResponseHook[];
 };
 
@@ -610,7 +621,7 @@ export type RouteDef = Simplify<
     params?: StandardSchemaV1<Record<string, any>>;
     query?: StandardSchemaV1<Record<string, any>>;
     body?: StandardSchemaV1;
-    response?: StandardSchemaV1;
+    responses?: StandardSchemaV1 | Record<number, StandardSchemaV1>;
   }
 >;
 
@@ -622,7 +633,7 @@ export type AnyDef = {
   params: StandardSchemaV1<Record<string, string>>;
   query: StandardSchemaV1<Record<string, string>>;
   body: StandardSchemaV1<any>;
-  response: StandardSchemaV1<any>;
+  responses: any;
 };
 
 /**
@@ -705,6 +716,33 @@ export type GetAppDataCtx<TAppData extends AppData> = TAppData extends {
   ? TCtx
   : never;
 
+export type StatusFn<TMap extends Record<any, any>> = TMap extends never
+  ? never
+  : <TStatus extends keyof TMap>(
+      status: TStatus,
+      body: StandardSchemaV1.InferInput<TMap[TStatus]>,
+    ) => StatusResult;
+
+export type GetResponseStatusMap<TRouteDef extends RouteDef> =
+  TRouteDef extends { responses: unknown }
+    ? TRouteDef["responses"] extends symbol // is any check
+      ? Record<number, StandardSchemaV1<any, any>>
+      : TRouteDef["responses"] extends StandardSchemaV1
+        ? { 200: TRouteDef["responses"] }
+        : TRouteDef["responses"] extends Record<
+              number | string,
+              StandardSchemaV1
+            >
+          ? TRouteDef["responses"]
+          : any
+    : never;
+
+export type StatusResult = {
+  [IsStatusResult]: true;
+  status: number;
+  body: unknown;
+};
+
 /**
  * Build the `ctx` type used for request handlers.
  */
@@ -715,7 +753,9 @@ export type BuildHandlerContext<
 > = Simplify<
   OnBeforeHandleContext<GetAppDataCtx<TAppData>> & {
     route: TPath;
-  } & GetRequestParamsOutputFromDef<TRouteDef>
+  } & GetRequestParamsOutputFromDef<TRouteDef> & {
+      status: StatusFn<GetResponseStatusMap<TRouteDef>>;
+    }
 >;
 
 //
@@ -854,13 +894,11 @@ export type GetRequestParamsInput<
  * Given a route definition, return the input type of the response schema.
  */
 export type GetResponseInputFromDef<TRouteDef extends RouteDef> =
-  TRouteDef extends {
-    response: infer TResponse;
-  }
-    ? TResponse extends StandardSchemaV1
-      ? StandardSchemaV1.InferInput<TResponse>
-      : never
-    : void;
+  TRouteDef["responses"] extends undefined
+    ? undefined
+    : TRouteDef["responses"] extends StandardSchemaV1
+      ? StandardSchemaV1.InferInput<TRouteDef["responses"]>
+      : never;
 
 /**
  * Given a set of routes, a method, and a route, return the input type of the
@@ -903,14 +941,21 @@ export type GetRequestParamsOutput<
   : never;
 
 /**
- * Given a route definition, return the response's output type.
+ * Given a `RouteDef`, return a union of all possible handler return values.
+ *
+ * If `responses` is defined, it will be a discriminated union of objects
+ * containing the status and body.
+ *
+ * If only `response` is defined, it will be the output of that schema.
+ *
+ * If neither is defined, it will be `void`.
  */
 export type GetResponseOutputFromDef<TRouteDef extends RouteDef> =
-  TRouteDef extends {
-    response: infer TSchema extends StandardSchemaV1;
-  }
-    ? StandardSchemaV1.InferOutput<TSchema>
-    : void;
+  TRouteDef["responses"] extends undefined
+    ? undefined
+    : TRouteDef["responses"] extends StandardSchemaV1
+      ? StandardSchemaV1.InferOutput<TRouteDef["responses"]>
+      : never;
 
 /**
  * Given a set of routes, a method, and a route, return the output type of the
@@ -927,7 +972,7 @@ export type GetResponseOutput<
 /**
  * Given a route definition, return the same type minus the response.
  */
-type GetDefParams<TRouteDef extends RouteDef> = Omit<TRouteDef, "response">;
+type GetDefParams<TRouteDef extends RouteDef> = Omit<TRouteDef, "responses">;
 
 //
 // SCHEMA ADAPTER

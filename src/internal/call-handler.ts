@@ -1,10 +1,12 @@
-import { type MatchedRoute } from "rou3";
+import type { MatchedRoute } from "rou3";
 import type { RouterData } from "../types";
 import { NotFoundError } from "../errors";
 import {
   callCtxModifierHooks,
   getRawParams,
   getRawQuery,
+  isStatusResult,
+  IsStatusResult,
   validateInputSchema,
   validateOutputSchema,
 } from "./utils";
@@ -61,6 +63,12 @@ export async function callHandler(
     if (res) return res;
   }
 
+  ctx.status = (status: number, body: any) => ({
+    [IsStatusResult]: true,
+    status,
+    body,
+  });
+
   let response: any = route.data.handler(ctx);
   if (response instanceof Promise) response = await response;
 
@@ -73,11 +81,28 @@ export async function callHandler(
     ctx.response = res;
   }
 
-  if (route.data.def?.response) {
-    if ("~standard" in route.data.def.response) {
-      ctx.response = validateOutputSchema(route.data.def.response, response);
-    } else {
-      throw Error("TODO: Validate response map");
+  if (!(ctx.response instanceof Response)) {
+    if (route.data.def?.responses) {
+      if ("~standard" in route.data.def.responses) {
+        ctx.response = validateOutputSchema(
+          route.data.def.responses,
+          ctx.response,
+        );
+      } else {
+        if (!ctx.response || !isStatusResult(ctx.response)) {
+          throw new Error(
+            "When `responses` is a record of schemas, you must return a value from `ctx.status()`.",
+          );
+        }
+        const { status, body } = ctx.response;
+        const schema = route.data.def.responses[status];
+        if (!schema) {
+          // This should be caught by the `status` function's type definition, but it's here as a safeguard.
+          throw new Error(`No response schema found for status ${status}.`);
+        }
+        ctx.set.status = status;
+        ctx.response = validateOutputSchema(schema, body);
+      }
     }
   }
 
@@ -90,7 +115,7 @@ export async function callHandler(
     ctx.response = res;
   }
 
-  const resBody = smartSerialize(response);
+  const resBody = smartSerialize(ctx.response);
   if (!resBody)
     return new Response(undefined, {
       status: ctx.set.status,

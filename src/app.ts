@@ -170,12 +170,8 @@ export function createApp<TPrefix extends BasePrefix = "">(
           ctx.error = err;
 
           for (const hook of hooks.onGlobalError) {
-            let res: any = hook.callback(ctx);
-            res = res instanceof Promise ? await res : res;
-            if (res instanceof Response) {
-              ctx.response = res;
-              return res;
-            }
+            const res = hook.callback(ctx);
+            res instanceof Promise ? await res : res;
           }
 
           const status =
@@ -187,9 +183,18 @@ export function createApp<TPrefix extends BasePrefix = "">(
           // Defer calls to the `onGlobalAfterResponse` hooks until after the response is sent
           if (hooks.onGlobalAfterResponse.length > 0) {
             setTimeout(async () => {
-              for (const hook of hooks.onGlobalAfterResponse) {
-                let res = hook.callback(ctx);
-                if (res instanceof Promise) await res;
+              try {
+                for (const hook of hooks.onGlobalAfterResponse) {
+                  let res = hook.callback(ctx);
+                  if (res instanceof Promise) await res;
+                }
+              } catch (err) {
+                ctx.error = err;
+
+                for (const hook of hooks.onGlobalError) {
+                  const res = hook.callback(ctx);
+                  res instanceof Promise ? await res : res;
+                }
               }
             }, 0);
           }

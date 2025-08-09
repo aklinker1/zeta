@@ -53,7 +53,7 @@ describe("App", () => {
         async ({ respondWith, expectedResponse }) => {
           const app = createApp().get(
             "/test",
-            { response: z.any() },
+            { responses: z.any() },
             () => respondWith,
           );
           const client = createTestAppClient(app);

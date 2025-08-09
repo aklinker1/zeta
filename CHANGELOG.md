@@ -6,11 +6,11 @@
 
 ### 🏡 Chore
 
-- ⚠️  Generalize the `getResponseContentType` adapter method to `getMeta` ([246519b](https://github.com/aklinker1/zeta/commit/246519b))
+- ⚠️ Generalize the `getResponseContentType` adapter method to `getMeta` ([246519b](https://github.com/aklinker1/zeta/commit/246519b))
 
 #### ⚠️ Breaking Changes
 
-- ⚠️  Generalize the `getResponseContentType` adapter method to `getMeta` ([246519b](https://github.com/aklinker1/zeta/commit/246519b))
+- ⚠️ Generalize the `getResponseContentType` adapter method to `getMeta` ([246519b](https://github.com/aklinker1/zeta/commit/246519b))
 
 ### ❤️ Contributors
 
@@ -20,7 +20,7 @@
 
 ### 🚀 Enhancements
 
-- ⚠️  Allow customizing the response content type on OpenAPI docs ([2721e7f](https://github.com/aklinker1/zeta/commit/2721e7f))
+- ⚠️ Allow customizing the response content type on OpenAPI docs ([2721e7f](https://github.com/aklinker1/zeta/commit/2721e7f))
 
 ### 📖 Documentation
 
@@ -32,7 +32,7 @@
 
 #### ⚠️ Breaking Changes
 
-- ⚠️  Allow customizing the response content type on OpenAPI docs ([2721e7f](https://github.com/aklinker1/zeta/commit/2721e7f))
+- ⚠️ Allow customizing the response content type on OpenAPI docs ([2721e7f](https://github.com/aklinker1/zeta/commit/2721e7f))
 
 ### ❤️ Contributors
 

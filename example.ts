@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 import { NotFoundError } from "./src/errors";
 import { zodSchemaAdapter } from "./src/adapters/zod-schema-adapter";
 import { Status } from "./src/status";
+import { ErrorResponse } from "./src/error-response";
 
 const Entry = z.object({
   id: z.number(),
@@ -40,7 +41,7 @@ const app = createApp({
       summary: "Health check",
       description: "Check if the server is healthy",
       tags: ["System"],
-      response: HealthResponse,
+      responses: HealthResponse,
     },
     ({ set }) => {
       set.headers.test = "test";
@@ -50,7 +51,6 @@ const app = createApp({
       };
     },
   )
-
   .get(
     "/api/entries",
     {
@@ -58,11 +58,10 @@ const app = createApp({
       summary: "List all entries",
       description: "List all entries in the system",
       tags: ["Entries"],
-      response: Entry.array(),
+      responses: Entry.array(),
     },
     () => entries,
   )
-
   // curl -X POST -H "Content-Type: application/json" -d '{"id":1,"text":"one"}' http://localhost:3000/api/entries
   .post(
     "/api/entries",
@@ -78,7 +77,6 @@ const app = createApp({
       set.status = Status.Accepted;
     },
   )
-
   .get(
     "/api/entries/:id",
     {
@@ -87,22 +85,29 @@ const app = createApp({
       description: "Get an entry by ID",
       tags: ["Entries"],
       params: z.object({ id: z.coerce.number() }),
-      response: Entry,
+      responses: {
+        [Status.Ok]: Entry,
+        [Status.NotFound]: ErrorResponse,
+      },
     },
-    ({ params }) => {
+    ({ params, status }) => {
       const entry = entries.find((entry) => entry.id === params.id);
       if (!entry) throw new NotFoundError(undefined, { entryId: params.id });
 
-      return entry;
+      return status(Status.Ok, entry);
     },
   )
-
   .get(
     "/api/csv",
     {
-      response: z.string().meta({ contentType: "text/csv" }),
+      summary: "Export CSV",
+      tags: ["Entries"],
+      responses: z.string().meta({ contentType: "text/csv" }),
     },
-    () => "test",
+    ({ set }) => {
+      set.headers["Content-Type"] = "text/csv";
+      return "test";
+    },
   );
 
 console.log(
