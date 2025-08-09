@@ -1,6 +1,16 @@
 # Changelog
 
-## v0.6.0
+## v0.6.1
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.6.0...v0.6.1)
+
+### 🩹 Fixes
+
+- Remove slow type ([da55d20](https://github.com/aklinker1/zeta/commit/da55d20))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.5.0...v0.6.0)
 
