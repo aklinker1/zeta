@@ -2,6 +2,7 @@ import { describe, it } from "bun:test";
 import { expectTypeOf } from "expect-type";
 import type * as t from "../types";
 import { z } from "zod/v4";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 describe("Types", () => {
   describe("MergeRoutes", () => {
@@ -131,7 +132,7 @@ describe("Types", () => {
         query: z.ZodObject<{ asc: z.ZodCoercedBoolean<string> }>;
         params: z.ZodObject<{ id: z.ZodString }>;
         body: z.ZodObject<{ id: z.ZodString; user: z.ZodString }>;
-        response: z.ZodArray<
+        responses: z.ZodArray<
           z.ZodObject<{ id: z.ZodString; user: z.ZodString }>
         >;
       };
@@ -234,9 +235,9 @@ describe("Types", () => {
   });
 
   describe("GetResponseInputFromDef", () => {
-    it("should return void when there is no response", () => {
+    it("should return never when there is no response", () => {
       type Def = {};
-      type Expected = void;
+      type Expected = never;
 
       type Actual = t.GetResponseInputFromDef<Def>;
 
@@ -245,7 +246,7 @@ describe("Types", () => {
 
     it("should return the input type when provided", () => {
       type Def = {
-        response: z.ZodObject<{ id: z.ZodString }>;
+        responses: z.ZodObject<{ id: z.ZodString }>;
       };
       type Expected = { id: string };
 
@@ -265,9 +266,9 @@ describe("Types", () => {
   });
 
   describe("GetResponseOutputFromDef", () => {
-    it("should return void when there is no response defined", () => {
+    it("should return never when there is no response defined", () => {
       type Def = {};
-      type Expected = void;
+      type Expected = never;
 
       type Actual = t.GetResponseOutputFromDef<Def>;
 
@@ -276,7 +277,7 @@ describe("Types", () => {
 
     it("should return the input response type", () => {
       type Def = {
-        response: z.ZodObject<{ id: z.ZodString }>;
+        responses: z.ZodObject<{ id: z.ZodString }>;
       };
       type Expected = { id: string };
 
@@ -292,6 +293,53 @@ describe("Types", () => {
       type Actual = t.GetResponseOutputFromDef<Def>;
 
       expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+  });
+
+  describe("GetRouteHandlerReturnType", () => {
+    describe("when using AnyDef", () => {
+      it("should return any", () => {
+        type Actual = t.GetRouteHandlerReturnType<t.AnyDef>;
+
+        expectTypeOf<Actual>().toBeAny();
+      });
+    });
+
+    describe("when no response is defined", () => {
+      it("should return void", () => {
+        type Expected = void;
+
+        type Actual = t.GetRouteHandlerReturnType<{}>;
+
+        expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+      });
+    });
+
+    describe("when a single response is defined", () => {
+      it("should return the response's input type", () => {
+        type Expected = string | boolean;
+
+        type Actual = t.GetRouteHandlerReturnType<{
+          responses: StandardSchemaV1<string, boolean>;
+        }>;
+
+        expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+      });
+    });
+
+    describe("when multiple responses are defined", () => {
+      it("should return a StatusResult, requiring a call to ctx.status", () => {
+        type Expected = t.StatusResult;
+
+        type Actual = t.GetRouteHandlerReturnType<{
+          responses: {
+            200: StandardSchemaV1<string>;
+            404: StandardSchemaV1<string>;
+          };
+        }>;
+
+        expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+      });
     });
   });
 
@@ -504,6 +552,93 @@ describe("Types", () => {
       type Actual = t.UseAppData<ParentAppData, ChildAppData>;
 
       expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+  });
+
+  describe("GetResponseStatusMap", () => {
+    it("should return any when response is any", () => {
+      type Actual = t.GetResponseStatusMap<t.AnyDef>;
+
+      expectTypeOf<Actual>().toBeAny();
+    });
+
+    it("should return never when response is not defined", () => {
+      type Expected = never;
+      type Actual = t.GetResponseStatusMap<{}>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+
+    it("should return a map of 200 -> response when a single response is provided", () => {
+      type Response = StandardSchemaV1<string, string>;
+      type Expected = {
+        200: Response;
+      };
+      type Actual = t.GetResponseStatusMap<{
+        responses: Response;
+      }>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+
+    it("should return the map of responses provided", () => {
+      type Responses = {
+        200: StandardSchemaV1<string, string>;
+        201: StandardSchemaV1<undefined, undefined>;
+      };
+      type Expected = Responses;
+      type Actual = t.GetResponseStatusMap<{
+        responses: Responses;
+      }>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+  });
+
+  describe("StatusFn", () => {
+    it("should return a function that accepts any status code and body for AnyDef", () => {
+      type Map = t.GetResponseStatusMap<t.AnyDef>;
+      type Actual = t.StatusFn<Map>;
+
+      expectTypeOf<Actual>().toExtend<
+        (status: 200, body: unknown) => t.StatusResult
+      >();
+      expectTypeOf<Actual>().toExtend<
+        (status: 201, body: unknown) => t.StatusResult
+      >();
+    });
+
+    it("should return a never function when the response is not defined", () => {
+      type Map = t.GetResponseStatusMap<{}>;
+      type Expected = never;
+      type Actual = t.StatusFn<Map>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+
+    it("should accept a combination of defined statuses and inputs", () => {
+      type Responses = {
+        200: StandardSchemaV1<number, string>;
+        201: StandardSchemaV1<boolean, string>;
+      };
+      type Actual = t.StatusFn<
+        t.GetResponseStatusMap<{
+          responses: Responses;
+        }>
+      >;
+
+      expectTypeOf<Actual>().toExtend<
+        (status: 200, body: number) => t.StatusResult
+      >();
+      expectTypeOf<Actual>().toExtend<
+        (status: 201, body: boolean) => t.StatusResult
+      >();
+      expectTypeOf<Actual>().not.toMatchTypeOf<
+        (status: 202, body: any) => t.StatusResult
+      >();
+      expectTypeOf<Actual>().not.toMatchTypeOf<
+        (status: 200, body: boolean) => t.StatusResult
+      >();
     });
   });
 });

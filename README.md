@@ -280,9 +280,13 @@ const app = createApp().get("/path", {}, ({ set }) => {
 By default, Zeta will show `application/json` as the content type in the OpenAPI docs. you can override this by setting the `contentType` metadata on your schema:
 
 ```ts
-app.get("/csv", {
-  response: z.string().meta({ contentType: "text/csv" })
-}, () => "...")
+app.get(
+  "/csv",
+  {
+    response: z.string().meta({ contentType: "text/csv" }),
+  },
+  () => "...",
+);
 ```
 
 ## Life Cycle Hooks

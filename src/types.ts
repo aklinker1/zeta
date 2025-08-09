@@ -8,6 +8,7 @@
  */
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { OpenAPI } from "openapi-types";
+import type { IsStatusResult } from "./internal/utils";
 
 //
 // APP
@@ -447,13 +448,15 @@ export type RouteHandler<
 ) => MaybePromise<GetRouteHandlerReturnType<TRouteDef>>;
 
 export type GetRouteHandlerReturnType<TRouteDef extends RouteDef> =
-  TRouteDef["responses"] extends undefined
-    ? void
-    : TRouteDef["responses"] extends StandardSchemaV1<infer TResponses>
-      ? TResponses
-      : TRouteDef["responses"] extends Record<number, StandardSchemaV1<any>>
-        ? StatusResult
-        : never;
+  TRouteDef extends { responses: symbol } // is any check
+    ? any
+    : TRouteDef extends { responses: infer TResponses }
+      ? TResponses extends StandardSchemaV1<infer TResponse>
+        ? TResponse
+        : TRouteDef["responses"] extends Record<number, StandardSchemaV1<any>>
+          ? StatusResult
+          : never
+      : void;
 
 /**
  * Given an `App`, a method, and a route, return the handler function's type.
@@ -631,7 +634,7 @@ export type AnyDef = {
   params: StandardSchemaV1<Record<string, string>>;
   query: StandardSchemaV1<Record<string, string>>;
   body: StandardSchemaV1<any>;
-  responses: StandardSchemaV1<any>;
+  responses: any;
 };
 
 /**
@@ -714,17 +717,29 @@ export type GetAppDataCtx<TAppData extends AppData> = TAppData extends {
   ? TCtx
   : never;
 
-export declare const HandlerResult: unique symbol;
+export type StatusFn<TMap extends Record<any, any>> = TMap extends never
+  ? never
+  : <TStatus extends keyof TMap>(
+      status: TStatus,
+      body: StandardSchemaV1.InferInput<TMap[TStatus]>,
+    ) => StatusResult;
 
-export type StatusFn<TResponses extends Record<number, StandardSchemaV1>> = <
-  TStatus extends keyof TResponses,
->(
-  status: TStatus,
-  body: StandardSchemaV1.InferInput<TResponses[TStatus]>,
-) => StatusResult;
+export type GetResponseStatusMap<TRouteDef extends RouteDef> =
+  TRouteDef extends { responses: unknown }
+    ? TRouteDef["responses"] extends symbol // is any check
+      ? Record<number, StandardSchemaV1<any, any>>
+      : TRouteDef["responses"] extends StandardSchemaV1
+        ? { 200: TRouteDef["responses"] }
+        : TRouteDef["responses"] extends Record<
+              number | string,
+              StandardSchemaV1
+            >
+          ? TRouteDef["responses"]
+          : any
+    : never;
 
 export type StatusResult = {
-  [HandlerResult]: true;
+  [IsStatusResult]: true;
   status: number;
   body: unknown;
 };
@@ -739,16 +754,9 @@ export type BuildHandlerContext<
 > = Simplify<
   OnBeforeHandleContext<GetAppDataCtx<TAppData>> & {
     route: TPath;
-  } & GetRequestParamsOutputFromDef<TRouteDef> &
-    (TRouteDef extends {
-      responses: infer TResponses;
+  } & GetRequestParamsOutputFromDef<TRouteDef> & {
+      status: StatusFn<GetResponseStatusMap<TRouteDef>>;
     }
-      ? TResponses extends Record<number, StandardSchemaV1>
-        ? {
-            status: StatusFn<TResponses>;
-          }
-        : {}
-      : {})
 >;
 
 //
@@ -965,7 +973,7 @@ export type GetResponseOutput<
 /**
  * Given a route definition, return the same type minus the response.
  */
-type GetDefParams<TRouteDef extends RouteDef> = Omit<TRouteDef, "response">;
+type GetDefParams<TRouteDef extends RouteDef> = Omit<TRouteDef, "responses">;
 
 //
 // SCHEMA ADAPTER

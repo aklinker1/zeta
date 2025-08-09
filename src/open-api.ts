@@ -2,6 +2,8 @@ import type { OpenAPI } from "openapi-types";
 import type { App, BasePath, SchemaAdapter } from "./types";
 import type { CreateAppOptions } from "./app";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
+import { getStatusName } from "./status";
+import { ErrorResponseJsonSchema } from "./error-response";
 
 export function buildOpenApiDocs(
   options: CreateAppOptions<any> | undefined,
@@ -26,34 +28,14 @@ export function buildOpenApiDocs(
         ...userDoc.components,
         schemas: {
           ...userDoc.components?.schemas,
-          ErrorResponse: {
-            type: "object",
-            properties: {
-              status: {
-                type: "number",
-                description: "HTTP status code",
-                example: 400,
-              },
-              name: {
-                type: "string",
-                description: "The error's name",
-                example: "Bad Request",
-              },
-              message: {
-                type: "string",
-                description: "User-facing error message",
-                example: "Property 'name' is required",
-              },
-            },
-            required: ["status", "name", "message"],
-          },
+          ErrorResponse: ErrorResponseJsonSchema,
         },
       },
     };
     for (const [method, methodEntry] of Object.entries(app["~zeta"].routes)) {
       for (const [path, routerData] of Object.entries(methodEntry)) {
         const openApiPath = path.replace(/\/:([^/]+)/g, "/{$1}");
-        const { headers, params, query, body, response, ...openApiOperation } =
+        const { headers, params, query, body, responses, ...openApiOperation } =
           routerData.def ?? {};
         docs.paths ??= {};
         docs.paths[openApiPath] ??= {};
@@ -74,17 +56,18 @@ export function buildOpenApiDocs(
             ...mapParameters(adapter, headers, "header"),
           ] as OpenAPI.Parameters,
           responses: {
-            ...(response && {
-              200: {
-                description: "OK",
-                content: {
-                  [adapter.getMeta(response)?.contentType ??
-                  "application/json"]: {
-                    schema: adapter.toJsonSchema(response),
-                  },
-                },
-              },
-            }),
+            ...(!responses
+              ? {}
+              : "~standard" in responses
+                ? {
+                    200: buildResponse(200, responses, adapter),
+                  }
+                : Object.fromEntries(
+                    Object.entries(responses).map(([status, response]) => [
+                      status,
+                      buildResponse(Number(status), response, adapter),
+                    ]),
+                  )),
             ...((params || query || headers || body) && {
               400: {
                 description: "Bad Request",
@@ -159,4 +142,32 @@ function mapParameters(
       schema: adapter.toJsonSchema(schema),
       required: !optional,
     }));
+}
+
+function buildResponse(
+  status: number,
+  schema: StandardSchemaV1,
+  adapter: SchemaAdapter,
+): NonNullable<OpenAPI.Operation["responses"]>[string] {
+  if (status >= 400)
+    return {
+      description: getStatusName(status) ?? "",
+      content: {
+        "application/json": {
+          schema: {
+            $ref: "#/components/schemas/ErrorResponse",
+          },
+        },
+      },
+    };
+
+  const meta = adapter.getMeta(schema);
+  return {
+    description: meta?.responseDescription ?? getStatusName(status),
+    content: {
+      [meta?.contentType ?? "application/json"]: {
+        schema: adapter.toJsonSchema(schema),
+      },
+    },
+  };
 }

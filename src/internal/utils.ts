@@ -1,8 +1,15 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { HttpError, ValidationGlobalError } from "../errors";
 import { Status } from "../status";
-import type { App, LifeCycleHook, MaybePromise, RouterData } from "../types";
+import type {
+  App,
+  LifeCycleHook,
+  MaybePromise,
+  RouterData,
+  StatusResult,
+} from "../types";
 import type { MatchedRoute } from "rou3";
+import { ErrorResponse } from "../error-response";
 
 export function validateSchema<T>(
   schema: StandardSchemaV1<T, T>,
@@ -75,16 +82,7 @@ export function getErrorStack(err: Error): string[] | undefined {
     .slice(1);
 }
 
-export type HttpErrorResponse = {
-  [additionalInfo: string]: any;
-  name: string;
-  message: string;
-  status: Status;
-  stack?: string[];
-  cause?: HttpErrorResponse;
-};
-
-export function serializeErrorResponse(err: unknown): HttpErrorResponse {
+export function serializeErrorResponse(err: unknown): ErrorResponse {
   if (err instanceof HttpError)
     return {
       status: err.status,
@@ -124,4 +122,10 @@ export async function callCtxModifierHooks(
     if (res instanceof Response) return res;
     if (res) Object.assign(ctx, res);
   }
+}
+
+export const IsStatusResult = Symbol("IsStatusResult");
+
+export function isStatusResult(result: any): result is StatusResult {
+  return IsStatusResult in result;
 }
