@@ -108,7 +108,10 @@ const app = createApp({
       tags: ["Entries"],
       responses: z.string().meta({ contentType: "text/csv" }),
     },
-    () => "test",
+    ({ set }) => {
+      set.headers["Content-Type"] = "text/csv";
+      return "test";
+    },
   );
 
 console.log(
