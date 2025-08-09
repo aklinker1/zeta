@@ -1,6 +1,25 @@
 # Changelog
 
-## v0.5.0
+## v0.6.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.5.0...v0.6.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Multiple responses ([69ba98a](https://github.com/aklinker1/zeta/commit/69ba98a))
+
+### 🏡 Chore
+
+- ⚠️  Rename `Status` and `XyzError` to `HttpStatus` and `XyzHttpError` ([8c50436](https://github.com/aklinker1/zeta/commit/8c50436))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Multiple responses ([69ba98a](https://github.com/aklinker1/zeta/commit/69ba98a))
+- ⚠️  Rename `Status` and `XyzError` to `HttpStatus` and `XyzHttpError` ([8c50436](https://github.com/aklinker1/zeta/commit/8c50436))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.4.0...v0.5.0)
 
