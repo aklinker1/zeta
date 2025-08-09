@@ -5,6 +5,7 @@ import {
   callCtxModifierHooks,
   getRawParams,
   getRawQuery,
+  isStatusResult,
   IsStatusResult,
   validateInputSchema,
   validateOutputSchema,
@@ -88,7 +89,7 @@ export async function callHandler(
           ctx.response,
         );
       } else {
-        if (!ctx.response || !ctx.response[IsStatusResult]) {
+        if (!ctx.response || !isStatusResult(ctx.response)) {
           throw new Error(
             "When `responses` is a record of schemas, you must return a value from `ctx.status()`.",
           );
