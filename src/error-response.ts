@@ -21,7 +21,7 @@ import type { HttpStatus } from "./status";
  * );
  * ```
  */
-export const ErrorResponse = {
+export const ErrorResponse: StandardSchemaV1 = {
   "~standard": {
     vendor: "@aklinker/zeta",
     version: 1,
@@ -60,7 +60,7 @@ export const ErrorResponse = {
       return { value: value as ErrorResponse };
     },
   },
-} satisfies StandardSchemaV1;
+};
 
 /**
  * The actual type an error response conforms to.
