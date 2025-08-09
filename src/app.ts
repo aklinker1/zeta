@@ -1,6 +1,6 @@
 import { callHandler } from "./internal/call-handler";
 import { HttpError } from "./errors";
-import { Status } from "./status";
+import { HttpStatus } from "./status";
 import type {
   App,
   RouterData,
@@ -147,7 +147,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
           request,
           method: request.method,
           set: {
-            status: Status.Ok,
+            status: HttpStatus.Ok,
             headers: {},
           },
         } satisfies OnGlobalRequestContext;
@@ -175,7 +175,9 @@ export function createApp<TPrefix extends BasePrefix = "">(
           }
 
           const status =
-            err instanceof HttpError ? err.status : Status.InternalServerError;
+            err instanceof HttpError
+              ? err.status
+              : HttpStatus.InternalServerError;
           const res = Response.json(serializeErrorResponse(err), { status });
           ctx.response = res;
           return res;

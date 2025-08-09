@@ -271,16 +271,16 @@ const app = createApp().get(
 When defining multiple schemas for different status codes, instead of returning the value directly, you'll need to return the value of the `status` function:
 
 ```ts
-import { ErrorResponse, createApp, Status } from "@aklinker1/zeta";
-import { NotFoundError } from "@aklinker1/zeta/errors";
+import { ErrorResponse, createApp, HttpStatus } from "@aklinker1/zeta";
+import { NotFoundHttpError } from "@aklinker1/zeta/errors";
 
 const app = createApp().post(
   "/api/users",
   {
     body: UserSchema,
     responses: {
-      [Status.Created]: User,
-      [Status.Conflict]: ErrorResponse,
+      [HttpStatus.Created]: User,
+      [HttpStatus.Conflict]: ErrorResponse,
     },
   },
   async ({ status, body }) => {
@@ -290,14 +290,14 @@ const app = createApp().post(
     // Zeta maps the HttpError's status code to the correct response schema.
     if (userExists) {
       throw new HttpError(
-        Status.Conflict,
+        HttpStatus.Conflict,
         "A user with this email already exists.",
       );
     }
 
     const newUser = await db.createUser(body);
 
-    return status(Status.Created, newUser);
+    return status(HttpStatus.Created, newUser);
   },
 );
 ```
@@ -393,7 +393,7 @@ Here's an example combining several different hooks:
 
 ```ts
 import { createApp } from "@aklinker1/zeta";
-import { NotFoundError } from "@aklinker1/zeta/errors";
+import { NotFoundHttpError } from "@aklinker1/zeta/errors";
 
 const usersApp = createApp({ prefix: "/api/users" })
   .get("/", {}, () => {
@@ -409,7 +409,7 @@ const usersApp = createApp({ prefix: "/api/users" })
   })
   .onBeforeHandle(async ({ path }) => {
     const user = await getUser(path.userId);
-    if (user == null) throw new NotFoundError("User not found");
+    if (user == null) throw new NotFoundHttpError("User not found");
 
     return { user };
   })
@@ -619,10 +619,10 @@ By default, Zeta provides built-in error handling. It also provides useful error
 
 ```ts
 import { HttpError } from "@aklinker1/zeta/errors";
-import { Status } from "@aklinker1/zeta/status";
+import { HttpStatus } from "@aklinker1/zeta/status";
 
 const app = createApp().get("/users", {}, () => {
-  throw new HttpError(Status.NotImplemented, "TODO");
+  throw new HttpError(HttpStatus.NotImplemented, "TODO");
 });
 ```
 
@@ -657,12 +657,12 @@ const app = createApp()
 
 When a non-`HttpError` value is thrown, Zeta returns a `500 Internal Server Error` with the original error as the `cause`.
 
-## Status Codes
+## HttpStatus Codes
 
 Zeta provides an enum of all HTTP status codes. You should use this instead of literal values.
 
 ```diff
-import { Status } from "@aklinker1/zeta/status";
+import { HttpStatus } from "@aklinker1/zeta/status";
 
 const app = createApp()
   .post(
@@ -671,7 +671,7 @@ const app = createApp()
     ({ set }) => {
       // ...
 -     set.status = 201;
-+     set.status = Status.Created;
++     set.status = HttpStatus.Created;
     },
   );
 ```
@@ -746,7 +746,7 @@ expect(response).toEqual([...]);
 await expect(
   () => client.fetch("GET", "/users/123", {})
 ).rejects.toEqual({
-  status: Status.NotFound,
+  status: HttpStatus.NotFound,
   message: "User not found",
 })
 ```

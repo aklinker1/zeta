@@ -1,5 +1,5 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import type { Status } from "./status";
+import type { HttpStatus } from "./status";
 
 /**
  * A schema for a error response. Use when defining additional status codes that an operation might return with:
@@ -69,7 +69,7 @@ export type ErrorResponse = {
   [additionalInfo: string]: any;
   name: string;
   message: string;
-  status: Status;
+  status: HttpStatus;
   stack?: string[];
   cause?: ErrorResponse;
 };

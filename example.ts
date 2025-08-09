@@ -1,9 +1,9 @@
 import { createApp } from "./src";
 import { version } from "./package.json" with { type: "json" };
 import { z } from "zod/v4";
-import { NotFoundError } from "./src/errors";
+import { NotFoundHttpError } from "./src/errors";
 import { zodSchemaAdapter } from "./src/adapters/zod-schema-adapter";
-import { Status } from "./src/status";
+import { HttpStatus } from "./src/status";
 import { ErrorResponse } from "./src/error-response";
 
 const Entry = z.object({
@@ -74,7 +74,7 @@ const app = createApp({
     },
     ({ body, set }) => {
       entries.push(body);
-      set.status = Status.Accepted;
+      set.status = HttpStatus.Accepted;
     },
   )
   .get(
@@ -86,15 +86,16 @@ const app = createApp({
       tags: ["Entries"],
       params: z.object({ id: z.coerce.number() }),
       responses: {
-        [Status.Ok]: Entry,
-        [Status.NotFound]: ErrorResponse,
+        [HttpStatus.Ok]: Entry,
+        [HttpStatus.NotFound]: ErrorResponse,
       },
     },
     ({ params, status }) => {
       const entry = entries.find((entry) => entry.id === params.id);
-      if (!entry) throw new NotFoundError(undefined, { entryId: params.id });
+      if (!entry)
+        throw new NotFoundHttpError(undefined, { entryId: params.id });
 
-      return status(Status.Ok, entry);
+      return status(HttpStatus.Ok, entry);
     },
   )
   .get(

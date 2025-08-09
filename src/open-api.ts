@@ -2,7 +2,7 @@ import type { OpenAPI } from "openapi-types";
 import type { App, BasePath, SchemaAdapter } from "./types";
 import type { CreateAppOptions } from "./app";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { getStatusName } from "./status";
+import { getHttpStatusName } from "./status";
 import { ErrorResponseJsonSchema } from "./error-response";
 
 export function buildOpenApiDocs(
@@ -151,7 +151,7 @@ function buildResponse(
 ): NonNullable<OpenAPI.Operation["responses"]>[string] {
   if (status >= 400)
     return {
-      description: getStatusName(status) ?? "",
+      description: getHttpStatusName(status) ?? "",
       content: {
         "application/json": {
           schema: {
@@ -163,7 +163,7 @@ function buildResponse(
 
   const meta = adapter.getMeta(schema);
   return {
-    description: meta?.responseDescription ?? getStatusName(status),
+    description: meta?.responseDescription ?? getHttpStatusName(status),
     content: {
       [meta?.contentType ?? "application/json"]: {
         schema: adapter.toJsonSchema(schema),

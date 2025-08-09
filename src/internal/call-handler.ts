@@ -1,6 +1,6 @@
 import type { MatchedRoute } from "rou3";
 import type { RouterData } from "../types";
-import { NotFoundError } from "../errors";
+import { NotFoundHttpError } from "../errors";
 import {
   callCtxModifierHooks,
   getRawParams,
@@ -21,7 +21,7 @@ export async function callHandler(
 ): Promise<Response> {
   const route = getRoute(ctx.method, ctx.path);
   if (route == null) {
-    throw new NotFoundError(undefined, {
+    throw new NotFoundHttpError(undefined, {
       method: ctx.method,
       path: ctx.path,
     });

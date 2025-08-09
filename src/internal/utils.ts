@@ -1,6 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { HttpError, ValidationGlobalError } from "../errors";
-import { Status } from "../status";
+import { HttpStatus } from "../status";
 import type {
   App,
   LifeCycleHook,
@@ -23,7 +23,7 @@ export function validateSchema<T>(
   return res.value;
 }
 
-function createHttpSchemaValidator(status: Status, message: string) {
+function createHttpSchemaValidator(status: HttpStatus, message: string) {
   return <T>(schema: StandardSchemaV1<T, T>, input: unknown): T => {
     try {
       return validateSchema<T>(schema, input);
@@ -41,11 +41,11 @@ function createHttpSchemaValidator(status: Status, message: string) {
 }
 
 export const validateInputSchema = createHttpSchemaValidator(
-  Status.BadRequest,
+  HttpStatus.BadRequest,
   "Input validation failed",
 );
 export const validateOutputSchema = createHttpSchemaValidator(
-  Status.UnprocessableEntity,
+  HttpStatus.UnprocessableEntity,
   "Output validation failed",
 );
 
@@ -95,7 +95,7 @@ export function serializeErrorResponse(err: unknown): ErrorResponse {
 
   if (err instanceof Error)
     return {
-      status: Status.InternalServerError,
+      status: HttpStatus.InternalServerError,
       name: err.name,
       message: err.message,
       stack: getErrorStack(err),
@@ -105,7 +105,7 @@ export function serializeErrorResponse(err: unknown): ErrorResponse {
   return {
     name: "Unknown Error",
     message: "An unknown error occurred",
-    status: Status.InternalServerError,
+    status: HttpStatus.InternalServerError,
     stack: getErrorStack(err as Error),
   };
 }
