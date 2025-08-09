@@ -247,7 +247,9 @@ const app = createApp().post(
 
 ### Response
 
-Right now, you can only define a single response schema. By default, a `200 OK` status code is returned.
+You can either define a single response or multiple responses.
+
+For single response schemas, a `200 OK` status code is assumed.
 
 ```ts
 import { z } from "zod";
@@ -255,7 +257,9 @@ import { z } from "zod";
 const app = createApp().get(
   "/api/health",
   {
-    response: z.object({
+    // Note: The property key is always responses (plural), even when defining a
+    // single response schema.
+    responses: z.object({
       status: z.literal("up"),
       version: z.string(),
     }),
@@ -264,30 +268,77 @@ const app = createApp().get(
 );
 ```
 
-When a response schema is defined, the return value from the function is type-safe. If you want to return a custom status code or headers, you can do so with the `set` function provided by the context:
+When defining multiple schemas for different status codes, instead of returning the value directly, you'll need to return the value of the `status` function:
 
 ```ts
-import { HttpStatus } from "@aklinker1/zeta/status";
+import { ErrorResponse, createApp, Status } from "@aklinker1/zeta";
+import { NotFoundError } from "@aklinker1/zeta/errors";
 
-const app = createApp().get("/path", {}, ({ set }) => {
-  set.status = HttpStatus.Created;
-  set.headers["X-Example"] = "some-value";
-});
+const app = createApp().post(
+  "/api/users",
+  {
+    body: UserSchema,
+    responses: {
+      [Status.Created]: User,
+      [Status.Conflict]: ErrorResponse,
+    },
+  },
+  async ({ status, body }) => {
+    const userExists = await db.doesUserExist(body.email);
+
+    // For error responses, throwing is the recommended approach.
+    // Zeta maps the HttpError's status code to the correct response schema.
+    if (userExists) {
+      throw new HttpError(
+        Status.Conflict,
+        "A user with this email already exists.",
+      );
+    }
+
+    const newUser = await db.createUser(body);
+
+    return status(Status.Created, newUser);
+  },
+);
 ```
 
-> As of right now, you can't add custom status codes to the OpenAPI docs or as apart of the response schema. The OpenAPI spec will always show `200 OK` as the response.
+> When defining custom error responses, use `ErrorResponse` schema from `@aklinker1/zeta`.
 
-By default, Zeta will show `application/json` as the content type in the OpenAPI docs. you can override this by setting the `contentType` metadata on your schema:
+When a response schema(s) are defined, the return value from the function is type-safe.
+
+#### Custom Content Types
+
+By default, Zeta will use `application/json` as the content type in the OpenAPI docs. you can override this by setting the `contentType` metadata on your schema:
 
 ```ts
 app.get(
   "/csv",
   {
-    response: z.string().meta({ contentType: "text/csv" }),
+    responses: z.string().meta({ contentType: "text/csv" }),
   },
-  () => "...",
+  () => {
+    // ...
+  },
 );
 ```
+
+> [!WARNING]
+>
+> Zeta ignores this metadata when building the response. Make sure to set the `Content-Type` header in your handler:
+>
+> ```ts
+> app.get(
+>   "/csv",
+>   {
+>     responses: z.string().meta({ contentType: "text/csv" }),
+>   },
+>   ({ set }) => {
+>     // ...
+>     set.headers["Content-Type"] = "text/csv";
+>     return "...";
+>   },
+> );
+> ```
 
 ## Life Cycle Hooks
 
@@ -350,7 +401,10 @@ const usersApp = createApp({ prefix: "/api/users" })
   })
   .onTransform(({ path }) => {
     return {
-      path: { ...path, userId: Number(path.userId) },
+      path: {
+        ...path,
+        userId: Number(path.userId),
+      },
     };
   })
   .onBeforeHandle(async ({ path }) => {
@@ -565,10 +619,10 @@ By default, Zeta provides built-in error handling. It also provides useful error
 
 ```ts
 import { HttpError } from "@aklinker1/zeta/errors";
-import { HttpStatus } from "@aklinker1/zeta/status";
+import { Status } from "@aklinker1/zeta/status";
 
 const app = createApp().get("/users", {}, () => {
-  throw new HttpError(HttpStatus.NotImplemented, "TODO");
+  throw new HttpError(Status.NotImplemented, "TODO");
 });
 ```
 
@@ -608,7 +662,7 @@ When a non-`HttpError` value is thrown, Zeta returns a `500 Internal Server Erro
 Zeta provides an enum of all HTTP status codes. You should use this instead of literal values.
 
 ```diff
-import { HttpStatus } from "@aklinker1/zeta/status";
+import { Status } from "@aklinker1/zeta/status";
 
 const app = createApp()
   .post(
@@ -617,7 +671,7 @@ const app = createApp()
     ({ set }) => {
       // ...
 -     set.status = 201;
-+     set.status = HttpStatus.Created;
++     set.status = Status.Created;
     },
   );
 ```
@@ -692,7 +746,7 @@ expect(response).toEqual([...]);
 await expect(
   () => client.fetch("GET", "/users/123", {})
 ).rejects.toEqual({
-  status: HttpStatus.NotFound,
+  status: Status.NotFound,
   message: "User not found",
 })
 ```

@@ -1,9 +1,4 @@
 /**
- * Contains an enum of all HTTP status codes. Safe for use on both client and server side.
- * @module
- */
-
-/**
  * Enum containing all HTTP status codes.
  */
 export enum Status {
