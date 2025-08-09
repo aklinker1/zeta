@@ -16,16 +16,19 @@
 
 ### 🚀 Enhancements
 
-- ⚠️  Multiple responses ([69ba98a](https://github.com/aklinker1/zeta/commit/69ba98a))
+- ⚠️ Multiple responses ([69ba98a](https://github.com/aklinker1/zeta/commit/69ba98a))
 
 ### 🏡 Chore
 
-- ⚠️  Rename `Status` and `XyzError` to `HttpStatus` and `XyzHttpError` ([8c50436](https://github.com/aklinker1/zeta/commit/8c50436))
+- ⚠️ Rename `Status` and `XyzError` to `HttpStatus` and `XyzHttpError` ([8c50436](https://github.com/aklinker1/zeta/commit/8c50436))
 
 #### ⚠️ Breaking Changes
 
-- ⚠️  Multiple responses ([69ba98a](https://github.com/aklinker1/zeta/commit/69ba98a))
-- ⚠️  Rename `Status` and `XyzError` to `HttpStatus` and `XyzHttpError` ([8c50436](https://github.com/aklinker1/zeta/commit/8c50436))
+- When defining an endpoint, `response` was renamed to `responses`
+- `onGlobalError` no longer supports a return type. Zeta converts all errors into responses automatically
+- Fix typo in type name: `OnGlobalErrorHoos` → `OnGlobalErrorHooks`
+- `@aklinker1/zeta/status` is merged into `@aklinker1/zeta`
+- Rename `Status` and `XyzError` to `HttpStatus` and `XyzHttpError` ([8c50436](https://github.com/aklinker1/zeta/commit/8c50436))
 
 ### ❤️ Contributors
 
