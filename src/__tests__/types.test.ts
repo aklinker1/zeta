@@ -3,6 +3,7 @@ import { expectTypeOf } from "expect-type";
 import type * as t from "../types";
 import { z } from "zod/v4";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
+import type { ErrorResponse } from "../error-response";
 
 describe("Types", () => {
   describe("MergeRoutes", () => {
@@ -127,7 +128,7 @@ describe("Types", () => {
   });
 
   describe("GetRequestParamsInputFromDef", () => {
-    it("should get input type for all fields, ignoring response", () => {
+    it("should get input type for all fields, ignoring a single response", () => {
       type Def = {
         query: z.ZodObject<{ asc: z.ZodCoercedBoolean<string> }>;
         params: z.ZodObject<{ id: z.ZodString }>;
@@ -135,6 +136,27 @@ describe("Types", () => {
         responses: z.ZodArray<
           z.ZodObject<{ id: z.ZodString; user: z.ZodString }>
         >;
+      };
+      type Expected = {
+        query: { asc: string };
+        params: { id: string };
+        body: { id: string; user: string };
+      };
+
+      type Actual = t.GetRequestParamsInputFromDef<Def>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+
+    it("should get input type for all fields, ignoring multiple responses", () => {
+      type Def = {
+        query: z.ZodObject<{ asc: z.ZodCoercedBoolean<string> }>;
+        params: z.ZodObject<{ id: z.ZodString }>;
+        body: z.ZodObject<{ id: z.ZodString; user: z.ZodString }>;
+        responses: {
+          200: z.ZodArray<z.ZodObject<{ id: z.ZodString; user: z.ZodString }>>;
+          400: ErrorResponse;
+        };
       };
       type Expected = {
         query: { asc: string };

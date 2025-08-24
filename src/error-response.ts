@@ -65,7 +65,7 @@ export const ErrorResponse: StandardSchemaV1 = {
 /**
  * The actual type an error response conforms to.
  */
-export type ErrorResponse = {
+export type ErrorResponse = StandardSchemaV1 & {
   [additionalInfo: string]: any;
   name: string;
   message: string;
