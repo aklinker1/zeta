@@ -1,6 +1,20 @@
 # Changelog
 
-## v0.6.1
+## v0.6.2
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.6.1...v0.6.2)
+
+### 🩹 Fixes
+
+- **types:** Make `ErrorResponse` type a `StandardSchema` so input params are parsed correctly ([2b412d8](https://github.com/aklinker1/zeta/commit/2b412d8))
+
+### 📖 Documentation
+
+- Update changelog ([320daf2](https://github.com/aklinker1/zeta/commit/320daf2))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.6.0...v0.6.1)
 
