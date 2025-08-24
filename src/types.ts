@@ -751,7 +751,10 @@ export type BuildHandlerContext<
   TPath extends BasePath,
   TRouteDef extends RouteDef,
 > = Simplify<
-  OnBeforeHandleContext<GetAppDataCtx<TAppData>> & {
+  Omit<
+    OnBeforeHandleContext<GetAppDataCtx<TAppData>>,
+    "body" | "query" | "params" | "headers"
+  > & {
     route: TPath;
   } & GetRequestParamsOutputFromDef<TRouteDef> & {
       status: StatusFn<GetResponseStatusMap<TRouteDef>>;

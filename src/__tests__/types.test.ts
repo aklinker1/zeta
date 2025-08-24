@@ -410,7 +410,7 @@ describe("Types", () => {
       expectTypeOf<Actual>().toMatchObjectType<Expected>();
     });
 
-    it("should some base parameters for all handlers", () => {
+    it("should include some base parameters for all handlers", () => {
       type Path = "/api";
       type Def = t.AnyDef;
       type Ctx = { a: "A" };
@@ -427,6 +427,39 @@ describe("Types", () => {
       type Expected = {
         route: Path;
         request: Request;
+      };
+
+      type Actual = t.BuildHandlerContext<App, Path, Def>;
+      expectTypeOf<Actual>().toMatchObjectType<Expected>();
+    });
+
+    it("should build input params correctly", () => {
+      type Path = "/api";
+      type Def = {
+        body: z.ZodObject<{ body: z.ZodString }>;
+        query: z.ZodObject<{ query: z.ZodNumber }>;
+        params: z.ZodObject<{ params: z.ZodBoolean }>;
+        responses: {
+          404: ErrorResponse;
+        };
+      };
+      type Ctx = { a: "A" };
+      type App = {
+        prefix: "";
+        exported: false;
+        ctx: Ctx;
+        routes: {
+          GET: {
+            [p in Path]: Def;
+          };
+        };
+      };
+      type Expected = {
+        route: Path;
+        request: Request;
+        body: { body: string };
+        query: { query: number };
+        params: { params: boolean };
       };
 
       type Actual = t.BuildHandlerContext<App, Path, Def>;
