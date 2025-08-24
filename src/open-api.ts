@@ -3,7 +3,7 @@ import type { App, BasePath, SchemaAdapter } from "./types";
 import type { CreateAppOptions } from "./app";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { getHttpStatusName } from "./status";
-import { ErrorResponseJsonSchema } from "./error-response";
+import { ErrorResponseJsonSchema, type ZetaSchema } from "./custom-responses";
 
 export function buildOpenApiDocs(
   options: CreateAppOptions<any> | undefined,
@@ -39,6 +39,7 @@ export function buildOpenApiDocs(
           routerData.def ?? {};
         docs.paths ??= {};
         docs.paths[openApiPath] ??= {};
+
         (docs.paths[openApiPath] as any)[method.toLowerCase()] = {
           ...openApiOperation,
           requestBody: body
@@ -146,20 +147,32 @@ function mapParameters(
 
 function buildResponse(
   status: number,
-  schema: StandardSchemaV1,
+  schema: StandardSchemaV1 | ZetaSchema,
   adapter: SchemaAdapter,
 ): NonNullable<OpenAPI.Operation["responses"]>[string] {
-  if (status >= 400)
-    return {
-      description: getHttpStatusName(status) ?? "",
-      content: {
-        "application/json": {
-          schema: {
-            $ref: "#/components/schemas/ErrorResponse",
+  if ("~zeta" in schema) {
+    const description =
+      schema["~zeta"].meta?.responseDescription ??
+      getHttpStatusName(status) ??
+      "";
+    if (schema["~zeta"].type === "NoResponse") {
+      return {
+        description,
+      };
+    }
+    if (schema["~zeta"].type === "ErrorResponse") {
+      return {
+        description,
+        content: {
+          "application/json": {
+            schema: {
+              $ref: "#/components/schemas/ErrorResponse",
+            },
           },
         },
-      },
-    };
+      };
+    }
+  }
 
   const meta = adapter.getMeta(schema);
   return {

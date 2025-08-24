@@ -107,9 +107,15 @@ export function createApp<TPrefix extends BasePrefix = "">(
       const jsonRoute = options?.openApiRoute ?? "/openapi.json";
       const scalarRoute = options?.scalarRoute ?? "/scalar";
       const docs = buildOpenApiDocs(options, app);
+      if (docs.type === "error") {
+        console.error("Failed to build OpenAPI docs:", docs.error);
+      }
 
       app.get(jsonRoute, () => {
-        if (docs.type === "error") throw docs.error;
+        if (docs.type === "error") {
+          console.error("Failed to build OpenAPI docs:", docs.error);
+          throw docs.error;
+        }
         return docs.docs;
       });
       if (docs.type === "success") {

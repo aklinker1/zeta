@@ -3,7 +3,7 @@ import { expectTypeOf } from "expect-type";
 import type * as t from "../types";
 import { z } from "zod/v4";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import type { ErrorResponse } from "../error-response";
+import { ErrorResponse } from "../custom-responses";
 
 describe("Types", () => {
   describe("MergeRoutes", () => {
@@ -155,7 +155,7 @@ describe("Types", () => {
         body: z.ZodObject<{ id: z.ZodString; user: z.ZodString }>;
         responses: {
           200: z.ZodArray<z.ZodObject<{ id: z.ZodString; user: z.ZodString }>>;
-          400: ErrorResponse;
+          400: typeof ErrorResponse;
         };
       };
       type Expected = {
@@ -440,7 +440,7 @@ describe("Types", () => {
         query: z.ZodObject<{ query: z.ZodNumber }>;
         params: z.ZodObject<{ params: z.ZodBoolean }>;
         responses: {
-          404: ErrorResponse;
+          404: typeof ErrorResponse;
         };
       };
       type Ctx = { a: "A" };

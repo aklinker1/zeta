@@ -1,10 +1,13 @@
-import { createApp } from "./src";
+import {
+  createApp,
+  ErrorResponse,
+  NoResponse,
+  HttpStatus,
+  NotFoundHttpError,
+} from "./src";
 import { version } from "./package.json" with { type: "json" };
 import { z } from "zod/v4";
-import { NotFoundHttpError } from "./src/errors";
 import { zodSchemaAdapter } from "./src/adapters/zod-schema-adapter";
-import { HttpStatus } from "./src/status";
-import { ErrorResponse } from "./src/error-response";
 
 const Entry = z.object({
   id: z.number(),
@@ -96,6 +99,27 @@ const app = createApp({
         throw new NotFoundHttpError(undefined, { entryId: params.id });
 
       return status(HttpStatus.Ok, entry);
+    },
+  )
+  .delete(
+    "/api/entries/:id",
+    {
+      operationId: "deleteEntry",
+      summary: "Delete Entry",
+      tags: ["Entries"],
+      params: z.object({ id: z.coerce.number() }),
+      responses: {
+        [HttpStatus.NoContent]: NoResponse.meta({
+          responseDescription: "Entry deleted",
+        }),
+      },
+    },
+    ({ status, params }) => {
+      const index = entries.findIndex((entry) => entry.id === params.id);
+      if (index >= 0) {
+        entries.splice(index, 1);
+      }
+      return status(HttpStatus.NoContent, undefined);
     },
   )
   .get(

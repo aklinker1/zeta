@@ -9,7 +9,7 @@ import type {
   StatusResult,
 } from "../types";
 import type { MatchedRoute } from "rou3";
-import { ErrorResponse } from "../error-response";
+import type { ErrorResponse } from "../custom-responses";
 
 export function validateSchema<T>(
   schema: StandardSchemaV1<T, T>,

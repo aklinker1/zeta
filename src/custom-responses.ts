@@ -1,8 +1,45 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { HttpStatus } from "./status";
 
+export type ZetaSchema<Input = unknown, Output = Input> = StandardSchemaV1<
+  Input,
+  Output
+> & {
+  "~zeta": {
+    type: string;
+    meta: Record<string, any>;
+  };
+  meta(meta?: Record<string, any>): ZetaSchema<Input, Output>;
+};
+
+function createZetaSchema<Input = unknown, Output = Input>(
+  name: string,
+  validate: (value: unknown) => StandardSchemaV1.Result<Output>,
+  meta: Record<string, string> = {},
+): ZetaSchema<Input, Output> {
+  const parentMeta = meta;
+  return {
+    "~zeta": {
+      type: name,
+      meta,
+    },
+    "~standard": {
+      vendor: "@aklinker/zeta",
+      version: 1,
+      validate,
+    },
+    meta(meta) {
+      return createZetaSchema(name, validate, {
+        ...parentMeta,
+        ...meta,
+      });
+    },
+  };
+}
+
 /**
- * A schema for a error response. Use when defining additional status codes that an operation might return with:
+ * A schema for an error response. Use when defining additional status codes
+ * that an operation might return with:
  *
  * ```ts
  * import { ErrorResponse } from '@aklinker/zeta';
@@ -21,11 +58,10 @@ import type { HttpStatus } from "./status";
  * );
  * ```
  */
-export const ErrorResponse: StandardSchemaV1 = {
-  "~standard": {
-    vendor: "@aklinker/zeta",
-    version: 1,
-    validate: (value: unknown): StandardSchemaV1.Result<ErrorResponse> => {
+export const ErrorResponse: ZetaSchema<unknown, ErrorResponse> =
+  createZetaSchema<unknown, ErrorResponse>(
+    "ErrorResponse",
+    (value: unknown): StandardSchemaV1.Result<ErrorResponse> => {
       if (value == null)
         return {
           issues: [{ message: `Expected an object, received ${value}` }],
@@ -59,13 +95,12 @@ export const ErrorResponse: StandardSchemaV1 = {
 
       return { value: value as ErrorResponse };
     },
-  },
-};
+  );
 
 /**
  * The actual type an error response conforms to.
  */
-export type ErrorResponse = StandardSchemaV1 & {
+export type ErrorResponse = {
   [additionalInfo: string]: any;
   name: string;
   message: string;
@@ -95,3 +130,37 @@ export const ErrorResponseJsonSchema = {
   },
   required: ["status", "name", "message"],
 };
+
+/**
+ * A schema for when you want to not return a response. Use when defining
+ * additional status codes that an operation might return with:
+ *
+ * ```ts
+ * import { NoResponse } from '@aklinker/zeta';
+ *
+ * app.get(
+ *   "/api/item/:itemId",
+ *   {
+ *     responses: {
+ *       [HttpStatus.Accepted]: NoResponse,
+ *     }
+ *   },
+ *   () => {
+ *     // ...
+ *   }
+ * );
+ * ```
+ */
+export const NoResponse: ZetaSchema<undefined | null | void, void> =
+  createZetaSchema<undefined | null | void, void>(
+    "NoResponse",
+    (value: unknown): StandardSchemaV1.Result<void> => {
+      return value != null
+        ? {
+            issues: [
+              { message: `Expected undefined or null, got ${typeof value}` },
+            ],
+          }
+        : { value: undefined };
+    },
+  );
