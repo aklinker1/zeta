@@ -1,6 +1,16 @@
 # Changelog
 
-## v0.6.3
+## v0.6.4
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.6.3...v0.6.4)
+
+### 🚀 Enhancements
+
+- Add `NoResponse` helper ([667fa82](https://github.com/aklinker1/zeta/commit/667fa82))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.6.2...v0.6.3)
 
