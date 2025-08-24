@@ -1,6 +1,16 @@
 # Changelog
 
-## v0.6.2
+## v0.6.3
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.6.2...v0.6.3)
+
+### 🩹 Fixes
+
+- **types:** Properly build request context type ([c4922f0](https://github.com/aklinker1/zeta/commit/c4922f0))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.6.1...v0.6.2)
 
