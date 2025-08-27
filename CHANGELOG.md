@@ -1,6 +1,16 @@
 # Changelog
 
-## v0.6.4
+## v0.6.5
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.6.4...v0.6.5)
+
+### 🩹 Fixes
+
+- Omit open API keys when generating client input params ([97665aa](https://github.com/aklinker1/zeta/commit/97665aa))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.6.3...v0.6.4)
 
