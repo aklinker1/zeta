@@ -5,6 +5,9 @@ import { createTestAppClient } from "../testing";
 import { expectTypeOf } from "expect-type";
 import type { AnyDef, GetAppData } from "../types";
 
+// Silence console.error logs
+globalThis.console.error = mock();
+
 describe("App", () => {
   describe("fetch", () => {
     describe("response type inference", () => {

@@ -11,7 +11,7 @@ export function buildOpenApiDocs(
 ): { type: "success"; docs: any } | { type: "error"; error: unknown } {
   try {
     if (!options?.schemaAdapter)
-      throw Error("OpenAPI docs require a schema adapter");
+      return { type: "error", error: "OpenAPI docs require a schema adapter" };
     const adapter = options.schemaAdapter;
 
     const userDoc = options.openApi ?? {};

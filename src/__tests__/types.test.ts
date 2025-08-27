@@ -4,6 +4,7 @@ import type * as t from "../types";
 import { z } from "zod/v4";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { ErrorResponse } from "../custom-responses";
+import type { HttpStatus } from "../status";
 
 describe("Types", () => {
   describe("MergeRoutes", () => {
@@ -277,11 +278,41 @@ describe("Types", () => {
       expectTypeOf<Actual>().toEqualTypeOf<Expected>();
     });
 
-    it("should return the input response type", () => {
+    it("should return the output response type", () => {
       type Def = {
         responses: z.ZodObject<{ id: z.ZodString }>;
       };
       type Expected = { id: string };
+
+      type Actual = t.GetResponseOutputFromDef<Def>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+
+    it("should return a union of successful output response types when multiple are defined using number literals", () => {
+      type Def = {
+        responses: {
+          200: z.ZodObject<{ id: z.ZodString }>;
+          204: z.ZodVoid;
+          404: z.ZodObject<{ error: z.ZodString }>;
+        };
+      };
+      type Expected = { id: string } | void;
+
+      type Actual = t.GetResponseOutputFromDef<Def>;
+
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+
+    it("should return a union of successful output response types when multiple are defined using HttpStatus enum", () => {
+      type Def = {
+        responses: {
+          [HttpStatus.Ok]: z.ZodObject<{ id: z.ZodString }>;
+          [HttpStatus.Accepted]: z.ZodVoid;
+          [HttpStatus.BadRequest]: z.ZodObject<{ error: z.ZodString }>;
+        };
+      };
+      type Expected = { id: string } | void;
 
       type Actual = t.GetResponseOutputFromDef<Def>;
 

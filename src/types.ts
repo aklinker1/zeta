@@ -9,6 +9,7 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { OpenAPI } from "openapi-types";
 import type { IsStatusResult } from "./internal/utils";
+import type { HttpStatus } from "./status";
 
 //
 // APP
@@ -940,6 +941,28 @@ export type GetRequestParamsOutput<
   ? GetRequestParamsOutputFromDef<TRoutes[TMethod][TRoute]>
   : never;
 
+type SuccessStatusCodes =
+  | 200
+  | HttpStatus.Ok
+  | 201
+  | HttpStatus.Created
+  | 202
+  | HttpStatus.Accepted
+  | 203
+  | HttpStatus.NonAuthoritativeInformation
+  | 204
+  | HttpStatus.NoContent
+  | 205
+  | HttpStatus.ResetContent
+  | 206
+  | HttpStatus.PartialContent
+  | 207
+  | HttpStatus.MultiStatus
+  | 208
+  | HttpStatus.AlreadyReported
+  | 226
+  | HttpStatus.ImUsed;
+
 /**
  * Given a `RouteDef`, return a union of all possible handler return values.
  *
@@ -955,7 +978,12 @@ export type GetResponseOutputFromDef<TRouteDef extends RouteDef> =
     ? undefined
     : TRouteDef["responses"] extends StandardSchemaV1
       ? StandardSchemaV1.InferOutput<TRouteDef["responses"]>
-      : never;
+      : {
+          [key in SuccessStatusCodes &
+            keyof TRouteDef["responses"]]: TRouteDef["responses"][key] extends StandardSchemaV1
+            ? StandardSchemaV1.InferOutput<TRouteDef["responses"][key]>
+            : unknown;
+        }[SuccessStatusCodes & keyof TRouteDef["responses"]];
 
 /**
  * Given a set of routes, a method, and a route, return the output type of the
@@ -967,7 +995,7 @@ export type GetResponseOutput<
   TPath extends keyof TRoutes[TMethod],
 > = TPath extends BasePath
   ? GetResponseOutputFromDef<TRoutes[TMethod][TPath]>
-  : never;
+  : 1;
 
 type InputParams = "headers" | "params" | "query" | "body";
 

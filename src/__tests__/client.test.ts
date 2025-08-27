@@ -1,10 +1,15 @@
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect, mock } from "bun:test";
 import { createApp } from "../app";
 import { createTestAppClient } from "../testing";
 import type { App } from "../types";
 import type { GetClientRoutes } from "../client";
 import { expectTypeOf } from "expect-type";
 import { z } from "zod/v4";
+import { HttpStatus } from "../status";
+import { ErrorResponse, NoResponse } from "../custom-responses";
+
+// Silence console.error logs
+globalThis.console.error = mock();
 
 describe("Client", () => {
   describe("inputs", () => {
@@ -85,6 +90,50 @@ describe("Client", () => {
       await client.fetch("PUT", "/api/users/:id", {
         body: { name: "test" },
         params: { id: "123" },
+      });
+    });
+  });
+
+  describe("response types", () => {
+    describe("single response", () => {
+      it("should return the responses type", async () => {
+        const app = createApp().get(
+          "/health",
+          { responses: z.object({ status: z.string() }) },
+          () => ({ status: "ok" }),
+        );
+        const client = createTestAppClient(app);
+
+        const response = await client.fetch("GET", "/health", {});
+        expectTypeOf(response).toEqualTypeOf<{ status: string }>();
+        expect(response).toEqual({ status: "ok" });
+      });
+    });
+
+    describe("multiple responses", () => {
+      it("should return a union of the 2XX responses", async () => {
+        const app = createApp().put(
+          "/users/:id",
+          {
+            params: z.object({ id: z.string() }),
+            responses: {
+              [200]: z.object({ id: z.string(), name: z.string() }),
+              [HttpStatus.NoContent]: NoResponse,
+              [HttpStatus.BadRequest]: ErrorResponse,
+            },
+          },
+          ({ status }) => status(HttpStatus.NoContent, undefined),
+        );
+        const client = createTestAppClient(app);
+
+        const response = await client.fetch("PUT", "/users/:id", {
+          params: { id: "123" },
+        });
+        expectTypeOf(response).toEqualTypeOf<void | {
+          id: string;
+          name: string;
+        }>();
+        expect(response).toEqual(undefined);
       });
     });
   });
