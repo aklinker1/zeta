@@ -1,6 +1,20 @@
 # Changelog
 
-## v0.6.5
+## v0.6.6
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.6.5...v0.6.6)
+
+### 🩹 Fixes
+
+- **client:** Return a union of success types when multiple are defined ([e5bdddc](https://github.com/aklinker1/zeta/commit/e5bdddc))
+
+### 🏡 Chore
+
+- Add test for client input types ([83a4059](https://github.com/aklinker1/zeta/commit/83a4059))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.6.4...v0.6.5)
 
