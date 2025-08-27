@@ -128,35 +128,15 @@ describe("Types", () => {
   });
 
   describe("GetRequestParamsInputFromDef", () => {
-    it("should get input type for all fields, ignoring a single response", () => {
+    it("should get input type for all fields, ignoring other fields on the definition", () => {
       type Def = {
         query: z.ZodObject<{ asc: z.ZodCoercedBoolean<string> }>;
         params: z.ZodObject<{ id: z.ZodString }>;
         body: z.ZodObject<{ id: z.ZodString; user: z.ZodString }>;
+        operationId: string;
         responses: z.ZodArray<
           z.ZodObject<{ id: z.ZodString; user: z.ZodString }>
         >;
-      };
-      type Expected = {
-        query: { asc: string };
-        params: { id: string };
-        body: { id: string; user: string };
-      };
-
-      type Actual = t.GetRequestParamsInputFromDef<Def>;
-
-      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
-    });
-
-    it("should get input type for all fields, ignoring multiple responses", () => {
-      type Def = {
-        query: z.ZodObject<{ asc: z.ZodCoercedBoolean<string> }>;
-        params: z.ZodObject<{ id: z.ZodString }>;
-        body: z.ZodObject<{ id: z.ZodString; user: z.ZodString }>;
-        responses: {
-          200: z.ZodArray<z.ZodObject<{ id: z.ZodString; user: z.ZodString }>>;
-          400: typeof ErrorResponse;
-        };
       };
       type Expected = {
         query: { asc: string };

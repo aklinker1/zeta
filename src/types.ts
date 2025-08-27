@@ -751,10 +751,7 @@ export type BuildHandlerContext<
   TPath extends BasePath,
   TRouteDef extends RouteDef,
 > = Simplify<
-  Omit<
-    OnBeforeHandleContext<GetAppDataCtx<TAppData>>,
-    "body" | "query" | "params" | "headers"
-  > & {
+  Omit<OnBeforeHandleContext<GetAppDataCtx<TAppData>>, InputParams> & {
     route: TPath;
   } & GetRequestParamsOutputFromDef<TRouteDef> & {
       status: StatusFn<GetResponseStatusMap<TRouteDef>>;
@@ -972,10 +969,14 @@ export type GetResponseOutput<
   ? GetResponseOutputFromDef<TRoutes[TMethod][TPath]>
   : never;
 
+type InputParams = "headers" | "params" | "query" | "body";
+
 /**
- * Given a route definition, return the same type minus the response.
+ * Given a route definition, return an object with only the input parameeters.
  */
-type GetDefParams<TRouteDef extends RouteDef> = Omit<TRouteDef, "responses">;
+type GetDefParams<TRouteDef extends RouteDef> = {
+  [key in InputParams & keyof TRouteDef]: TRouteDef[key];
+};
 
 //
 // SCHEMA ADAPTER

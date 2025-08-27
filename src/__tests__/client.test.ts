@@ -7,7 +7,7 @@ import { expectTypeOf } from "expect-type";
 
 describe("Client", () => {
   describe("params", () => {
-    it("should make apply named path params", async () => {
+    it("should apply named path params correctly", async () => {
       const id = "one";
       const expectedPath = `/api/users/${id}`;
       const expectedParams = { id };
@@ -27,7 +27,7 @@ describe("Client", () => {
       expect(actual.params).toEqual(expectedParams);
     });
 
-    it("should make apply anonymous wildcard path params", async () => {
+    it("should apply anonymous wildcard path params correctly", async () => {
       const id = "one";
       const expectedPath = `/api/users/${id}`;
       const expectedParams = { "**": id };
@@ -45,7 +45,7 @@ describe("Client", () => {
       expect(actual.params).toEqual(expectedParams);
     });
 
-    it("should make apply named wildcard path params", async () => {
+    it("should apply named wildcard path params correctly", async () => {
       const id = "one";
       const expectedPath = `/api/users/${id}`;
       const expectedParams = { id };
