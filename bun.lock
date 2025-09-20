@@ -21,7 +21,7 @@
         "publint": "^0.3.12",
         "tinybench": "^4.0.1",
         "typescript": "^5.8.3",
-        "zod": "^3.25.67",
+        "zod": "^4.1.11",
       },
     },
   },
@@ -196,6 +196,6 @@
 
     "wsl-utils": ["wsl-utils@0.1.0", "", { "dependencies": { "is-wsl": "^3.1.0" } }, "sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw=="],
 
-    "zod": ["zod@3.25.67", "", {}, "sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw=="],
+    "zod": ["zod@4.1.11", "", {}, "sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg=="],
   }
 }

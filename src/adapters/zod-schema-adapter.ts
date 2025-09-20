@@ -4,7 +4,7 @@
  */
 import type { SchemaAdapter } from "../types";
 
-const zod = "zod/v4";
+const zod = "zod";
 const { z } = await import(zod);
 
 /**
