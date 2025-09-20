@@ -1,6 +1,20 @@
 # Changelog
 
-## v0.6.6
+## v0.7.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.6.6...v0.7.0)
+
+### 🏡 Chore
+
+- **deps:** ⚠️  Upgrade zod from v3 to v4 ([53961f4](https://github.com/aklinker1/zeta/commit/53961f4))
+
+#### ⚠️ Breaking Changes
+
+- **deps:** ⚠️  Upgrade zod from v3 to v4 ([53961f4](https://github.com/aklinker1/zeta/commit/53961f4))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.6.5...v0.6.6)
 
