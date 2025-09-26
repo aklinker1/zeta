@@ -1,6 +1,25 @@
 # Changelog
 
-## v0.7.0
+## v1.0.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v0.7.0...v1.0.0)
+
+### 🚀 Enhancements
+
+- Support model references via a `ref` metadata entry ([e309d7a](https://github.com/aklinker1/zeta/commit/e309d7a))
+- Add `app.getOpenApiSpec` so you can get the spec without starting the app ([693477c](https://github.com/aklinker1/zeta/commit/693477c))
+
+### 🏡 Chore
+
+- Fix formatting ([e5ed4ad](https://github.com/aklinker1/zeta/commit/e5ed4ad))
+
+### 🤖 CI
+
+- Update publish script to optionally accept a new verison ([e44ab7b](https://github.com/aklinker1/zeta/commit/e44ab7b))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.6.6...v0.7.0)
 
