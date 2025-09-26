@@ -6,11 +6,11 @@
 
 ### 🏡 Chore
 
-- **deps:** ⚠️  Upgrade zod from v3 to v4 ([53961f4](https://github.com/aklinker1/zeta/commit/53961f4))
+- **deps:** ⚠️ Upgrade zod from v3 to v4 ([53961f4](https://github.com/aklinker1/zeta/commit/53961f4))
 
 #### ⚠️ Breaking Changes
 
-- **deps:** ⚠️  Upgrade zod from v3 to v4 ([53961f4](https://github.com/aklinker1/zeta/commit/53961f4))
+- **deps:** ⚠️ Upgrade zod from v3 to v4 ([53961f4](https://github.com/aklinker1/zeta/commit/53961f4))
 
 ### ❤️ Contributors
 
