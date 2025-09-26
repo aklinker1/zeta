@@ -34,7 +34,9 @@ if (currentBranch !== "main") {
 
 console.log(`\nBumping version and generating changelog...`);
 
-const changelogConfig = await loadChangelogConfig(process.cwd(), {});
+const changelogConfig = await loadChangelogConfig(process.cwd(), {
+  newVersion: process.env.NEW_VERSION,
+});
 const commits = parseCommits(
   await getGitDiff(changelogConfig.from),
   changelogConfig,
