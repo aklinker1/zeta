@@ -210,6 +210,13 @@ export function createApp<TPrefix extends BasePrefix = "">(
       };
     },
 
+    getOpenApiSpec: () => {
+      const res = buildOpenApiDocs(options, app);
+      if (res.type === "error") throw res.error;
+
+      return res.spec;
+    },
+
     export: () => {
       app["~zeta"].exported = true;
       return app as any;

@@ -59,6 +59,12 @@ export interface App<TAppData extends AppData = AppData> {
   build: () => ServerSideFetch;
 
   /**
+   * Returns your application's OpenAPI spec. You do not need to listen to a
+   * port to call this method.
+   */
+  getOpenApiSpec: () => OpenAPI.Document;
+
+  /**
    * Mark the app as "exported". When an exported app is `use`d by a
    * parent app, the parent app will inherit all of it's hooks and modifiers.
    *

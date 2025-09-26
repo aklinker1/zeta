@@ -558,6 +558,16 @@ const User = z
 
 When building your app's spec, Zeta will find these `ref` properties and move the object schemas into `components.schemas`.
 
+### Getting the OpenAPI Spec
+
+You can get the OpenAPI spec by calling `app.getOpenApiSpec()`. You do not need to listen to any ports or fetch the `/openapi.json` endpoint. It's a simple function call away.
+
+```ts
+const app = createApp(...)
+
+app.getOpenApiSpec() // { version: "3.1", info: { ... }, paths: { ... }, ... }
+```
+
 ## Composing Multiple Apps
 
 By default, an app's context (hooks, decorators) is isolated. To make a child app's context available to its parent, you must explicitly chain `.export()` at the end of its definition. This effectively merges its isolated lifecycle hooks into the parent's.
