@@ -386,7 +386,7 @@ graph LR
 
 There are two types of hooks: global and isolated.
 
-- **Global**: These hooks are registered on the final, root application, regardless of where they are defined in your app's composition tree. They always run for every request that hits the server. Use these for cross-cutting concerns like logging or authentication.
+- **Global**: These hooks are registered on the final, top-level app, regardless of where they are defined in your app's composition tree. They always run for every request that hits the server. Use these for cross-cutting concerns like logging or authentication.
 - **Isolated**: These hooks only apply to routes defined on the _same app instance_, _after_ the hook is declared. They are perfect for setting up context or running middleware specific to a group of routes (e.g., a plugin).
 
 Here's an example combining several different hooks:
@@ -556,7 +556,7 @@ const User = z
   });
 ```
 
-When building your app's spec, Zeta will find these `ref` properties and move the object schemas into `components.schemas`.
+When building your app's spec, Zeta will find these `ref` properties and move the object schemas into `components.schemas` automatically for you.
 
 ### Getting the OpenAPI Spec
 
@@ -642,11 +642,11 @@ const app = createApp().use(apiApp);
 app.listen(3000);
 ```
 
-This lets you break your app up into smaller, reusable chunks. If a child app or plugin is used multiple times throughout the root app, it is automatically deduplicated so hooks are not ran more than once.
+This lets you break your app up into smaller, reusable chunks. If a child app or plugin is used multiple times throughout your app, it is automatically deduplicated so hooks are not ran more than once.
 
 ## Error Handling
 
-By default, Zeta provides built-in error handling. It also provides useful error classes that, when thrown, set the specified http status code and maps the error to the response body.
+By default, Zeta provides built-in error handling, catching an errors thrown inside any handler or hook. It also provides useful error classes that, when thrown, set the specified http status code and maps the error to the response body.
 
 ```ts
 import { HttpError } from "@aklinker1/zeta/errors";
@@ -690,7 +690,7 @@ When a non-`HttpError` value is thrown, Zeta returns a `500 Internal Server Erro
 
 ## HttpStatus Codes
 
-Zeta provides an enum of all HTTP status codes. You should use this instead of literal values.
+Zeta provides an enum of all HTTP status codes. You should use this instead of literal values for readability.
 
 ```diff
 import { HttpStatus } from "@aklinker1/zeta/status";
@@ -721,7 +721,7 @@ export type App = typeof app;
 
 ```ts
 // app/api-client.ts
-import type { App } from "../server/main.ts"; // IMPORTANT: Only import types from the server
+import type { App } from "../server/main"; // IMPORTANT: Only import types from the server
 import { createClient } from "@aklinker1/zeta/client";
 
 export const apiClient = createClient<App>(/* options */);
