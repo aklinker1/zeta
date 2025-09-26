@@ -6,7 +6,7 @@ Personal alternative to [Elysia](https://elysiajs.com/) with better validation s
 
 **Features**
 
-- ✅ Standard schema support (Zod, Arktype, Valibot, etc)
+- ✅ [Standard schema](https://standardschema.dev/) support (Zod, Arktype, Valibot, etc)
 - 🧩 Composable apps, plugins, and routes
 - 🤖 Type-safe server and client side code
 - ❄️ WinterCG compatible
