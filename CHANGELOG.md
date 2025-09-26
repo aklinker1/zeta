@@ -2,6 +2,8 @@
 
 ## v1.0.0
 
+v1 is out! No breaking changes, everything I want to implement is implemented, so I'm updating the version to `1.0.0`.
+
 [compare changes](https://github.com/aklinker1/zeta/compare/v0.7.0...v1.0.0)
 
 ### 🚀 Enhancements
