@@ -8,7 +8,7 @@ import { ErrorResponseJsonSchema, type ZetaSchema } from "./custom-responses";
 export function buildOpenApiDocs(
   options: CreateAppOptions<any> | undefined,
   app: App,
-): { type: "success"; docs: any } | { type: "error"; error: unknown } {
+): { type: "success"; spec: any } | { type: "error"; error: unknown } {
   try {
     if (!options?.schemaAdapter)
       return { type: "error", error: "OpenAPI docs require a schema adapter" };
@@ -85,7 +85,8 @@ export function buildOpenApiDocs(
         } as OpenAPI.Operation;
       }
     }
-    return { type: "success", docs };
+
+    return { type: "success", spec: optimizeSpec(docs) };
   } catch (error) {
     return { type: "error", error };
   }
@@ -183,4 +184,51 @@ function buildResponse(
       },
     },
   };
+}
+
+function optimizeSpec(spec: OpenAPI.Document): OpenAPI.Document {
+  const optimized = structuredClone(spec);
+
+  // Optimizations
+  addModelRefs(optimized);
+
+  return optimized;
+}
+
+/**
+ * Look for `ref` properties from schema metadata and move those models to
+ * `components.schemas`.
+ */
+function addModelRefs(spec: any): void {
+  const recurse = (obj: any): void => {
+    if (obj == null) return;
+    if (typeof obj !== "object") return;
+
+    // Recursively update array items
+    if (Array.isArray(obj)) {
+      for (let i = 0, il = obj.length; i < il; i++) recurse(obj[i]);
+      return;
+    }
+
+    // Recursively update object properties
+    const values = Object.values(obj);
+    for (let i = 0, il = values.length; i < il; i++) recurse(values[i]);
+
+    // Move model if it includes a ref
+    if (typeof obj.ref === "string") {
+      const ref = obj.ref;
+      spec.components ??= {};
+      spec.components.schemas ??= {};
+      spec.components.schemas[ref] = {
+        ...structuredClone(obj),
+        // Remove any zeta-only properties OpenAPI doesn't support
+        ref: undefined,
+      };
+      for (const key of Object.keys(obj)) delete obj[key];
+      obj.$ref = `#/components/schemas/${ref}`;
+    }
+  };
+
+  // Process the "paths" object
+  recurse(spec.paths);
 }

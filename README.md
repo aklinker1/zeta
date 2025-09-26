@@ -537,6 +537,27 @@ app.listen(3000);
 
 Without a schema adapter, Zeta will throw an error when trying to access the `/openapi.json` endpoint, but it's not needed if you only want to validate inputs and response bodies.
 
+### Model References
+
+By default, Zeta will not put any models in `components.schemas` nor add `$ref` for those models.
+
+You are in charge of determining which models should be added to `components.schemas` by adding a `ref` meta to the model's schema:
+
+```ts
+import { z } from "zod";
+
+const User = z
+  .object({
+    id: z.string().uuid(),
+    email: z.string().email(),
+  })
+  .meta({
+    ref: "User",
+  });
+```
+
+When building your app's spec, Zeta will find these `ref` properties and move the object schemas into `components.schemas`.
+
 ## Composing Multiple Apps
 
 By default, an app's context (hooks, decorators) is isolated. To make a child app's context available to its parent, you must explicitly chain `.export()` at the end of its definition. This effectively merges its isolated lifecycle hooks into the parent's.

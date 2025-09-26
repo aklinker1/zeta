@@ -9,16 +9,26 @@ import { version } from "./package.json" with { type: "json" };
 import { z } from "zod/v4";
 import { zodSchemaAdapter } from "./src/adapters/zod-schema-adapter";
 
-const Entry = z.object({
-  id: z.number(),
-  text: z.string(),
-});
+const Entry = z
+  .object({
+    id: z.number(),
+    text: z.string(),
+  })
+  .meta({
+    ref: "Entry",
+  });
 type Entry = z.infer<typeof Entry>;
 
-const HealthResponse = z.object({
-  status: z.literal("ok"),
-  version: z.string().default(version),
-});
+const Version = z.string().default(version).meta({ ref: "Version" });
+
+const HealthResponse = z
+  .object({
+    status: z.literal("ok"),
+    version: Version,
+  })
+  .meta({
+    ref: "HealthResponse",
+  });
 type HealthResponse = z.infer<typeof HealthResponse>;
 
 const entries: Entry[] = [];

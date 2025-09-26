@@ -116,7 +116,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
           console.error("Failed to build OpenAPI docs:", docs.error);
           throw docs.error;
         }
-        return docs.docs;
+        return docs.spec;
       });
       if (docs.type === "success") {
         const scalarHtml = buildScalarHtml(jsonRoute, options);
