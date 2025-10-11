@@ -1,0 +1,23 @@
+:root {
+  --zeta-c-blue-1: #008cff;
+  --zeta-c-blue-2: #2ca0ff;
+  --zeta-c-blue-3: #5ba8e7;
+  --zeta-c-blue-soft: rgba(0, 140, 255, 0.14);
+
+  --vp-c-brand-1: #52c5ff;
+  --vp-c-brand-2: #008cff;
+}
+
+.dark {
+  --zeta-c-blue-1: #52c5ff;
+  --zeta-c-blue-2: #34aeec;
+  --zeta-c-blue-3: #0093dd;
+  --zeta-c-blue-soft: rgba(0, 140, 255, 0.16);
+}
+
+:root {
+  --vp-c-brand-1: var(--zeta-c-blue-1);
+  --vp-c-brand-2: var(--zeta-c-blue-2);
+  --vp-c-brand-3: var(--zeta-c-blue-3);
+  --vp-c-brand-soft: var(--zeta-c-blue-soft);
+}

@@ -1,0 +1,25 @@
+<svg width="308" height="308" viewBox="0 0 308 308" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g clip-path="url(#clip0_605_10)">
+<mask id="mask0_605_10" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="308" height="308">
+<path d="M15.4002 223.023L233.859 68.6492L155.525 40.685C129.099 31.2513 116.511 40.5769 106.614 58.2377L100.668 68.8473L95.0052 66.8258L118.732 12.6966L286.12 71.3908L61.5196 230.999L152.123 263.344C185.155 275.136 201.753 265.611 217.558 244.263L223.771 235.87L229.095 238.832L196.127 294.968L13.033 229.605L15.4002 223.023Z" fill="black" stroke="black" stroke-width="20"/>
+</mask>
+<g mask="url(#mask0_605_10)">
+<rect x="-83.5539" y="-58.106" width="445.131" height="455.463" fill="url(#paint0_linear_605_10)"/>
+<rect x="-83.5539" y="-58.106" width="445.131" height="455.463" fill="url(#pattern0_605_10)" fill-opacity="0.2"/>
+<rect x="-83.5539" y="-58.106" width="445.131" height="455.463" stroke="black"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_605_10" x1="139.011" y1="-58.606" x2="139.011" y2="397.857" gradientUnits="userSpaceOnUse">
+<stop stop-color="#52C5FF"/>
+<stop offset="1" stop-color="#008CFF"/>
+</linearGradient>
+<clipPath id="clip0_605_10">
+<rect width="308" height="308" fill="white"/>
+</clipPath>
+<pattern id="pattern0_605_10" patternUnits="userSpaceOnUse" patternTransform="matrix(6 0 0 6 -84.0539 -58.606)" preserveAspectRatio="none" viewBox="0 0 6 6" width="1" height="1">
+<g id="pattern0_605_10_inner">
+<circle cx="3" cy="3" r="3" fill="#0062FF"/>
+</g>
+</pattern></defs>
+</svg>
