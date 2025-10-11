@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.0.1
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.0.0...v1.0.1)
+
+### 📖 Documentation
+
+- Update changelog ([f92ac7e](https://github.com/aklinker1/zeta/commit/f92ac7e))
+- Add link to standard schema website ([3b8ec53](https://github.com/aklinker1/zeta/commit/3b8ec53))
+- Tweak README wording ([f89b725](https://github.com/aklinker1/zeta/commit/f89b725))
+- Add Vitepress app ([77129d0](https://github.com/aklinker1/zeta/commit/77129d0))
+
+### 🏡 Chore
+
+- Cleanup publishing files ([cd6f813](https://github.com/aklinker1/zeta/commit/cd6f813))
+- Fix formatting ([65c907f](https://github.com/aklinker1/zeta/commit/65c907f))
+
+### 🤖 CI
+
+- Add publish workflow and publish to NPM ([c236660](https://github.com/aklinker1/zeta/commit/c236660))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.0.0
 
 v1 is out! No breaking changes, everything I want to implement is implemented, so I'm updating the version to `1.0.0`.
