@@ -21,13 +21,3 @@ bun run bench
 # Start an example app
 bun run example
 ```
-
-## Publishing
-
-To publish a new version of Zeta, run:
-
-```sh
-bun run publish X.Y.Z
-```
-
-`patch`, `minor`, and `major` cannot be passed into the `publish` script.

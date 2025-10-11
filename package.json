@@ -1,11 +1,27 @@
 {
-  "name": "zeta",
+  "name": "@aklinker1/zeta",
   "version": "1.0.0",
+  "type": "module",
   "license": "MIT",
   "packageManager": "bun@1.2.17",
   "module": "src/index.ts",
   "types": "src/index.ts",
-  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts",
+    "./client": "./src/client.ts",
+    "./testing": "./src/testing.ts",
+    "./adapters/zod-schema-adapter": "./src/adapters/zod-schema-adapter.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "url": "https://github.com/aklinker1/zeta"
+  },
   "scripts": {
     "dev": "bun test --watch",
     "bench": "bun run src/__tests__/bench.ts",
