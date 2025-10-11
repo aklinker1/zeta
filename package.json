@@ -1,5 +1,6 @@
 {
   "name": "@aklinker1/zeta",
+  "description": "Composable, testable, OpenAPI-first backend framework with validation built-in",
   "version": "1.0.3",
   "type": "module",
   "license": "MIT",
@@ -24,6 +25,12 @@
   "repository": {
     "url": "https://github.com/aklinker1/zeta"
   },
+  "keywords": [
+    "backend",
+    "server",
+    "validation",
+    "openapi"
+  ],
   "scripts": {
     "dev": "bun test --watch",
     "build": "echo 'Noop - nothing to build.'",
