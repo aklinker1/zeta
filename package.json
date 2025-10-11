@@ -30,7 +30,6 @@
     "bench": "bun run src/__tests__/bench.ts",
     "example": "bun --watch run example.ts",
     "example:prod": "NODE_ENV=production bun run example",
-    "publish": "bun run scripts/publish.ts",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
