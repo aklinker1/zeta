@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.3
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.0.2...v1.0.3)
+
+### 🤖 CI
+
+- Remove old publish script ([821d215](https://github.com/aklinker1/zeta/commit/821d215))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.0.2
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.0.1...v1.0.2)
