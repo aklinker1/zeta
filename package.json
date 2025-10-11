@@ -14,7 +14,9 @@
     "./adapters/zod-schema-adapter": "./src/adapters/zod-schema-adapter.ts"
   },
   "files": [
-    "src"
+    "src/*.ts",
+    "src/adapters/*.ts",
+    "src/internal/*.ts"
   ],
   "publishConfig": {
     "access": "public"
@@ -24,6 +26,7 @@
   },
   "scripts": {
     "dev": "bun test --watch",
+    "build": "echo 'Noop - nothing to build.'",
     "bench": "bun run src/__tests__/bench.ts",
     "example": "bun --watch run example.ts",
     "example:prod": "NODE_ENV=production bun run example",
