@@ -7,7 +7,7 @@ const app = createApp()
   .get("/api/users", {}, (ctx) => {})
   .post("/api/users", {}, (ctx) => {})
   .put("/api/users/:id", {}, (ctx) => {})
-  .delete( "/api/users/:id", {}, (ctx) => {})
+  .delete("/api/users/:id", {}, (ctx) => {})
   .method("PATCH", "/api/users/:id", {}, (ctx) => {})
   .any("/api/users", {}, (ctx) => {});
 ```
@@ -24,9 +24,14 @@ All route definitions require 4 things:
 Here's a realistic example of what a route definition might look like:
 
 ```ts
-import { createApp, HttpStatus, ErrorResponse, NotFoundError } from '@aklinker1/zeta';
-import { z } from 'zod';
-import { addDbPlugin } from './plugins/db';
+import {
+  createApp,
+  HttpStatus,
+  ErrorResponse,
+  NotFoundError,
+} from "@aklinker1/zeta";
+import { z } from "zod";
+import { addDbPlugin } from "./plugins/db";
 
 // Define schema's for validation
 const User = z.object({
@@ -34,8 +39,8 @@ const User = z.object({
   username: z.string(),
   email: z.email(),
   profileUrl: z.url(),
-})
-const UpdateUserInput = User.omit({ id: true })
+});
+const UpdateUserInput = User.omit({ id: true });
 
 const app = createApp()
   .use(addDbPlugin)
@@ -51,15 +56,15 @@ const app = createApp()
       responses: {
         [HttpStatus.Ok]: User,
         [HttpStatus.NotFound]: ErrorResponse,
-      }
+      },
     },
     async ({ path, body, status, db }) => {
       const updatedUser = await db.update(path.userId, body);
       if (!updatedUser) throw new NotFoundError("User not found");
 
       return status(HttpStatus.Ok, updatedUser);
-    }
-  )
+    },
+  );
 ```
 
 :::tip Important Comments
@@ -67,14 +72,16 @@ const app = createApp()
 - Some [Best Practices](/best-practices) are ignored to keep the example self-contained.
 
 - Zod schemas are used to validate the input/output of our route.
-   > See the [Validation docs](/validation) to learn more about how schemas are used to validate requests.
+
+  > See the [Validation docs](/validation) to learn more about how schemas are used to validate requests.
 
 - This route has multiple responses: a 404 error and a 200 success.
+
   > See the [Error Handling docs](/error-handling) to learn more about throwing the `NoteFoundError`
 
   > See the [Validation docs](/validation) to learn more about how responses are validated.
 
 - `addDb` plugin adds `db` to the handler's `ctx` object.
-   > See the [Plugin docs](/composing-apps#plugins) for more details about what plugins are and how this is accomplished.
+  > See the [Plugin docs](/composing-apps#plugins) for more details about what plugins are and how this is accomplished.
 
 :::

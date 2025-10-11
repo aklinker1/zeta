@@ -11,7 +11,7 @@ Any object validation library that implements the [Standard Schema spec](https:/
 :::code-group
 
 ```ts [Zod]
-import { z } from 'zod';
+import { z } from "zod";
 
 const User = z.object({
   id: z.string(),
@@ -20,24 +20,23 @@ const User = z.object({
   profileUrl: z.url(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
-})
+});
 const CreateUserInput = User.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-})
+});
 
-const app = createApp()
-  .post(
-    "/users",
-    {
-      body: CreateUserInput, // [!code highlight]
-      responses: User, // [!code highlight]
-    },
-    ({ body }) => {
-      // ...
-    }
-  )
+const app = createApp().post(
+  "/users",
+  {
+    body: CreateUserInput, // [!code highlight]
+    responses: User, // [!code highlight]
+  },
+  ({ body }) => {
+    // ...
+  },
+);
 ```
 
 :::
@@ -156,20 +155,19 @@ Your request body should be `FormData`:
 
 ```ts
 // Server side:
-const app = createApp()
-  .post(
-    "/upload",
-    {
-      body: z.any() as z.ZodType<FormData>
-    },
-    async ({ body }) => {
-      const file = body.get("file") as File;
+const app = createApp().post(
+  "/upload",
+  {
+    body: z.any() as z.ZodType<FormData>,
+  },
+  async ({ body }) => {
+    const file = body.get("file") as File;
 
-      // Do something with the file, like writing it to the file system:
-      const bytes = await file.arrayBuffer()
-      await Bun.file(file.name).write(bytes)
-    }
-  )
+    // Do something with the file, like writing it to the file system:
+    const bytes = await file.arrayBuffer();
+    await Bun.file(file.name).write(bytes);
+  },
+);
 ```
 
 ```ts
@@ -182,7 +180,7 @@ body.append("file", file);
 const res = await fetch("/upload", {
   method: "POST",
   body,
-})
+});
 ```
 
 ## Response Body
@@ -250,21 +248,20 @@ const app = createApp().post(
 Use `ErrorResponse` as the schema for an error responses. See [Error Handling](/error-handling) for more details.
 
 ```ts
-import { ErrorResponse } from '@aklinker1/zeta'; // [!code highlight]
+import { ErrorResponse } from "@aklinker1/zeta"; // [!code highlight]
 
-const app = createApp()
-  .get(
-    "/users/:userId",
-    {
-      responses: {
-        [HttpStatus.Ok]: User,
-        [HttpStatus.NotFound]: ErrorResponse, // [!code highlight]
-      },
+const app = createApp().get(
+  "/users/:userId",
+  {
+    responses: {
+      [HttpStatus.Ok]: User,
+      [HttpStatus.NotFound]: ErrorResponse, // [!code highlight]
     },
-    () => {
-      // ...
-    },
-  )
+  },
+  () => {
+    // ...
+  },
+);
 ```
 
 ### No Responses
@@ -272,18 +269,17 @@ const app = createApp()
 For statuses like `204 No Content`, use the `NoResponse` schema to send an empty response body:
 
 ```ts
-import { NoResponse } from '@aklinker1/zeta'; // [!code highlight]
+import { NoResponse } from "@aklinker1/zeta"; // [!code highlight]
 
-const app = createApp()
-  .put(
-    "/users/:userId",
-    {
-      responses: {
-        [HttpStatus.NoContent]: NoResponse, // [!code highlight]
-      }
+const app = createApp().put(
+  "/users/:userId",
+  {
+    responses: {
+      [HttpStatus.NoContent]: NoResponse, // [!code highlight]
     },
-    () => {},
-  )
+  },
+  () => {},
+);
 ```
 
 ### Redirects
@@ -291,23 +287,22 @@ const app = createApp()
 Zeta does not provide any utils for redirects. You should use `NoResponse` for the schema and manually set the `Location` header:
 
 ```ts
-import { NoResponse } from '@aklinker1/zeta'; // [!code highlight]
+import { NoResponse } from "@aklinker1/zeta"; // [!code highlight]
 
-const app = createApp()
-  .get(
-    "/api/auth/login/callback",
-    {
-      responses: {
-        [HttpStatus.Found]: NoResponse, // [!code highlight]
-      }
+const app = createApp().get(
+  "/api/auth/login/callback",
+  {
+    responses: {
+      [HttpStatus.Found]: NoResponse, // [!code highlight]
     },
-    () => {
-      // ...
+  },
+  () => {
+    // ...
 
-      set.headers["Location"] = "/home"; // [!code highlight]
-      return status(HttpStatus.Found, undefined); // [!code highlight]
-    }
-  )
+    set.headers["Location"] = "/home"; // [!code highlight]
+    return status(HttpStatus.Found, undefined); // [!code highlight]
+  },
+);
 ```
 
 ### Response `Content-Type`
@@ -315,16 +310,15 @@ const app = createApp()
 Zeta does not set the content type header for you. You have to set it in the handler:
 
 ```ts
-const app = createApp()
-  .get(
-    "/csv",
-    {
-      responses: z.string(),
-    },
-    ({ set }) => {
-      // ...
-      set.headers["Content-Type"] = "text/csv";
-      return "...";
-    },
-  );
+const app = createApp().get(
+  "/csv",
+  {
+    responses: z.string(),
+  },
+  ({ set }) => {
+    // ...
+    set.headers["Content-Type"] = "text/csv";
+    return "...";
+  },
+);
 ```

@@ -35,18 +35,17 @@ There are two types of hooks: global and isolated.
 
 - **Global**
 
-   These hooks are registered on the final, top-level app, regardless of where they are defined on a top-level or child app. They always run for every request that hits the server. Use these for cross-cutting concerns like logging or authentication.
+  These hooks are registered on the final, top-level app, regardless of where they are defined on a top-level or child app. They always run for every request that hits the server. Use these for cross-cutting concerns like logging or authentication.
 
 - **Isolated**
 
-   These hooks only apply to routes defined on the _same app instance_, _after_ the hook is added. They are perfect for setting up context or running middleware specific to a group of routes (e.g., a [plugin](/composing-apps#plugins)).
+  These hooks only apply to routes defined on the _same app instance_, _after_ the hook is added. They are perfect for setting up context or running middleware specific to a group of routes (e.g., a [plugin](/composing-apps#plugins)).
 
 ## Hooks
 
 ### `onGlobalRequest`
 
 Called as soon as a request is made to the app.
-
 
 Return value is shallow merged into the `ctx` object for future callbacks.
 

@@ -154,8 +154,6 @@ const app = createApp()
 
 Internally, Zeta uses [`rou3`](https://www.npmjs.com/package/rou3) to match routes. To add a path parameter, you can use `:name`, `**`, or `**:name`. For type safety, you can use a validation framework to define an object schema for the path parameters.
 
-
-
 > Note that path parameters are strings. If your validation framework supports converting strings to other types, like with Zod's [`z.coerce`](https://zod.dev/api?id=coercion) or [`z.stringbool`](https://zod.dev/api?id=stringbool), you can use it to convert the string values to the desired type.
 
 ### Query Parameters

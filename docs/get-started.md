@@ -15,13 +15,9 @@ deno add @aklinker1/zeta
 // main.ts
 import { createApp } from "@aklinker1/zeta";
 
-const app = createApp().get(
-  "/",
-  {},
-  () => {
-    return { message: "Hello World!" };
-  },
-);
+const app = createApp().get("/", {}, () => {
+  return { message: "Hello World!" };
+});
 
 app.listen(3000);
 

@@ -19,11 +19,11 @@ In order to generate OpenAPI docs, Zeta needs a bit more information about your 
 Your top-level app needs a `schemaAdapter` passed into it's options:
 
 ```ts
-import { zodSchemaAdapter } from '@aklinker1/zeta/adapters/zod-schema-adapter';
+import { zodSchemaAdapter } from "@aklinker1/zeta/adapters/zod-schema-adapter";
 
 const app = createApp({
-  schemaAdapter: zodSchemaAdapter
-})
+  schemaAdapter: zodSchemaAdapter,
+});
 ```
 
 :::warning
@@ -45,18 +45,18 @@ The adapter is responsible for several functions not defined in the Standard Sch
 Currently, Zeta only provides a schema adapter for:
 
 - Zod
-   ```ts
-   import { zodSchemaAdapter } from '@aklinker1/zeta/adapters/zod-schema-adapter';
-   ```
+  ```ts
+  import { zodSchemaAdapter } from "@aklinker1/zeta/adapters/zod-schema-adapter";
+  ```
 
 If your validation library is not supported by Zeta, you just need to implement your own [schema adapter](https://jsr.io/@aklinker1/zeta/doc/types/~/SchemaAdapter):
 
 ```ts
-import type { SchemaAdapter } from '@aklinker1/zeta/types';
+import type { SchemaAdapter } from "@aklinker1/zeta/types";
 
 export const arktypeSchemaAdapter: SchemaAdapter = {
   // Implement
-}
+};
 ```
 
 Use the [`zodSchemaAdapter`](https://github.com/aklinker1/zeta/blob/main/src/adapters/zod-schema-adapter.ts) for reference.
@@ -68,20 +68,20 @@ This is where you list the version, name, tags, security schema, and more.
 ```ts
 const app = createApp({
   openApiInfo: {
-    title: 'My API',
-    version: '1.0.0',
-    description: 'My API description',
+    title: "My API",
+    version: "1.0.0",
+    description: "My API description",
     license: {
-      name: 'MIT',
-      url: 'https://opensource.org/licenses/MIT',
+      name: "MIT",
+      url: "https://opensource.org/licenses/MIT",
     },
     contact: {
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      url: 'https://example.com',
+      name: "John Doe",
+      email: "john.doe@example.com",
+      url: "https://example.com",
     },
   },
-})
+});
 ```
 
 ## Custom Metadata
@@ -104,7 +104,7 @@ const GetHealthOutput = z
   })
   .meta({
     ref: "GetHealthOutput",
-  })
+  });
 ```
 
 :::
@@ -116,11 +116,9 @@ To change the response content type, add the `contentType` metadata to your obje
 :::code-group
 
 ```ts [Zod]
-const CsvDownloadOutput = z
-  .string()
-  .meta({
-    contentType: "text/csv",
-  })
+const CsvDownloadOutput = z.string().meta({
+  contentType: "text/csv",
+});
 ```
 
 :::
@@ -156,8 +154,8 @@ import { writeFile } from "node:fs/promises";
 
 const fetch = app.build();
 
-const res = await fetch(new Request("/openapi.json"))
-const spec = await res.json()
+const res = await fetch(new Request("/openapi.json"));
+const spec = await res.json();
 
-await writeFile("openapi.json", JSON.stringify(spec, null, 2))
+await writeFile("openapi.json", JSON.stringify(spec, null, 2));
 ```

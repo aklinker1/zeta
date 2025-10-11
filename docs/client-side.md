@@ -20,12 +20,12 @@ openapi-generator generate \
 Zeta provides a type-safe API client out of the box. It only works if your frontend code is in the same project as your backend code.
 
 ```ts
-import type { app } from '../server/app';
-import { createAppClient } from '@aklinker1/zeta/client'
+import type { app } from "../server/app";
+import { createAppClient } from "@aklinker1/zeta/client";
 
 const client = createAppClient<typeof app>({
   // options
-})
+});
 ```
 
 It's a basic wrapper around `fetch`.

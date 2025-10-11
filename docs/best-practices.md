@@ -12,16 +12,16 @@ I like to create two top-level files for my server:
 :::code-group
 
 ```ts [app.ts]
-import { createApp } from '@aklinker1/zeta'
+import { createApp } from "@aklinker1/zeta";
 
 export const app = createApp();
 ```
 
 ```ts [main.ts]
-import { app } from './app'
+import { app } from "./app";
 
 app.listen(3000, () => {
-  console.log('Server started on port 3000');
+  console.log("Server started on port 3000");
 });
 ```
 

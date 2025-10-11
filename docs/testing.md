@@ -5,8 +5,8 @@ The basic idea of testing a Zeta app is to build a server-side `fetch` function 
 ## Basic Usage
 
 ```ts
-import { test, expect } from 'vitest';
-import { app } from '../app';
+import { test, expect } from "vitest";
+import { app } from "../app";
 
 const fetch = app.build();
 
@@ -16,7 +16,7 @@ test('/api/health should return 200 OK { "status": "up" }', () => {
   const body = await response.json();
 
   expect(response.status).toBe(200);
-  expect(body).toEqual({ status: 'up' });
+  expect(body).toEqual({ status: "up" });
 });
 ```
 
@@ -29,23 +29,23 @@ Consider using Zeta's test client or your generated API client instead.
 :::code-group
 
 ```ts [Zeta's Test Client]
-import { test, expect } from 'vitest';
-import { app } from '../app';
-import { createTestAppClient } from '@aklinker1/zeta/client';
+import { test, expect } from "vitest";
+import { app } from "../app";
+import { createTestAppClient } from "@aklinker1/zeta/client";
 
 const client = createTestAppClient(app);
 
 test('/api/health should return 200 OK { "status": "up" }', () => {
   const body = await client.fetch("GET", "/api/health", {});
 
-  expect(body).toEqual({ status: 'up' });
+  expect(body).toEqual({ status: "up" });
 });
 ```
 
 ```ts [Custom]
-import { test, expect } from 'vitest';
-import { app } from '../app';
-import { MyApiClient } from '../generated-client';
+import { test, expect } from "vitest";
+import { app } from "../app";
+import { MyApiClient } from "../generated-client";
 
 const serverSideFetch = app.build();
 const client = new MyApiClient({
@@ -57,6 +57,6 @@ const client = new MyApiClient({
 test('/api/health should return 200 OK { "status": "up" }', () => {
   const body = await client.getHealth();
 
-  expect(body).toEqual({ status: 'up' });
+  expect(body).toEqual({ status: "up" });
 });
 ```

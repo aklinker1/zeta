@@ -156,7 +156,7 @@ There are two approaches to implementing auth in Zeta:
 For simplicities sake, this example will cover the first approach.
 
 ```ts
-const AUTH_HEADER_PATTERN = /^Bearer (?<token>.*)$/
+const AUTH_HEADER_PATTERN = /^Bearer (?<token>.*)$/;
 
 export const requireAuthPlugin = createApp()
   .onTransform(async ({ headers }) => {
@@ -164,7 +164,7 @@ export const requireAuthPlugin = createApp()
     if (!token) throw new UnauthorizedHttpError("Bearer token not provided");
 
     const session = await getSessionFromToken(token);
-    if (!session) throw new UnauthorizedHttpError("Invalid token")
+    if (!session) throw new UnauthorizedHttpError("Invalid token");
 
     return { session, token };
   })
