@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.1.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.0.3...v1.1.0)
+
+### 🚀 Enhancements
+
+- Automatically set response `Content-Type` header based on the `contentType` meta ([8884f54](https://github.com/aklinker1/zeta/commit/8884f54))
+
+### 🩹 Fixes
+
+- **zod:** Target `openapi-3.0` when generating the JSON schema ([f3a36a9](https://github.com/aklinker1/zeta/commit/f3a36a9))
+
+### 📖 Documentation
+
+- Remove vitepress docs ([d33065d](https://github.com/aklinker1/zeta/commit/d33065d))
+- Add NPM badge ([b58deb3](https://github.com/aklinker1/zeta/commit/b58deb3))
+- Update tagline ([177a638](https://github.com/aklinker1/zeta/commit/177a638))
+- Update package.json metadata ([33658c9](https://github.com/aklinker1/zeta/commit/33658c9))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.0.3
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.0.2...v1.0.3)
