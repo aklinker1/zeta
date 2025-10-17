@@ -1,5 +1,5 @@
 import type { MatchedRoute } from "rou3";
-import type { RouterData } from "../types";
+import type { RouterData, SchemaAdapter } from "../types";
 import { NotFoundHttpError } from "../errors";
 import {
   callCtxModifierHooks,
@@ -18,6 +18,7 @@ export async function callHandler(
     method: string,
     path: string,
   ) => MatchedRoute<RouterData> | undefined,
+  schemaAdapter: SchemaAdapter | undefined,
 ): Promise<Response> {
   const route = getRoute(ctx.method, ctx.path);
   if (route == null) {
@@ -69,10 +70,12 @@ export async function callHandler(
     body,
   });
 
-  let response: any = route.data.handler(ctx);
-  if (response instanceof Promise) response = await response;
+  {
+    let response: any = route.data.handler(ctx);
+    if (response instanceof Promise) response = await response;
 
-  ctx.response = response;
+    ctx.response = response;
+  }
 
   for (const hook of route.data.hooks.onAfterHandle) {
     let res = hook.callback(ctx);
@@ -81,6 +84,7 @@ export async function callHandler(
     ctx.response = res;
   }
 
+  let responseMeta: Record<string, any> | undefined;
   if (!(ctx.response instanceof Response)) {
     if (route.data.def?.responses) {
       if ("~standard" in route.data.def.responses) {
@@ -88,10 +92,11 @@ export async function callHandler(
           route.data.def.responses,
           ctx.response,
         );
+        responseMeta = schemaAdapter?.getMeta(route.data.def.responses);
       } else {
         if (!ctx.response || !isStatusResult(ctx.response)) {
           throw new Error(
-            "When `responses` is a record of schemas, you must return a value from `ctx.status()`.",
+            "When `responses` is a record of schemas, you must return a value from `ctx.status(...)`.",
           );
         }
         const { status, body } = ctx.response;
@@ -102,11 +107,12 @@ export async function callHandler(
         }
         ctx.set.status = status;
         ctx.response = validateOutputSchema(schema, body);
+        responseMeta = schemaAdapter?.getMeta(schema);
       }
     }
   }
 
-  if (response instanceof Response) return response;
+  if (ctx.response instanceof Response) return ctx.response;
 
   for (const hook of route.data.hooks.onMapResponse) {
     let res = hook.callback(ctx);
@@ -125,7 +131,7 @@ export async function callHandler(
   return new Response(resBody.serialized, {
     status: ctx.set.status,
     headers: {
-      "Content-Type": resBody.contentType,
+      "Content-Type": responseMeta?.contentType ?? resBody.contentType,
       ...ctx.set.headers,
     },
   });

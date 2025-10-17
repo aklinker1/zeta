@@ -4,6 +4,8 @@ import { z } from "zod/v4";
 import { createTestAppClient } from "../testing";
 import { expectTypeOf } from "expect-type";
 import type { AnyDef, GetAppData } from "../types";
+import { zodSchemaAdapter } from "../adapters/zod-schema-adapter";
+import { HttpStatus } from "../status";
 
 // Silence console.error logs
 globalThis.console.error = mock();
@@ -65,6 +67,68 @@ describe("App", () => {
           expect(response).toEqual(expectedResponse);
         },
       );
+    });
+
+    describe("Response content type meta", () => {
+      describe("Single response routes", () => {
+        const app = createApp({ schemaAdapter: zodSchemaAdapter }).get(
+          "/",
+          {
+            responses: z.string().meta({ contentType: "text/csv" }),
+          },
+          () => "test,1,2,3",
+        );
+        const fetch = app.build();
+
+        it("should set the content type automatically for single response routes", async () => {
+          const request = new Request("http://localhost");
+
+          const response = await fetch(request);
+
+          expect(response.headers.get("content-type")).toBe("text/csv");
+        });
+      });
+
+      describe("Multiple response routes", () => {
+        const app = createApp({ schemaAdapter: zodSchemaAdapter }).get(
+          "/",
+          {
+            query: z.object({
+              status: z.coerce
+                .number()
+                .pipe(
+                  z.union([
+                    z.literal(HttpStatus.Ok),
+                    z.literal(HttpStatus.Accepted),
+                  ]),
+                ),
+            }),
+            responses: {
+              [HttpStatus.Ok]: z.string().meta({ contentType: "text/csv" }),
+              [HttpStatus.Accepted]: z
+                .string()
+                .meta({ contentType: "application/xml" }),
+            },
+          },
+          ({ query, status }) => status(query.status, ""),
+        );
+        const fetch = app.build();
+
+        it.each([
+          [HttpStatus.Ok, "text/csv"],
+          [HttpStatus.Accepted, "application/xml"],
+        ])(
+          "should set the content type automatically based on the status",
+          async (status, contentType) => {
+            const request = new Request(`http://localhost/?status=${status}`);
+
+            const response = await fetch(request);
+
+            expect(response.status).toBe(status);
+            expect(response.headers.get("content-type")).toBe(contentType);
+          },
+        );
+      });
     });
 
     describe("request body inference", () => {

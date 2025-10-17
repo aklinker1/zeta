@@ -268,7 +268,9 @@ When a response schema(s) are defined, the return value from the function is typ
 
 #### Custom Content Types
 
-By default, Zeta will use `application/json` as the content type in the OpenAPI docs. you can override this by setting the `contentType` metadata on your schema:
+By default, Zeta will use `application/json` as the content type in the OpenAPI docs and infer the content type of the response at runtime based on the response type.
+
+You can override both the docs and the response content type by setting the `contentType` metadata on your schema:
 
 ```ts
 app.get(
@@ -281,24 +283,6 @@ app.get(
   },
 );
 ```
-
-> [!WARNING]
->
-> Zeta ignores this metadata when building the response. Make sure to set the `Content-Type` header in your handler:
->
-> ```ts
-> app.get(
->   "/csv",
->   {
->     responses: z.string().meta({ contentType: "text/csv" }),
->   },
->   ({ set }) => {
->     // ...
->     set.headers["Content-Type"] = "text/csv";
->     return "...";
->   },
-> );
-> ```
 
 ## Life Cycle Hooks
 

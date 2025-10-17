@@ -168,7 +168,11 @@ export function createApp<TPrefix extends BasePrefix = "">(
             return onGlobalRequestResponse;
           }
 
-          const response = await callHandler(ctx, getRoute);
+          const response = await callHandler(
+            ctx,
+            getRoute,
+            options?.schemaAdapter,
+          );
           ctx.response = response;
 
           return response;
