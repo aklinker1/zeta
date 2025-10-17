@@ -21,7 +21,7 @@ const { z } = await import(zod);
 export const zodSchemaAdapter: SchemaAdapter = {
   toJsonSchema: (schema) => {
     if (!("_zod" in schema)) throw Error("input schema is not a Zod schema");
-    const res = z.toJSONSchema(schema, { target: "draft-7" });
+    const res = z.toJSONSchema(schema, { target: "openapi-3.0" });
     delete res.$schema;
     return res;
   },
