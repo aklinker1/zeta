@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.1.1
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.1.0...v1.1.1)
+
+### 🩹 Fixes
+
+- Get meta from `ZetaSchema` when building responses ([c596cd0](https://github.com/aklinker1/zeta/commit/c596cd0))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.1.0
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.0.3...v1.1.0)
