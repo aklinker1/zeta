@@ -4,6 +4,7 @@ import type { CreateAppOptions } from "./app";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { getHttpStatusName } from "./status";
 import { ErrorResponseJsonSchema, type ZetaSchema } from "./custom-responses";
+import { getMeta } from "./meta";
 
 export function buildOpenApiDocs(
   options: CreateAppOptions<any> | undefined,
@@ -45,7 +46,7 @@ export function buildOpenApiDocs(
           requestBody: body
             ? {
                 content: {
-                  [adapter.getMeta(body)?.contentType ?? "application/json"]: {
+                  [getMeta(adapter, body)?.contentType ?? "application/json"]: {
                     schema: adapter.toJsonSchema(body),
                   },
                 },
@@ -151,16 +152,18 @@ function buildResponse(
   schema: StandardSchemaV1 | ZetaSchema,
   adapter: SchemaAdapter,
 ): NonNullable<OpenAPI.Operation["responses"]>[string] {
+  const meta = getMeta(adapter, schema);
+
   if ("~zeta" in schema) {
     const description =
-      schema["~zeta"].meta?.responseDescription ??
-      getHttpStatusName(status) ??
-      "";
+      meta?.responseDescription ?? getHttpStatusName(status) ?? "";
+
     if (schema["~zeta"].type === "NoResponse") {
       return {
         description,
       };
     }
+
     if (schema["~zeta"].type === "ErrorResponse") {
       return {
         description,
@@ -175,7 +178,6 @@ function buildResponse(
     }
   }
 
-  const meta = adapter.getMeta(schema);
   return {
     description: meta?.responseDescription ?? getHttpStatusName(status),
     content: {

@@ -11,6 +11,7 @@ import {
   validateOutputSchema,
 } from "./utils";
 import { smartDeserialize, smartSerialize } from "./serialization";
+import { getMeta } from "../meta";
 
 export async function callHandler(
   ctx: any,
@@ -92,7 +93,7 @@ export async function callHandler(
           route.data.def.responses,
           ctx.response,
         );
-        responseMeta = schemaAdapter?.getMeta(route.data.def.responses);
+        responseMeta = getMeta(schemaAdapter, route.data.def.responses);
       } else {
         if (!ctx.response || !isStatusResult(ctx.response)) {
           throw new Error(
@@ -107,7 +108,7 @@ export async function callHandler(
         }
         ctx.set.status = status;
         ctx.response = validateOutputSchema(schema, body);
-        responseMeta = schemaAdapter?.getMeta(schema);
+        responseMeta = getMeta(schemaAdapter, schema);
       }
     }
   }
