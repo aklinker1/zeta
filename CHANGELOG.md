@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.1.2
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.1.1...v1.1.2)
+
+### 🩹 Fixes
+
+- Add `openapi-types` as a dependency to fix NPM ([894e7aa](https://github.com/aklinker1/zeta/commit/894e7aa))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.1.1
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.1.0...v1.1.1)
