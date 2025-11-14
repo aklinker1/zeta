@@ -193,6 +193,7 @@ function optimizeSpec(spec: OpenAPI.Document): OpenAPI.Document {
 
   // Optimizations
   addModelRefs(optimized);
+  sortComponentSchemas(optimized);
 
   return optimized;
 }
@@ -233,4 +234,14 @@ function addModelRefs(spec: any): void {
 
   // Process the "paths" object
   recurse(spec.paths);
+}
+
+function sortComponentSchemas(spec: any): void {
+  if (!spec?.components?.schemas) return;
+
+  spec.components.schemas = Object.fromEntries(
+    Object.entries(spec.components.schemas).sort((a, b) =>
+      a[0].toLowerCase().localeCompare(b[0].toLowerCase()),
+    ),
+  );
 }
