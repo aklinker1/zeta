@@ -350,7 +350,7 @@ describe("Types", () => {
 
     describe("when a single response is defined", () => {
       it("should return the response's input type", () => {
-        type Expected = string | boolean;
+        type Expected = string;
 
         type Actual = t.GetRouteHandlerReturnType<{
           responses: StandardSchemaV1<string, boolean>;
