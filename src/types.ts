@@ -458,8 +458,8 @@ export type GetRouteHandlerReturnType<TRouteDef extends RouteDef> =
   TRouteDef extends { responses: symbol } // is any check
     ? any
     : TRouteDef extends { responses: infer TResponses }
-      ? TResponses extends StandardSchemaV1<infer TResponse>
-        ? TResponse
+      ? TResponses extends StandardSchemaV1
+        ? StandardSchemaV1.InferInput<TResponses>
         : TRouteDef["responses"] extends Record<number, StandardSchemaV1<any>>
           ? StatusResult
           : never
