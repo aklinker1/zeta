@@ -71,7 +71,14 @@ export function getRawParams(
     rawParams["**"] = rawParams["_"];
     delete rawParams["_"];
   }
-  return rawParams;
+
+  // Decode all values automatically
+  return Object.fromEntries(
+    Object.entries(rawParams).map(([key, value]) => [
+      key,
+      decodeURIComponent(value),
+    ]),
+  );
 }
 
 export function getErrorStack(err: Error): string[] | undefined {
