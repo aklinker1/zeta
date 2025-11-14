@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.1.3
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.1.2...v1.1.3)
+
+### 🩹 Fixes
+
+- Properly type handler return to infer the input type ([2556738](https://github.com/aklinker1/zeta/commit/2556738))
+- Automatically decode path params ([122bf92](https://github.com/aklinker1/zeta/commit/122bf92))
+
+### 🏡 Chore
+
+- Fix type error ([8d5cfc5](https://github.com/aklinker1/zeta/commit/8d5cfc5))
+- Upgrade to bun 1.3.2 ([f1d8097](https://github.com/aklinker1/zeta/commit/f1d8097))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.1.2
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.1.1...v1.1.2)
