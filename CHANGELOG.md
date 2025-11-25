@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.3
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.2.2...v1.2.3)
+
+### 🩹 Fixes
+
+- **npm:** Include transports folder in package ([e65aaa6](https://github.com/aklinker1/zeta/commit/e65aaa6))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.2.2
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.2.1...v1.2.2)
