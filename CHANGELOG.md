@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.1
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.2.0...v1.2.1)
+
+### 🩹 Fixes
+
+- Add export paths for Bun and Deno transports ([2a83a20](https://github.com/aklinker1/zeta/commit/2a83a20))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.2.0
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.1.3...v1.2.0)
