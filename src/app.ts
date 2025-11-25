@@ -13,9 +13,14 @@ import type {
   DefaultAppData,
   BasePrefix,
   SchemaAdapter,
+  Transport,
 } from "./types";
 import { addRoute, createRouter, findRoute } from "rou3";
-import { callCtxModifierHooks, serializeErrorResponse } from "./internal/utils";
+import {
+  callCtxModifierHooks,
+  detectTransport,
+  serializeErrorResponse,
+} from "./internal/utils";
 import type { OpenAPIV3_1 } from "openapi-types";
 import { buildOpenApiDocs, buildScalarHtml } from "./open-api";
 
@@ -227,17 +232,8 @@ export function createApp<TPrefix extends BasePrefix = "">(
     },
 
     listen: (port, cb) => {
-      if (typeof Bun !== "undefined") {
-        Bun.serve({ port, fetch: app.build() });
-        if (cb) setTimeout(cb, 0);
-      } else if (
-        // @ts-expect-error: Deno types not installed.
-        typeof Deno !== "undefined"
-      ) {
-        // @ts-expect-error: Deno types not installed.
-        Deno.serve({ port, fetch: app.build() });
-        if (cb) setTimeout(cb, 0);
-      }
+      const transport = options?.transport ?? detectTransport();
+      transport.listen(port, app.build(), cb);
       return app;
     },
 
@@ -427,6 +423,24 @@ export type CreateAppOptions<TPrefix extends BasePrefix = ""> = {
    * ```
    */
   schemaAdapter?: SchemaAdapter;
+
+  /**
+   * Tell Zeta how to serve your app over a port. By default, Zeta will detect
+   * if you're runtime is Bun or Deno, and use the appropriate transport.
+   *
+   * If you need to customize the transport, like adding an `idleTimeout` to
+   * bun, you can do so by passing options into the transport's factory function.
+   *
+   * @example
+   * ```ts
+   * import { createBunTransport } from "@aklinker1/zeta/transports/bun-transport"
+   *
+   * const app = createApp({
+   *   transport: createBunTransport(),
+   * });
+   * ```
+   */
+  transport?: Transport;
 
   /**
    * Where the OpenAPI JSON docs is hosted.

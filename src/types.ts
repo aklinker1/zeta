@@ -1043,6 +1043,14 @@ export interface SchemaAdapter {
 }
 
 //
+// TRANSPORTS
+//
+
+export interface Transport {
+  listen: (port: number, fetch: ServerSideFetch, cb?: () => void) => void;
+}
+
+//
 // SETTER
 //
 

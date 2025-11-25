@@ -7,9 +7,12 @@ import type {
   MaybePromise,
   RouterData,
   StatusResult,
+  Transport,
 } from "../types";
 import type { MatchedRoute } from "rou3";
 import type { ErrorResponse } from "../custom-responses";
+import { createBunTransport } from "../transports/bun-transport";
+import { createDenoTransport } from "../transports/deno-transport";
 
 export function validateSchema<T>(
   schema: StandardSchemaV1<T, T>,
@@ -135,4 +138,23 @@ export const IsStatusResult = Symbol("IsStatusResult");
 
 export function isStatusResult(result: any): result is StatusResult {
   return IsStatusResult in result;
+}
+
+export function detectTransport(): Transport {
+  // @ts-ignore: Bun types may not be available
+  if (typeof Bun !== "undefined") return createBunTransport();
+  // @ts-ignore: Deno types may not be available
+  if (typeof Deno !== "undefined") return createDenoTransport();
+
+  throw Error(`Cannot automatically detect which transport to use. You must specify a transport in your top-level app:
+
+    ---
+    import { createBunTransport } from '@aklinker1/zeta/transports/bun-transport';
+
+    const app = createApp({
+      transport: createBunTransport(),
+    })
+
+    app.listen();
+    ---`);
 }
