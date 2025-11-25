@@ -65,5 +65,13 @@
     "vitepress": "^2.0.0-alpha.12",
     "vitepress-plugin-mermaid": "^2.0.17",
     "zod": "^4.1.11"
+  },
+  "peerDependencies": {
+    "@types/bun": "*"
+  },
+  "peerDependenciesMeta": {
+    "@types/bun": {
+      "optional": true
+    }
   }
 }

@@ -1,6 +1,6 @@
 import type { Transport } from "../types";
 // @ts-ignore: Bun types may not be available
-import type { ServeFunctionOptions } from "bun";
+import type { ServeFunctionOptions } from "@types/bun";
 
 export function createBunTransport(
   options: Omit<ServeFunctionOptions<any, any>, "fetch" | "port">,
