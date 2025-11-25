@@ -12,6 +12,8 @@
     "./types": "./src/types.ts",
     "./client": "./src/client.ts",
     "./testing": "./src/testing.ts",
-    "./adapters/zod-schema-adapter": "./src/adapters/zod-schema-adapter.ts"
+    "./adapters/zod-schema-adapter": "./src/adapters/zod-schema-adapter.ts",
+    "./transports/bun-transport": "./src/transports/bun-transport.ts",
+    "./transports/deno-transport": "./src/transports/deno-transport.ts"
   }
 }
