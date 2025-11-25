@@ -19,7 +19,8 @@
   "files": [
     "src/*.ts",
     "src/adapters/*.ts",
-    "src/internal/*.ts"
+    "src/internal/*.ts",
+    "src/transports/*.ts"
   ],
   "publishConfig": {
     "access": "public"
