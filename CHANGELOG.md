@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.2.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.1.3...v1.2.0)
+
+### 🚀 Enhancements
+
+- Abstract transport layer and allow passing custom options ([52c01ec](https://github.com/aklinker1/zeta/commit/52c01ec))
+
+### 🩹 Fixes
+
+- **open-api:** Sort models alphabetically ([a412c77](https://github.com/aklinker1/zeta/commit/a412c77))
+
+### 🏡 Chore
+
+- Try out tsgo ([9119952](https://github.com/aklinker1/zeta/commit/9119952))
+
+### ❤️ Contributors
+
+- Aaron <aaronklinker1@gmail.com>
+
 ## v1.1.3
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.1.2...v1.1.3)
