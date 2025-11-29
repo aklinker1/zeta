@@ -143,9 +143,10 @@ function mapParameters(
 
   return adapter
     .parseParamsRecord(schema)
-    .map(({ schema, optional, ...param }) => ({
-      ...param,
+    .map(({ schema, optional, description, name }) => ({
+      name,
       in: _in,
+      description,
       schema: adapter.toJsonSchema(schema),
       required: !optional,
     }));

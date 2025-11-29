@@ -9,9 +9,12 @@ import { version } from "./package.json" with { type: "json" };
 import { z } from "zod/v4";
 import { zodSchemaAdapter } from "./src/adapters/zod-schema-adapter";
 
+const EntryId = z.coerce.number().int().min(0).meta({ ref: "EntryId" });
+type EntryId = z.infer<typeof EntryId>;
+
 const Entry = z
   .object({
-    id: z.number(),
+    id: EntryId,
     text: z.string(),
   })
   .meta({
@@ -84,10 +87,15 @@ const app = createApp({
       description: "Create a new entry",
       tags: ["Entries"],
       body: Entry,
+      responses: {
+        [HttpStatus.Accepted]: NoResponse.meta({
+          responseDescription: "Entry created",
+        }),
+      },
     },
-    ({ body, set }) => {
+    ({ body, status }) => {
       entries.push(body);
-      set.status = HttpStatus.Accepted;
+      return status(HttpStatus.Accepted, undefined);
     },
   )
   .get(
@@ -97,7 +105,7 @@ const app = createApp({
       summary: "Get entry by ID",
       description: "Get an entry by ID",
       tags: ["Entries"],
-      params: z.object({ id: z.coerce.number() }),
+      params: z.object({ id: EntryId }),
       responses: {
         [HttpStatus.Ok]: Entry,
         [HttpStatus.NotFound]: ErrorResponse,
@@ -117,7 +125,7 @@ const app = createApp({
       operationId: "deleteEntry",
       summary: "Delete Entry",
       tags: ["Entries"],
-      params: z.object({ id: z.coerce.number() }),
+      params: z.object({ id: EntryId }),
       responses: {
         [HttpStatus.NoContent]: NoResponse.meta({
           responseDescription: "Entry deleted",
