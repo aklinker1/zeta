@@ -35,7 +35,11 @@ export function buildOpenApiDocs(
     };
     for (const [method, methodEntry] of Object.entries(app["~zeta"].routes)) {
       for (const [path, routerData] of Object.entries(methodEntry)) {
-        const openApiPath = path.replace(/\/:([^/]+)/g, "/{$1}");
+        const openApiPath = path
+          // Replace parameters with OpenAPI format
+          .replace(/\/:([^/]+)/g, "/{$1}")
+          // Remove trailing slash
+          .replace(/\/$/, "");
         const { headers, params, query, body, responses, ...openApiOperation } =
           routerData.def ?? {};
         docs.paths ??= {};
