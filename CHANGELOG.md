@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.2.4
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.2.3...v1.2.4)
+
+### 🩹 Fixes
+
+- Remove trailing slashes from openapi docs ([f821372](https://github.com/aklinker1/zeta/commit/f821372))
+- **OpenAPI:** Don't extract entire parameter object to `#components/schema`, just the schema ([0cdb0e3](https://github.com/aklinker1/zeta/commit/0cdb0e3))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.2.3
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.2.2...v1.2.3)
