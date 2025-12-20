@@ -1,6 +1,6 @@
 export function smartSerialize(value: unknown):
   | {
-      contentType: string;
+      contentType: string | undefined;
       serialized: BodyInit;
     }
   | undefined {
@@ -8,7 +8,7 @@ export function smartSerialize(value: unknown):
 
   if (value instanceof FormData) {
     return {
-      contentType: "multipart/form-data",
+      contentType: undefined, // Let fetch set the content type with a boundary
       serialized: value,
     };
   }

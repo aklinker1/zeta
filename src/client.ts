@@ -103,7 +103,7 @@ export function createAppClient<TApp extends App>(
         inputs.body == null ? undefined : smartSerialize(inputs.body);
       if (body) {
         init.body = body.serialized;
-        init.headers["Content-Type"] = body.contentType;
+        if (body.contentType) init.headers["Content-Type"] = body.contentType;
       }
 
       try {
