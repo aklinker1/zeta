@@ -27,6 +27,12 @@
         "vitepress-plugin-mermaid": "^2.0.17",
         "zod": "^4.1.11",
       },
+      "peerDependencies": {
+        "@types/bun": "*",
+      },
+      "optionalPeers": [
+        "@types/bun",
+      ],
     },
   },
   "packages": {
