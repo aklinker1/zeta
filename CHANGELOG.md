@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.2.5
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.2.4...v1.2.5)
+
+### 🩹 Fixes
+
+- **client:** Allow browser to set content type of `FormData` requests ([8812a29](https://github.com/aklinker1/zeta/commit/8812a29))
+
+### 🏡 Chore
+
+- Update lockfile ([6ffd26c](https://github.com/aklinker1/zeta/commit/6ffd26c))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.2.4
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.2.3...v1.2.4)
