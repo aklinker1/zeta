@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.3.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.2.5...v1.3.0)
+
+### 🚀 Enhancements
+
+- `FormData`, `File`, and `FileList` body types ([f3bdffa](https://github.com/aklinker1/zeta/commit/f3bdffa))
+
+### 🏡 Chore
+
+- Fix lint errors ([54604c4](https://github.com/aklinker1/zeta/commit/54604c4))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.2.5
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.2.4...v1.2.5)
