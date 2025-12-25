@@ -7,7 +7,6 @@ import { expectTypeOf } from "expect-type";
 import { z } from "zod/v4";
 import { HttpStatus } from "../status";
 import { ErrorResponse, NoResponse } from "../schema";
-import "./file-list-polyfill";
 
 // Silence console.error logs
 globalThis.console.error = mock();

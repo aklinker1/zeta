@@ -22,7 +22,7 @@ export function smartSerialize(value: unknown):
     };
   }
 
-  if (value instanceof FileList) {
+  if (typeof FileList !== "undefined" && value instanceof FileList) {
     const serialized = new FormData();
     for (let i = 0; i < value.length; i++) {
       serialized.append("files", value.item(i)!);

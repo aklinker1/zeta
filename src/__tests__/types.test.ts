@@ -5,7 +5,6 @@ import { z } from "zod/v4";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { ErrorResponse } from "../schema";
 import type { HttpStatus } from "../status";
-import "./file-list-polyfill";
 
 describe("Types", () => {
   describe("MergeRoutes", () => {
