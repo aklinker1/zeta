@@ -6,6 +6,7 @@ import { expectTypeOf } from "expect-type";
 import type { AnyDef, GetAppData } from "../types";
 import { zodSchemaAdapter } from "../adapters/zod-schema-adapter";
 import { HttpStatus } from "../status";
+import "./file-list-polyfill";
 
 // Silence console.error logs
 globalThis.console.error = mock();
