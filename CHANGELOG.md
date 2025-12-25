@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.3.3
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.3.2...v1.3.3)
+
+### 🩹 Fixes
+
+- Fix incorrect input type for `UploadFilesBody` schema ([5e74f08](https://github.com/aklinker1/zeta/commit/5e74f08))
+
+### 📖 Documentation
+
+- Document file upload and form data body types usage ([7f11fe5](https://github.com/aklinker1/zeta/commit/7f11fe5))
+
+### 🏡 Chore
+
+- Fix formatting ([f217b9c](https://github.com/aklinker1/zeta/commit/f217b9c))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.3.2
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.3.1...v1.3.2)
