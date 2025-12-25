@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.3.1
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.3.0...v1.3.1)
+
+### 🩹 Fixes
+
+- Check if FileList class exists before accessing it ([0abf094](https://github.com/aklinker1/zeta/commit/0abf094))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.3.0
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.2.5...v1.3.0)
