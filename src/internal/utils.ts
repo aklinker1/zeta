@@ -69,19 +69,13 @@ export function getRawParams(
   route: MatchedRoute<RouterData>,
 ): Record<string, string> {
   const rawParams = route.params ?? {};
-  // Rename _ to ** for validation and consistency
-  if ("_" in rawParams) {
-    rawParams["**"] = rawParams["_"];
-    delete rawParams["_"];
-  }
+  const res: Record<string, string> = Object.create(null);
 
-  // Decode all values automatically
-  return Object.fromEntries(
-    Object.entries(rawParams).map(([key, value]) => [
-      key,
-      decodeURIComponent(value),
-    ]),
-  );
+  for (const key of Object.keys(rawParams)) {
+    // Rename _ to ** to match type-system, rou3 uses _, Zeta uses _
+    res[key === "_" ? "**" : key] = decodeURIComponent(rawParams[key]);
+  }
+  return res;
 }
 
 export function getErrorStack(err: Error): string[] | undefined {
