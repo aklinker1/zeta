@@ -19,6 +19,7 @@ import { addRoute, createRouter, findRoute } from "rou3";
 import {
   callCtxModifierHooks,
   detectTransport,
+  getRawPathname,
   serializeErrorResponse,
 } from "./internal/utils";
 import type { OpenAPIV3_1 } from "openapi-types";
@@ -67,16 +68,8 @@ export function createApp<TPrefix extends BasePrefix = "">(
 }> {
   const appId = nextAppId();
 
-  const { origin = "http://localhost", prefix = "" } = options ?? {};
-  const hooks: App["~zeta"]["hooks"] = {
-    onAfterHandle: [],
-    onGlobalAfterResponse: [],
-    onBeforeHandle: [],
-    onMapResponse: [],
-    onGlobalError: [],
-    onGlobalRequest: [],
-    onTransform: [],
-  };
+  const { prefix = "" } = options ?? {};
+  const hooks: App["~zeta"]["hooks"] = {};
   const routes: App["~zeta"]["routes"] = {};
 
   const addRoutesEntry = (method: string, route: string, data: RouterData) => {
@@ -87,15 +80,13 @@ export function createApp<TPrefix extends BasePrefix = "">(
     routes[method][route] = data;
   };
 
-  const cloneHooks = () => ({
-    onAfterHandle: [...hooks.onAfterHandle],
-    onGlobalAfterResponse: [...hooks.onGlobalAfterResponse],
-    onBeforeHandle: [...hooks.onBeforeHandle],
-    onMapResponse: [...hooks.onMapResponse],
-    onGlobalError: [...hooks.onGlobalError],
-    onGlobalRequest: [...hooks.onGlobalRequest],
-    onTransform: [...hooks.onTransform],
-  });
+  const cloneHooks = (): App["~zeta"]["hooks"] => {
+    const cloned: App["~zeta"]["hooks"] = {};
+    for (const key of Object.keys(hooks) as Array<keyof LifeCycleHooks>) {
+      if (hooks[key]) cloned[key] = [...hooks[key]] as any;
+    }
+    return cloned;
+  };
 
   const app: App<DefaultAppData> = {
     // @ts-expect-error
@@ -151,10 +142,8 @@ export function createApp<TPrefix extends BasePrefix = "">(
         findRoute(router, method, path);
 
       return async (request) => {
-        const url = new URL(request.url, origin);
         const ctx: any = {
-          path: url.pathname,
-          url,
+          path: getRawPathname(request),
           request,
           method: request.method,
           set: {
@@ -184,9 +173,11 @@ export function createApp<TPrefix extends BasePrefix = "">(
         } catch (err) {
           ctx.error = err;
 
-          for (const hook of hooks.onGlobalError) {
-            const res = hook.callback(ctx);
-            res instanceof Promise ? await res : res;
+          if (hooks.onGlobalError) {
+            for (const hook of hooks.onGlobalError) {
+              const res = hook.callback(ctx);
+              res instanceof Promise ? await res : res;
+            }
           }
 
           const status =
@@ -198,19 +189,21 @@ export function createApp<TPrefix extends BasePrefix = "">(
           return res;
         } finally {
           // Defer calls to the `onGlobalAfterResponse` hooks until after the response is sent
-          if (hooks.onGlobalAfterResponse.length > 0) {
+          if (hooks.onGlobalAfterResponse) {
             setTimeout(async () => {
               try {
-                for (const hook of hooks.onGlobalAfterResponse) {
+                for (const hook of hooks.onGlobalAfterResponse!) {
                   let res = hook.callback(ctx);
                   if (res instanceof Promise) await res;
                 }
               } catch (err) {
                 ctx.error = err;
 
-                for (const hook of hooks.onGlobalError) {
-                  const res = hook.callback(ctx);
-                  res instanceof Promise ? await res : res;
+                if (hooks.onGlobalError) {
+                  for (const hook of hooks.onGlobalError) {
+                    const res = hook.callback(ctx);
+                    res instanceof Promise ? await res : res;
+                  }
                 }
               }
             }, 0);
@@ -241,6 +234,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       const obj: Record<string, any> =
         args.length === 2 ? { [args[0]]: args[1] } : args[0];
 
+      hooks.onTransform ??= [];
       hooks.onTransform.push({
         id: nextHookId(appId),
         applyTo: "local",
@@ -251,6 +245,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
     },
 
     onGlobalRequest(callback: any) {
+      hooks.onGlobalRequest ??= [];
       hooks.onGlobalRequest.push({
         id: nextHookId(appId),
         applyTo: "global",
@@ -259,6 +254,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       return app;
     },
     onTransform(callback: any) {
+      hooks.onTransform ??= [];
       hooks.onTransform.push({
         id: nextHookId(appId),
         applyTo: "local",
@@ -267,6 +263,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       return app;
     },
     onBeforeHandle(callback: any) {
+      hooks.onBeforeHandle ??= [];
       hooks.onBeforeHandle.push({
         id: nextHookId(appId),
         applyTo: "local",
@@ -275,6 +272,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       return app;
     },
     onAfterHandle(callback: any) {
+      hooks.onAfterHandle ??= [];
       hooks.onAfterHandle.push({
         id: nextHookId(appId),
         applyTo: "local",
@@ -283,6 +281,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       return app;
     },
     onMapResponse(callback: any) {
+      hooks.onMapResponse ??= [];
       hooks.onMapResponse.push({
         id: nextHookId(appId),
         applyTo: "local",
@@ -291,6 +290,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       return app;
     },
     onGlobalError(callback: any) {
+      hooks.onGlobalError ??= [];
       hooks.onGlobalError.push({
         id: nextHookId(appId),
         applyTo: "global",
@@ -299,6 +299,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       return app;
     },
     onGlobalAfterResponse(callback: any) {
+      hooks.onGlobalAfterResponse ??= [];
       hooks.onGlobalAfterResponse.push({
         id: nextHookId(appId),
         applyTo: "global",
@@ -370,18 +371,22 @@ export function createApp<TPrefix extends BasePrefix = "">(
       }
 
       // Add global hooks to parent app's hooks
-      for (const _name of Object.keys(hooks)) {
-        const name = _name as keyof LifeCycleHooks;
+      for (const name of Object.keys(hooks) as Array<keyof LifeCycleHooks>) {
+        if (!childApp["~zeta"].hooks[name]) continue;
+
         for (const hook of childApp["~zeta"].hooks[name]) {
           if (hook.applyTo === "global" || childApp["~zeta"].exported) {
-            hooks[name].push(hook as LifeCycleHook<any>);
+            if (hooks[name]) {
+              hooks[name].push(hook as LifeCycleHook<any>);
+            } else {
+              hooks[name] = [hook as LifeCycleHook<any>];
+            }
           }
         }
-        let seen = new Set<string>();
-        hooks[name] = hooks[name].filter((hook) => {
-          if (seen.has(hook.id)) return false;
-          seen.add(hook.id);
-          return true;
+        let seen: Record<string, boolean> = Object.create(null);
+        hooks[name] = hooks[name]!.filter((hook) => {
+          if (seen[hook.id]) return false;
+          return (seen[hook.id] = true);
         }) as LifeCycleHook<any>[];
       }
 

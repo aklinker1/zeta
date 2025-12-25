@@ -572,13 +572,13 @@ export type OnGlobalAfterResponseHook = LifeCycleHook<
 >;
 
 export type LifeCycleHooks = {
-  onGlobalRequest: OnGlobalRequestHook[];
-  onTransform: OnTransformHook[];
-  onBeforeHandle: OnBeforeHandleHook[];
-  onAfterHandle: OnAfterHandleHook[];
-  onMapResponse: OnMapResponseHook[];
-  onGlobalError: OnGlobalErrorHooks[];
-  onGlobalAfterResponse: OnGlobalAfterResponseHook[];
+  onGlobalRequest?: OnGlobalRequestHook[];
+  onTransform?: OnTransformHook[];
+  onBeforeHandle?: OnBeforeHandleHook[];
+  onAfterHandle?: OnAfterHandleHook[];
+  onMapResponse?: OnMapResponseHook[];
+  onGlobalError?: OnGlobalErrorHooks[];
+  onGlobalAfterResponse?: OnGlobalAfterResponseHook[];
 };
 
 //
@@ -662,7 +662,6 @@ export type BasePath = `/${string}`;
  */
 export type OnGlobalRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
   request: Request;
-  url: URL;
   path: string;
   method: string;
   set: Setter;

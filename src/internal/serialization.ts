@@ -6,6 +6,15 @@ export function smartSerialize(value: unknown):
   | undefined {
   if (value == null) return undefined;
 
+  switch (typeof value) {
+    case "string":
+      return { contentType: "text/plain", serialized: value };
+    case "number":
+    case "boolean":
+    case "bigint":
+      return { contentType: "text/plain", serialized: String(value) };
+  }
+
   if (value instanceof FormData) {
     return {
       contentType: undefined, // Let fetch set the content type with a boundary
@@ -40,33 +49,23 @@ export function smartSerialize(value: unknown):
     };
   }
 
-  switch (typeof value) {
-    case "number":
-    case "boolean":
-    case "bigint":
-    case "string":
-      return { contentType: "text/plain", serialized: String(value) };
-    case "object":
-      return {
-        contentType: "application/json",
-        serialized: JSON.stringify(value),
-      };
-  }
-
-  throw Error(
-    "Could not serialize object for request: " + JSON.stringify(value),
-  );
+  return {
+    contentType: "application/json",
+    serialized: JSON.stringify(value),
+  };
 }
 
-export async function smartDeserialize(
+export function smartDeserialize(
   arg: Response | Request,
-): Promise<unknown> {
+): Promise<unknown> | unknown {
+  if (arg instanceof Request && arg.method === "GET") return;
+
   const contentType = arg.headers.get("content-type");
   if (contentType == null) return;
 
   // JSON
   if (contentType.startsWith("application/json")) {
-    return await arg.json();
+    return arg.json();
   }
 
   // Forms
@@ -74,17 +73,17 @@ export async function smartDeserialize(
     contentType.startsWith("application/x-www-form-urlencoded") ||
     contentType.startsWith("multipart/form-data")
   ) {
-    return await arg.formData();
+    return arg.formData();
   }
 
   // Text
   if (contentType.startsWith("text/")) {
-    return await arg.text();
+    return arg.text();
   }
 
   // Binary
   if (contentType.startsWith("application/octet-stream")) {
-    return await arg.arrayBuffer();
+    return arg.arrayBuffer();
   }
 
   // Unknown

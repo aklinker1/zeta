@@ -56,24 +56,30 @@ export function isApp(obj: unknown): obj is App<any> {
   return (obj as any)[Symbol.toStringTag] === "ZetaApp";
 }
 
-export function getRawQuery(url: URL): Record<string, string> {
-  const query: Record<string, string> = {};
-  const params = url.searchParams;
-  const entries = params.entries();
+export function getRawQuery(request: Request): Record<string, string> {
+  let index = request.url.indexOf("?");
+  if (index === -1) return {};
 
-  for (const entry of entries) query[entry[0]] = entry[1];
-  return query;
+  const entries = request.url
+    .slice(index + 1)
+    .split("&")
+    .map((entry) => entry.split("=", 2));
+  const res: Record<string, string> = Object.create(null);
+  for (const [key, value] of entries) {
+    res[key] = value;
+  }
+  return res;
 }
 
 export function getRawParams(
   route: MatchedRoute<RouterData>,
 ): Record<string, string> {
-  const rawParams = route.params ?? {};
-  const res: Record<string, string> = Object.create(null);
+  if (!route.params) return Object.create(null);
 
-  for (const key of Object.keys(rawParams)) {
+  const res: Record<string, string> = Object.create(null);
+  for (const [key, value] of Object.entries(route.params)) {
     // Rename _ to ** to match type-system, rou3 uses _, Zeta uses _
-    res[key === "_" ? "**" : key] = decodeURIComponent(rawParams[key]);
+    res[key === "_" ? "**" : key] = decodeURIComponent(value);
   }
   return res;
 }
@@ -116,10 +122,12 @@ export function serializeErrorResponse(err: unknown): ErrorResponse {
 
 export async function callCtxModifierHooks(
   ctx: any,
-  hooks: LifeCycleHook<
-    (ctx: any) => MaybePromise<Record<string, any> | void>
-  >[],
+  hooks:
+    | LifeCycleHook<(ctx: any) => MaybePromise<Record<string, any> | void>>[]
+    | undefined,
 ): Promise<Response | undefined> {
+  if (!hooks) return;
+
   for (const hook of hooks) {
     let res = hook.callback(ctx);
     res = res instanceof Promise ? await res : res;
@@ -151,4 +159,19 @@ export function detectTransport(): Transport {
 
     app.listen();
     ---`);
+}
+
+export function getRawPathname(request: Request): string {
+  // Fast path for common case: http://host/path
+  const start = request.url.indexOf("/", 8); // Skip 'http://' or 'https://'
+  if (start === -1) return "/";
+
+  // Find end of pathname (before ? or #)
+  for (let i = start + 1; i < request.url.length; i++) {
+    const char = request.url[i];
+    if (char === "?" || char === "#") {
+      return request.url.slice(start, i);
+    }
+  }
+  return request.url.slice(start);
 }

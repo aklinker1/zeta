@@ -4,6 +4,7 @@ import { NotFoundHttpError } from "../errors";
 import {
   callCtxModifierHooks,
   getRawParams,
+  getRawPathname,
   getRawQuery,
   isStatusResult,
   IsStatusResult,
@@ -34,15 +35,12 @@ export async function callHandler(
     return res instanceof Promise ? await res : res;
   }
 
-  const rawBody = await smartDeserialize(ctx.request);
-  const rawQuery = getRawQuery(ctx.url);
-  const rawParams = getRawParams(route);
-  ctx.route = route.data.route;
-  ctx.params = rawParams;
-  ctx.query = rawQuery;
-  ctx.body = rawBody;
+  ctx.params = route.params ? getRawParams(route) : {};
+  ctx.query = getRawQuery(ctx.request);
+  ctx.body = smartDeserialize(ctx.request);
+  if (ctx.body instanceof Promise) ctx.body = await ctx.body;
 
-  if (route.data.hooks.onTransform.length > 0) {
+  if (route.data.hooks.onTransform) {
     const onTransform = await callCtxModifierHooks(
       ctx,
       route.data.hooks.onTransform,
@@ -50,14 +48,14 @@ export async function callHandler(
     if (onTransform) return onTransform;
   }
 
-  if (route.data.def?.body)
-    ctx.body = validateInputSchema(route.data.def?.body, rawBody);
-  if (route.data.def?.query)
-    ctx.query = validateInputSchema(route.data.def?.query, rawQuery);
   if (route.data.def?.params)
-    ctx.params = validateInputSchema(route.data.def?.params, rawParams);
+    ctx.params = validateInputSchema(route.data.def?.params, ctx.params);
+  if (route.data.def?.query)
+    ctx.query = validateInputSchema(route.data.def?.query, ctx.query);
+  if (route.data.def?.body)
+    ctx.body = validateInputSchema(route.data.def?.body, ctx.body);
 
-  if (route.data.hooks.onBeforeHandle.length > 0) {
+  if (route.data.hooks.onBeforeHandle) {
     const res = await callCtxModifierHooks(
       ctx,
       route.data.hooks.onBeforeHandle,
@@ -72,17 +70,17 @@ export async function callHandler(
   });
 
   {
-    let response: any = route.data.handler(ctx);
-    if (response instanceof Promise) response = await response;
-
-    ctx.response = response;
+    ctx.response = route.data.handler(ctx);
+    if (ctx.response instanceof Promise) ctx.response = await ctx.response;
   }
 
-  for (const hook of route.data.hooks.onAfterHandle) {
-    let res = hook.callback(ctx);
-    res = res instanceof Promise ? await res : res;
-    if (res instanceof Response) return res;
-    ctx.response = res;
+  if (route.data.hooks.onAfterHandle) {
+    for (const hook of route.data.hooks.onAfterHandle) {
+      let res = hook.callback(ctx);
+      if (res instanceof Promise) res = await res;
+      if (res instanceof Response) return res;
+      ctx.response = res;
+    }
   }
 
   let responseMeta: Record<string, any> | undefined;
@@ -115,11 +113,13 @@ export async function callHandler(
 
   if (ctx.response instanceof Response) return ctx.response;
 
-  for (const hook of route.data.hooks.onMapResponse) {
-    let res = hook.callback(ctx);
-    res = res instanceof Promise ? await res : res;
-    if (res instanceof Response) return res;
-    ctx.response = res;
+  if (route.data.hooks.onMapResponse) {
+    for (const hook of route.data.hooks.onMapResponse) {
+      let res = hook.callback(ctx);
+      if (res instanceof Promise) res = await res;
+      if (res instanceof Response) return res;
+      ctx.response = res;
+    }
   }
 
   const resBody = smartSerialize(ctx.response);
