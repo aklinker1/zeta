@@ -222,8 +222,8 @@ export const UploadFileBody: ZetaSchema<File> = createZetaSchema<File>(
   },
 );
 
-export const UploadFilesBody: ZetaSchema<FormData, File[]> = createZetaSchema<
-  FormData,
+export const UploadFilesBody: ZetaSchema<FileList, File[]> = createZetaSchema<
+  FileList,
   File[]
 >(
   "UploadFilesBody",
