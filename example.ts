@@ -160,7 +160,7 @@ const app = createApp({
         [HttpStatus.NoContent]: NoResponse,
       },
     },
-    ({ status, body }) => {
+    ({ status, body: _ }) => {
       return status(HttpStatus.NoContent, undefined);
     },
   )
@@ -174,7 +174,7 @@ const app = createApp({
         [HttpStatus.NoContent]: NoResponse,
       },
     },
-    ({ status, body }) => {
+    ({ status, body: _ }) => {
       return status(HttpStatus.NoContent, undefined);
     },
   )
@@ -188,7 +188,7 @@ const app = createApp({
         [HttpStatus.NoContent]: NoResponse,
       },
     },
-    ({ status, body }) => {
+    ({ status, body: _ }) => {
       return status(HttpStatus.NoContent, undefined);
     },
   );
