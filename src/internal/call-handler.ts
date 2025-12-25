@@ -43,11 +43,11 @@ export async function callHandler(
   ctx.body = rawBody;
 
   if (route.data.hooks.onTransform.length > 0) {
-    const onTransformResponse = await callCtxModifierHooks(
+    const onTransform = await callCtxModifierHooks(
       ctx,
       route.data.hooks.onTransform,
     );
-    if (onTransformResponse) return onTransformResponse;
+    if (onTransform) return onTransform;
   }
 
   if (route.data.def?.body)
