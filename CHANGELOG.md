@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.3.2
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.3.1...v1.3.2)
+
+### 🩹 Fixes
+
+- When uploading a `FileList`, get the correct property from the `FormData` ([cf76b14](https://github.com/aklinker1/zeta/commit/cf76b14))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.3.1
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.3.0...v1.3.1)
