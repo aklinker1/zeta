@@ -217,11 +217,15 @@ Here's an example:
 import { createApp } from "@aklinker1/zeta";
 import { UploadFilesBody } from "@aklinker1/zeta/schema";
 
-const app = createApp().post("/upload", {
-  body: UploadFilesBody,
-}, ({ body }) => {
-  console.log(body); // File[]
-});
+const app = createApp().post(
+  "/upload",
+  {
+    body: UploadFilesBody,
+  },
+  ({ body }) => {
+    console.log(body); // File[]
+  },
+);
 ```
 
 For all the body utils, just pass them to the `body` property and inside the route handler, the `body` variable will be typed accordingly.
