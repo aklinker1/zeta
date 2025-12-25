@@ -205,6 +205,27 @@ const app = createApp().post(
 );
 ```
 
+#### Request Body Utils
+
+- `FormDataBody`: Upload `FormData` instances
+- `UploadFileBody`: Use `FormData` to upload a single file
+- `UploadFilesBody`: Use `FormData` to upload multiple files
+
+Here's an example:
+
+```ts
+import { createApp } from "@aklinker1/zeta";
+import { UploadFilesBody } from "@aklinker1/zeta/schema";
+
+const app = createApp().post("/upload", {
+  body: UploadFilesBody,
+}, ({ body }) => {
+  console.log(body); // File[]
+});
+```
+
+For all the body utils, just pass them to the `body` property and inside the route handler, the `body` variable will be typed accordingly.
+
 ### Response
 
 You can either define a single response or multiple responses.
