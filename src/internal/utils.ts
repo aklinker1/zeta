@@ -10,7 +10,7 @@ import type {
   Transport,
 } from "../types";
 import type { MatchedRoute } from "rou3";
-import type { ErrorResponse } from "../custom-responses";
+import type { ErrorResponse } from "../schema";
 import { createBunTransport } from "../transports/bun-transport";
 import { createDenoTransport } from "../transports/deno-transport";
 

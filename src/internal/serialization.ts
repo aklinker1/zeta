@@ -13,6 +13,26 @@ export function smartSerialize(value: unknown):
     };
   }
 
+  if (value instanceof File) {
+    const serialized = new FormData();
+    serialized.append("file", value);
+    return {
+      contentType: undefined,
+      serialized,
+    };
+  }
+
+  if (value instanceof FileList) {
+    const serialized = new FormData();
+    for (let i = 0; i < value.length; i++) {
+      serialized.append("files", value.item(i)!);
+    }
+    return {
+      contentType: undefined,
+      serialized,
+    };
+  }
+
   if (value instanceof Blob) {
     return {
       contentType: value.type,

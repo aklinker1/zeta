@@ -6,7 +6,7 @@ import type { GetClientRoutes } from "../client";
 import { expectTypeOf } from "expect-type";
 import { z } from "zod/v4";
 import { HttpStatus } from "../status";
-import { ErrorResponse, NoResponse } from "../custom-responses";
+import { ErrorResponse, NoResponse } from "../schema";
 
 // Silence console.error logs
 globalThis.console.error = mock();

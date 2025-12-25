@@ -3,7 +3,7 @@ import { expectTypeOf } from "expect-type";
 import type * as t from "../types";
 import { z } from "zod/v4";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { ErrorResponse } from "../custom-responses";
+import { ErrorResponse } from "../schema";
 import type { HttpStatus } from "../status";
 
 describe("Types", () => {

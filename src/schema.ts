@@ -9,12 +9,14 @@ export type ZetaSchema<Input = unknown, Output = Input> = StandardSchemaV1<
     type: string;
     meta: Record<string, any>;
   };
+  toJsonSchema?(): any;
   meta(meta?: Record<string, any>): ZetaSchema<Input, Output>;
 };
 
 function createZetaSchema<Input = unknown, Output = Input>(
   name: string,
   validate: (value: unknown) => StandardSchemaV1.Result<Output>,
+  toJsonSchema?: () => any,
   meta: Record<string, string> = {},
 ): ZetaSchema<Input, Output> {
   const parentMeta = meta;
@@ -29,11 +31,12 @@ function createZetaSchema<Input = unknown, Output = Input>(
       validate,
     },
     meta(meta) {
-      return createZetaSchema(name, validate, {
+      return createZetaSchema(name, validate, undefined, {
         ...parentMeta,
         ...meta,
       });
     },
+    toJsonSchema,
   };
 }
 
@@ -96,6 +99,10 @@ export const ErrorResponse: ZetaSchema<unknown, ErrorResponse> =
       return { value: value as ErrorResponse };
     },
   );
+
+export function isZetaSchema(schema: any): schema is ZetaSchema {
+  return schema?.["~standard"]?.vendor === "@aklinker/zeta";
+}
 
 /**
  * The actual type an error response conforms to.
@@ -164,3 +171,101 @@ export const NoResponse: ZetaSchema<undefined | null | void, void> =
         : { value: undefined };
     },
   );
+
+export const FormDataBody: ZetaSchema<FormData> = createZetaSchema<FormData>(
+  "FormDataBody",
+  (value: unknown): StandardSchemaV1.Result<FormData> => {
+    return value instanceof FormData
+      ? { value }
+      : {
+          issues: [{ message: `Expected FormData, got ${typeof value}` }],
+        };
+  },
+  () => ({
+    type: "object",
+    additionalProperties: true,
+  }),
+  {
+    contentType: "multipart/form-data",
+  },
+);
+
+export const UploadFileBody: ZetaSchema<File> = createZetaSchema<File>(
+  "UploadFileBody",
+  (value: unknown): StandardSchemaV1.Result<File> => {
+    if (!(value instanceof FormData)) {
+      return {
+        issues: [{ message: `Expected FormData, got ${typeof value}` }],
+      };
+    }
+
+    const file = value.get("file");
+    if (!(file instanceof File)) {
+      return {
+        issues: [{ message: `Expected File, got ${typeof file}` }],
+      };
+    }
+
+    return { value: file };
+  },
+  () => ({
+    type: "object",
+    properties: {
+      file: {
+        type: "string",
+        format: "binary",
+      },
+    },
+  }),
+  {
+    contentType: "multipart/form-data",
+  },
+);
+
+export const UploadFilesBody: ZetaSchema<FormData, File[]> = createZetaSchema<
+  FormData,
+  File[]
+>(
+  "UploadFilesBody",
+  (value): StandardSchemaV1.Result<File[]> => {
+    if (!(value instanceof FormData)) {
+      return {
+        issues: [{ message: `Expected FormData, got ${typeof value}` }],
+      };
+    }
+
+    const files = value.getAll("file");
+    if (!Array.isArray(files)) {
+      return {
+        issues: [{ message: `Expected array of Files, got ${typeof files}` }],
+      };
+    }
+
+    const issues: string[] = [];
+    for (const file of files) {
+      if (!(file instanceof File)) {
+        issues.push(`Expected File, got ${typeof file}`);
+      }
+    }
+    if (issues.length > 0) {
+      return { issues: issues.map((message) => ({ message })) };
+    }
+
+    return { value: files as File[] };
+  },
+  () => ({
+    type: "object",
+    properties: {
+      files: {
+        type: "array",
+        items: {
+          type: "string",
+          format: "binary",
+        },
+      },
+    },
+  }),
+  {
+    contentType: "multipart/form-data",
+  },
+);

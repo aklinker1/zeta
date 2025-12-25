@@ -8,6 +8,7 @@ import {
 import { version } from "./package.json" with { type: "json" };
 import { z } from "zod/v4";
 import { zodSchemaAdapter } from "./src/adapters/zod-schema-adapter";
+import { UploadFileBody, FormDataBody, UploadFilesBody } from "./src/schema";
 
 const EntryId = z.coerce.number().int().min(0).meta({ ref: "EntryId" });
 type EntryId = z.infer<typeof EntryId>;
@@ -148,6 +149,48 @@ const app = createApp({
       responses: z.string().meta({ contentType: "text/csv" }),
     },
     () => "test",
+  )
+  .post(
+    "/api/upload-form",
+    {
+      summary: "Upload Form",
+      tags: ["Uploads"],
+      body: FormDataBody,
+      responses: {
+        [HttpStatus.NoContent]: NoResponse,
+      },
+    },
+    ({ status, body }) => {
+      return status(HttpStatus.NoContent, undefined);
+    },
+  )
+  .post(
+    "/api/upload-file",
+    {
+      summary: "Upload File",
+      tags: ["Uploads"],
+      body: UploadFileBody,
+      responses: {
+        [HttpStatus.NoContent]: NoResponse,
+      },
+    },
+    ({ status, body }) => {
+      return status(HttpStatus.NoContent, undefined);
+    },
+  )
+  .post(
+    "/api/upload-files",
+    {
+      summary: "Upload Files",
+      tags: ["Uploads"],
+      body: UploadFilesBody,
+      responses: {
+        [HttpStatus.NoContent]: NoResponse,
+      },
+    },
+    ({ status, body }) => {
+      return status(HttpStatus.NoContent, undefined);
+    },
   );
 
 console.log(

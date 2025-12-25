@@ -8,7 +8,7 @@ import type {
   GetRequestParamsInput,
   GetResponseOutput,
 } from "./types";
-import type { ErrorResponse } from "./custom-responses";
+import type { ErrorResponse } from "./schema";
 import { smartDeserialize, smartSerialize } from "./internal/serialization";
 import type {
   GetAppRoutes,
