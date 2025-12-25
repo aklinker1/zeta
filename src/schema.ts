@@ -234,7 +234,7 @@ export const UploadFilesBody: ZetaSchema<FormData, File[]> = createZetaSchema<
       };
     }
 
-    const files = value.getAll("file");
+    const files = value.getAll("files");
     if (!Array.isArray(files)) {
       return {
         issues: [{ message: `Expected array of Files, got ${typeof files}` }],
