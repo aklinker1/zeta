@@ -68,7 +68,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
 }> {
   const appId = nextAppId();
 
-  const { prefix = "" } = options ?? {};
+  const { origin = "http://localhost", prefix = "" } = options ?? {};
   const hooks: App["~zeta"]["hooks"] = {};
   const routes: App["~zeta"]["routes"] = {};
 
@@ -142,10 +142,15 @@ export function createApp<TPrefix extends BasePrefix = "">(
         findRoute(router, method, path);
 
       return async (request) => {
+        let url: URL | undefined;
         const ctx: any = {
           path: getRawPathname(request),
           request,
           method: request.method,
+          get url() {
+            if (url) return url;
+            return (url = new URL(request.url, origin));
+          },
           set: {
             status: HttpStatus.Ok,
             headers: {},

@@ -4,6 +4,7 @@ import type { ServerSideFetch } from "../types";
 import { Elysia } from "elysia";
 import { Hono } from "hono";
 import { z } from "zod/v4";
+import { getRawQuery } from "../internal/utils";
 
 // Static Response
 {
@@ -42,30 +43,79 @@ import { z } from "zod/v4";
 // Validate request body and echo it back
 {
   const buildRequest = () =>
-    new Request("http://localhost/", {
+    new Request("http://localhost/path?test=query", {
       method: "POST",
-      body: JSON.stringify({ test: "hello!" }),
+      body: JSON.stringify({ test: "body" }),
       headers: {
         "Content-Type": "application/json",
       },
     });
   const schema = z.object({ test: z.string() });
+  const responseSchema = z.object({
+    body: schema,
+    // params: schema,
+    // query: schema,
+  });
 
-  const rawFetch = async (req: Request) =>
-    Response.json(schema.parse(await req.json()));
+  const rawFetch = async (req: Request) => {
+    const body = schema.parse(await req.json());
+    const params = schema.parse({ test: req.url.slice(10) });
+    const query = schema.parse(getRawQuery(req));
+    return Response.json(responseSchema.parse({ body, params, query }));
+  };
 
   const zetaFetch = createApp()
-    .post("/", { body: schema, responses: schema }, ({ body }) => body)
+    .post(
+      "/:test",
+      {
+        body: schema,
+        // query: schema,
+        // params: schema,
+        responses: responseSchema,
+      },
+      ({
+        body,
+        // params,
+        // query
+      }) => ({
+        body,
+        // params,
+        // query,
+      }),
+    )
     .build();
 
-  const elysiaFetch = new Elysia().post("/", ({ body }) => body, {
-    body: schema,
-    response: schema,
-  }).handle;
+  const elysiaFetch = new Elysia().post(
+    "/:test",
+    async ({
+      body,
+      // params,
+      // query
+    }) => ({
+      body,
+      // params,
+      // query,
+    }),
+    {
+      body: schema,
+      // params: schema,
+      // query: schema,
+      response: responseSchema,
+    },
+  ).handle;
 
-  const honoFetch = new Hono().post("/", async (c) =>
-    c.json(schema.parse(await c.req.json())),
-  ).fetch;
+  const honoFetch = new Hono().post("/:test", async (c) => {
+    const body = schema.parse(await c.req.json());
+    // const params = schema.parse({ test: c.req.param("test") });
+    // const query = schema.parse({ test: c.req.query("test") });
+    return c.json(
+      responseSchema.parse({
+        body,
+        // params,
+        // query,
+      }),
+    );
+  }).fetch;
 
   const fetchTest = (fetch: ServerSideFetch) => async () =>
     await fetch(buildRequest());
@@ -77,7 +127,7 @@ import { z } from "zod/v4";
     hono: await (await honoFetch(buildRequest())).text(),
   });
 
-  const bench = new Bench({ name: "Parse, validate, and echo request body" });
+  const bench = new Bench({ name: "Parse and echo all params" });
   bench
     .add("Raw fetch", fetchTest(rawFetch))
     .add("Zeta", fetchTest(zetaFetch))
@@ -89,3 +139,5 @@ import { z } from "zod/v4";
   console.log(bench.name);
   console.table(bench.table());
 }
+
+process.exit(0);

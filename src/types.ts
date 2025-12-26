@@ -662,6 +662,7 @@ export type BasePath = `/${string}`;
  */
 export type OnGlobalRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
   request: Request;
+  url: URL;
   path: string;
   method: string;
   set: Setter;

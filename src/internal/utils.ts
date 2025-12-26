@@ -56,6 +56,21 @@ export function isApp(obj: unknown): obj is App<any> {
   return (obj as any)[Symbol.toStringTag] === "ZetaApp";
 }
 
+export function getRawPathname(request: Request): string {
+  // Fast path for common case: http://host/path
+  const start = request.url.indexOf("/", 8); // Skip 'http://' or 'https://'
+  if (start === -1) return "/";
+
+  // Find end of pathname (before ? or #)
+  for (let i = start + 1; i < request.url.length; i++) {
+    const char = request.url[i];
+    if (char === "?" || char === "#") {
+      return request.url.slice(start, i);
+    }
+  }
+  return request.url.slice(start);
+}
+
 export function getRawQuery(request: Request): Record<string, string> {
   let index = request.url.indexOf("?");
   if (index === -1) return {};
@@ -159,19 +174,4 @@ export function detectTransport(): Transport {
 
     app.listen();
     ---`);
-}
-
-export function getRawPathname(request: Request): string {
-  // Fast path for common case: http://host/path
-  const start = request.url.indexOf("/", 8); // Skip 'http://' or 'https://'
-  if (start === -1) return "/";
-
-  // Find end of pathname (before ? or #)
-  for (let i = start + 1; i < request.url.length; i++) {
-    const char = request.url[i];
-    if (char === "?" || char === "#") {
-      return request.url.slice(start, i);
-    }
-  }
-  return request.url.slice(start);
 }
