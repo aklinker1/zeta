@@ -154,7 +154,7 @@ export async function callCtxModifierHooks(
 
   for (const hook of hooks) {
     let res = hook.callback(ctx);
-    res = res instanceof Promise ? await res : res;
+    if (res instanceof Promise) res = await res;
     if (res instanceof Response) return res;
     if (res) Object.assign(ctx, res);
   }

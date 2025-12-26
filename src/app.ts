@@ -144,12 +144,12 @@ export function createApp<TPrefix extends BasePrefix = "">(
         let url: URL | undefined;
         const ctx: any = {
           path: getRawPathname(request),
-          request,
-          method: request.method,
           get url() {
             if (url) return url;
             return (url = new URL(request.url, origin));
           },
+          request,
+          method: request.method,
           set: {
             status: HttpStatus.Ok,
             headers: {},
@@ -180,7 +180,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
           if (hooks.onGlobalError) {
             for (const hook of hooks.onGlobalError) {
               const res = hook.callback(ctx);
-              res instanceof Promise ? await res : res;
+              if (res instanceof Promise) await res;
             }
           }
 
@@ -206,7 +206,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
                 if (hooks.onGlobalError) {
                   for (const hook of hooks.onGlobalError) {
                     const res = hook.callback(ctx);
-                    res instanceof Promise ? await res : res;
+                    if (res instanceof Promise) await res;
                   }
                 }
               }
