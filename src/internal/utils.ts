@@ -96,12 +96,14 @@ export function getRawQuery(request: Request): Record<string, string> {
 export function getRawParams(
   route: MatchedRoute<RouterData>,
 ): Record<string, string> {
-  if (!route.params) return Object.create(null);
+  const params = route.params;
+  if (!params) return {};
 
-  const res: Record<string, string> = Object.create(null);
-  for (const [key, value] of Object.entries(route.params)) {
-    // Rename _ to ** to match type-system, rou3 uses _, Zeta uses _
-    res[key === "_" ? "**" : key] = decodeURIComponent(value);
+  const res: Record<string, string> = {};
+  for (const key in params) {
+    // Rename rou3's _ to ** to match type-system
+    const outKey = key === "_" ? "**" : key;
+    res[outKey] = decodeURIComponent(params[key]);
   }
   return res;
 }
