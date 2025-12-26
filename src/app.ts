@@ -15,7 +15,8 @@ import type {
   SchemaAdapter,
   Transport,
 } from "./types";
-import { addRoute, createRouter, findRoute } from "rou3";
+import { addRoute, createRouter } from "rou3";
+import { compileRouter } from "rou3/compiler";
 import {
   callCtxModifierHooks,
   detectTransport,
@@ -137,9 +138,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
         }
       }
 
-      // const getRoute = compileRouter(router);
-      const getRoute = (method: string, path: string) =>
-        findRoute(router, method, path);
+      const getRoute = compileRouter(router);
 
       return async (request) => {
         let url: URL | undefined;
