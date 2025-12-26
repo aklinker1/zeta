@@ -4,7 +4,6 @@ import { NotFoundHttpError } from "../errors";
 import {
   callCtxModifierHooks,
   getRawParams,
-  getRawPathname,
   getRawQuery,
   isStatusResult,
   IsStatusResult,
