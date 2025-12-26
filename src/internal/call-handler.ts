@@ -86,27 +86,26 @@ export async function callHandler(
 
   let responseMeta: Record<string, any> | undefined;
   if (!(ctx.response instanceof Response)) {
-    if (route.data.def?.responses) {
-      if ("~standard" in route.data.def.responses) {
-        ctx.response = validateOutputSchema(
-          route.data.def.responses,
-          ctx.response,
-        );
-        responseMeta = getMeta(schemaAdapter, route.data.def.responses);
+    const responseDef = route.data.def?.responses;
+    if (responseDef) {
+      if ("~standard" in responseDef) {
+        ctx.response = validateOutputSchema(responseDef, ctx.response);
+        responseMeta = getMeta(schemaAdapter, responseDef);
       } else {
         if (!ctx.response || !isStatusResult(ctx.response)) {
           throw new Error(
             "When `responses` is a record of schemas, you must return a value from `ctx.status(...)`.",
           );
         }
-        const { status, body } = ctx.response;
-        const schema = route.data.def.responses[status];
+        const schema = responseDef[ctx.response.status];
         if (!schema) {
           // This should be caught by the `status` function's type definition, but it's here as a safeguard.
-          throw new Error(`No response schema found for status ${status}.`);
+          throw new Error(
+            `No response schema found for status ${ctx.response.status}.`,
+          );
         }
-        ctx.set.status = status;
-        ctx.response = validateOutputSchema(schema, body);
+        ctx.set.status = ctx.response.status;
+        ctx.response = validateOutputSchema(schema, ctx.response.body);
         responseMeta = getMeta(schemaAdapter, schema);
       }
     }
