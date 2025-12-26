@@ -40,19 +40,21 @@ export async function callHandler(
   if (ctx.body instanceof Promise) ctx.body = await ctx.body;
 
   if (route.data.hooks.onTransform) {
-    const onTransform = await callCtxModifierHooks(
+    const response = await callCtxModifierHooks(
       ctx,
       route.data.hooks.onTransform,
     );
-    if (onTransform) return onTransform;
+    if (response) return response;
   }
 
-  if (route.data.def?.params)
-    ctx.params = validateInputSchema(route.data.def?.params, ctx.params);
-  if (route.data.def?.query)
-    ctx.query = validateInputSchema(route.data.def?.query, ctx.query);
-  if (route.data.def?.body)
-    ctx.body = validateInputSchema(route.data.def?.body, ctx.body);
+  if (route.data.def) {
+    if (route.data.def.params)
+      ctx.params = validateInputSchema(route.data.def.params, ctx.params);
+    if (route.data.def.query)
+      ctx.query = validateInputSchema(route.data.def.query, ctx.query);
+    if (route.data.def.body)
+      ctx.body = validateInputSchema(route.data.def.body, ctx.body);
+  }
 
   if (route.data.hooks.onBeforeHandle) {
     const res = await callCtxModifierHooks(
