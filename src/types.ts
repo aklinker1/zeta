@@ -581,6 +581,8 @@ export type LifeCycleHooks = {
   onGlobalAfterResponse?: OnGlobalAfterResponseHook[];
 };
 
+export type LifeCycleHookName = keyof LifeCycleHooks;
+
 //
 // BASE TYPES
 //

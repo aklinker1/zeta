@@ -14,6 +14,7 @@ import type {
   BasePrefix,
   SchemaAdapter,
   Transport,
+  LifeCycleHookName,
 } from "./types";
 import { addRoute, createRouter } from "rou3";
 import { compileRouter } from "rou3/compiler";
@@ -374,24 +375,23 @@ export function createApp<TPrefix extends BasePrefix = "">(
         }
       }
 
-      // Add global hooks to parent app's hooks
-      for (const name of Object.keys(hooks) as Array<keyof LifeCycleHooks>) {
-        if (!childApp["~zeta"].hooks[name]) continue;
+      // Add the child's global hooks to parent
+      for (const hookName of Object.keys(
+        childApp["~zeta"].hooks,
+      ) as LifeCycleHookName[]) {
+        for (const hook of childApp["~zeta"].hooks[
+          hookName
+        ]! as LifeCycleHook<any>[]) {
+          if (hook.applyTo !== "global" && !childApp["~zeta"].exported)
+            continue;
 
-        for (const hook of childApp["~zeta"].hooks[name]) {
-          if (hook.applyTo === "global" || childApp["~zeta"].exported) {
-            if (hooks[name]) {
-              hooks[name].push(hook as LifeCycleHook<any>);
-            } else {
-              hooks[name] = [hook as LifeCycleHook<any>];
-            }
+          if (hooks[hookName]) {
+            // Don't add a hook if it's already there
+            if (!hooks[hookName].includes(hook)) hooks[hookName].push(hook);
+          } else {
+            hooks[hookName] = [hook];
           }
         }
-        let seen: Record<string, boolean> = Object.create(null);
-        hooks[name] = hooks[name]!.filter((hook) => {
-          if (seen[hook.id]) return false;
-          return (seen[hook.id] = true);
-        }) as LifeCycleHook<any>[];
       }
 
       return app as any;
