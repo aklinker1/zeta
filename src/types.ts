@@ -572,14 +572,16 @@ export type OnGlobalAfterResponseHook = LifeCycleHook<
 >;
 
 export type LifeCycleHooks = {
-  onGlobalRequest: OnGlobalRequestHook[];
-  onTransform: OnTransformHook[];
-  onBeforeHandle: OnBeforeHandleHook[];
-  onAfterHandle: OnAfterHandleHook[];
-  onMapResponse: OnMapResponseHook[];
-  onGlobalError: OnGlobalErrorHooks[];
-  onGlobalAfterResponse: OnGlobalAfterResponseHook[];
+  onGlobalRequest?: OnGlobalRequestHook[];
+  onTransform?: OnTransformHook[];
+  onBeforeHandle?: OnBeforeHandleHook[];
+  onAfterHandle?: OnAfterHandleHook[];
+  onMapResponse?: OnMapResponseHook[];
+  onGlobalError?: OnGlobalErrorHooks[];
+  onGlobalAfterResponse?: OnGlobalAfterResponseHook[];
 };
+
+export type LifeCycleHookName = keyof LifeCycleHooks;
 
 //
 // BASE TYPES

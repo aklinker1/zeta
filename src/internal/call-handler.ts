@@ -34,30 +34,29 @@ export async function callHandler(
     return res instanceof Promise ? await res : res;
   }
 
-  const rawBody = await smartDeserialize(ctx.request);
-  const rawQuery = getRawQuery(ctx.url);
-  const rawParams = getRawParams(route);
-  ctx.route = route.data.route;
-  ctx.params = rawParams;
-  ctx.query = rawQuery;
-  ctx.body = rawBody;
+  ctx.params = route.params ? getRawParams(route) : {};
+  ctx.query = getRawQuery(ctx.request);
+  ctx.body = smartDeserialize(ctx.request);
+  if (ctx.body instanceof Promise) ctx.body = await ctx.body;
 
-  if (route.data.hooks.onTransform.length > 0) {
-    const onTransformResponse = await callCtxModifierHooks(
+  if (route.data.hooks.onTransform) {
+    const response = await callCtxModifierHooks(
       ctx,
       route.data.hooks.onTransform,
     );
-    if (onTransformResponse) return onTransformResponse;
+    if (response) return response;
   }
 
-  if (route.data.def?.body)
-    ctx.body = validateInputSchema(route.data.def?.body, rawBody);
-  if (route.data.def?.query)
-    ctx.query = validateInputSchema(route.data.def?.query, rawQuery);
-  if (route.data.def?.params)
-    ctx.params = validateInputSchema(route.data.def?.params, rawParams);
+  if (route.data.def) {
+    if (route.data.def.params)
+      ctx.params = validateInputSchema(route.data.def.params, ctx.params);
+    if (route.data.def.query)
+      ctx.query = validateInputSchema(route.data.def.query, ctx.query);
+    if (route.data.def.body)
+      ctx.body = validateInputSchema(route.data.def.body, ctx.body);
+  }
 
-  if (route.data.hooks.onBeforeHandle.length > 0) {
+  if (route.data.hooks.onBeforeHandle) {
     const res = await callCtxModifierHooks(
       ctx,
       route.data.hooks.onBeforeHandle,
@@ -72,42 +71,41 @@ export async function callHandler(
   });
 
   {
-    let response: any = route.data.handler(ctx);
-    if (response instanceof Promise) response = await response;
-
-    ctx.response = response;
+    ctx.response = route.data.handler(ctx);
+    if (ctx.response instanceof Promise) ctx.response = await ctx.response;
   }
 
-  for (const hook of route.data.hooks.onAfterHandle) {
-    let res = hook.callback(ctx);
-    res = res instanceof Promise ? await res : res;
-    if (res instanceof Response) return res;
-    ctx.response = res;
+  if (route.data.hooks.onAfterHandle) {
+    for (const hook of route.data.hooks.onAfterHandle) {
+      let res = hook.callback(ctx);
+      if (res instanceof Promise) res = await res;
+      if (res instanceof Response) return res;
+      ctx.response = res;
+    }
   }
 
   let responseMeta: Record<string, any> | undefined;
   if (!(ctx.response instanceof Response)) {
-    if (route.data.def?.responses) {
-      if ("~standard" in route.data.def.responses) {
-        ctx.response = validateOutputSchema(
-          route.data.def.responses,
-          ctx.response,
-        );
-        responseMeta = getMeta(schemaAdapter, route.data.def.responses);
+    const responseDef = route.data.def?.responses;
+    if (responseDef) {
+      if ("~standard" in responseDef) {
+        ctx.response = validateOutputSchema(responseDef, ctx.response);
+        responseMeta = getMeta(schemaAdapter, responseDef);
       } else {
         if (!ctx.response || !isStatusResult(ctx.response)) {
           throw new Error(
             "When `responses` is a record of schemas, you must return a value from `ctx.status(...)`.",
           );
         }
-        const { status, body } = ctx.response;
-        const schema = route.data.def.responses[status];
+        const schema = responseDef[ctx.response.status];
         if (!schema) {
           // This should be caught by the `status` function's type definition, but it's here as a safeguard.
-          throw new Error(`No response schema found for status ${status}.`);
+          throw new Error(
+            `No response schema found for status ${ctx.response.status}.`,
+          );
         }
-        ctx.set.status = status;
-        ctx.response = validateOutputSchema(schema, body);
+        ctx.set.status = ctx.response.status;
+        ctx.response = validateOutputSchema(schema, ctx.response.body);
         responseMeta = getMeta(schemaAdapter, schema);
       }
     }
@@ -115,11 +113,13 @@ export async function callHandler(
 
   if (ctx.response instanceof Response) return ctx.response;
 
-  for (const hook of route.data.hooks.onMapResponse) {
-    let res = hook.callback(ctx);
-    res = res instanceof Promise ? await res : res;
-    if (res instanceof Response) return res;
-    ctx.response = res;
+  if (route.data.hooks.onMapResponse) {
+    for (const hook of route.data.hooks.onMapResponse) {
+      let res = hook.callback(ctx);
+      if (res instanceof Promise) res = await res;
+      if (res instanceof Response) return res;
+      ctx.response = res;
+    }
   }
 
   const resBody = smartSerialize(ctx.response);
