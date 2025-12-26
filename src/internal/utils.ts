@@ -156,7 +156,7 @@ export async function callCtxModifierHooks(
     let res = hook.callback(ctx);
     if (res instanceof Promise) res = await res;
     if (res instanceof Response) return res;
-    if (res) Object.assign(ctx, res);
+    if (res) Object.assign(ctx, res); // TODO: Replace with manual property setting for performance?
   }
 }
 
