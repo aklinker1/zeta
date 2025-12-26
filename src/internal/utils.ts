@@ -75,13 +75,20 @@ export function getRawQuery(request: Request): Record<string, string> {
   let index = request.url.indexOf("?");
   if (index === -1) return {};
 
-  const entries = request.url
-    .slice(index + 1)
-    .split("&")
-    .map((entry) => entry.split("=", 2));
-  const res: Record<string, string> = Object.create(null);
-  for (const [key, value] of entries) {
-    res[key] = value;
+  const res: Record<string, string> = {};
+  const str = request.url;
+  const len = str.length;
+  let start = index + 1;
+
+  for (let i = start; i < len; i++) {
+    if (str[i] === "&" || i === len - 1) {
+      const end = i === len - 1 ? len : i;
+      const eqIndex = str.indexOf("=", start);
+      if (eqIndex !== -1 && eqIndex < end) {
+        res[str.slice(start, eqIndex)] = str.slice(eqIndex + 1, end);
+      }
+      start = i + 1;
+    }
   }
   return res;
 }
