@@ -8,7 +8,6 @@ import type {
   BasePath,
   ServerSideFetch,
   OnGlobalRequestContext,
-  LifeCycleHooks,
   LifeCycleHook,
   DefaultAppData,
   BasePrefix,
