@@ -1,143 +1,175 @@
+/**
+ * Run some targeted benchmarks aiming to compare the internal handlers of
+ * different frameworks.
+ *
+ * Usage:
+ *
+ *   bun run src/__tests__/bench.ts
+ *   bun run src/__tests__/bench.ts "{{benchmark_name}}"
+ */
 import { Bench } from "tinybench";
 import { createApp } from "../app";
 import type { ServerSideFetch } from "../types";
 import { Elysia } from "elysia";
 import { Hono } from "hono";
+import { createMiddleware } from "hono/factory";
 import { z } from "zod/v4";
-import { getRawQuery } from "../internal/utils";
 
-// Static Response
-{
-  const buildRequest = () => new Request("http://localhost/");
+const TestObject = z.object({ test: z.string() });
+const STATIC_RESPONSE = { test: "response" };
 
-  const rawFetch = () => new Response("hi");
-  const zetaFetch = createApp()
-    .get("/", () => "hi")
-    .build();
-  const elysiaFetch = new Elysia().get("/", () => "hi").fetch;
-  const honoFetch = new Hono().get("/", (c) => c.text("hi")).fetch;
+async function runBenchmark(
+  name: string,
+  options: {
+    buildRequest: () => Request;
+    fetchFunctions: {
+      zeta: ServerSideFetch;
+      [name: string]: ServerSideFetch;
+    };
+  },
+): Promise<void> {
+  if (
+    process.argv[2] &&
+    !name.toLowerCase().includes(process.argv[2].toLowerCase())
+  ) {
+    return;
+  }
 
-  const fetchTest = (fetch: ServerSideFetch) => async () =>
-    await fetch(buildRequest());
+  console.log(name + ":");
 
-  console.log("Responses:", {
-    raw: await rawFetch().text(),
-    zeta: await (await zetaFetch(buildRequest())).text(),
-    elysia: await (await elysiaFetch(buildRequest())).text(),
-    hono: await (await honoFetch(buildRequest())).text(),
-  });
+  const responses: Record<string, string> = {};
+  for (const [name, fetch] of Object.entries(options.fetchFunctions)) {
+    responses[name] = await (await fetch(options.buildRequest())).text();
+  }
+  console.log("Responses:", responses);
 
-  const bench = new Bench({ name: "Simple static response" });
-  bench
-    .add("Raw fetch", fetchTest(rawFetch))
-    .add("Zeta", fetchTest(zetaFetch))
-    .add("Elysia", fetchTest(elysiaFetch))
-    .add("Hono", fetchTest(honoFetch));
+  let request: Request;
+  const bench = new Bench({ name });
+  for (const [name, fetch] of Object.entries(options.fetchFunctions)) {
+    bench.add(name, () => fetch(request!), {
+      beforeEach: () => void (request = options.buildRequest()),
+    });
+  }
 
   await bench.run();
-
-  console.log(bench.name);
   console.table(bench.table());
 }
 
-// Validate request body and echo it back
-{
-  const buildRequest = () =>
-    new Request("http://localhost/path?test=query", {
+await runBenchmark("Static Response", {
+  buildRequest: () => new Request("http://localhost/"),
+  fetchFunctions: {
+    vanilla: () => new Response("hi"),
+    elysia: new Elysia().get("/", "hi").fetch,
+    hono: new Hono().get("/", (c) => c.text("hi")).fetch,
+    zeta: createApp()
+      .get("/", () => "hi")
+      .build(),
+  },
+});
+
+await runBenchmark("Validate and Echo JSON Body", {
+  buildRequest: () =>
+    new Request("http://localhost/", {
       method: "POST",
       body: JSON.stringify({ test: "body" }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  const schema = z.object({ test: z.string() });
-  const responseSchema = z.object({
-    body: schema,
-    // params: schema,
-    // query: schema,
-  });
-
-  const rawFetch = async (req: Request) => {
-    const body = schema.parse(await req.json());
-    const params = schema.parse({ test: req.url.slice(10) });
-    const query = schema.parse(getRawQuery(req));
-    return Response.json(responseSchema.parse({ body, params, query }));
-  };
-
-  const zetaFetch = createApp()
-    .post(
-      "/:test",
-      {
-        body: schema,
-        // query: schema,
-        // params: schema,
-        responses: responseSchema,
-      },
-      ({
-        body,
-        // params,
-        // query
-      }) => ({
-        body,
-        // params,
-        // query,
-      }),
-    )
-    .build();
-
-  const elysiaFetch = new Elysia().post(
-    "/:test",
-    async ({
-      body,
-      // params,
-      // query
-    }) => ({
-      body,
-      // params,
-      // query,
+      headers: { "Content-Type": "application/json" },
     }),
-    {
-      body: schema,
-      // params: schema,
-      // query: schema,
-      response: responseSchema,
-    },
-  ).handle;
+  fetchFunctions: {
+    vanilla: (req) =>
+      req.json().then((body) => Response.json(TestObject.parse(body))),
+    elysia: new Elysia().post("/", (ctx) => ctx.body, {
+      body: TestObject,
+    }).fetch,
+    hono: new Hono().post("/", (ctx) =>
+      ctx.req.json().then((body) => ctx.json(TestObject.parse(body))),
+    ).fetch,
+    zeta: createApp()
+      // @ts-ignore: expects response schema, but works without it
+      .post("/", { body: TestObject }, (ctx) => ctx.body)
+      .build(),
+  },
+});
 
-  const honoFetch = new Hono().post("/:test", async (c) => {
-    const body = schema.parse(await c.req.json());
-    // const params = schema.parse({ test: c.req.param("test") });
-    // const query = schema.parse({ test: c.req.query("test") });
-    return c.json(
-      responseSchema.parse({
-        body,
-        // params,
-        // query,
-      }),
-    );
-  }).fetch;
+await runBenchmark("Validate and Echo Query Params", {
+  buildRequest: () => new Request("http://localhost/?test=query"),
+  fetchFunctions: {
+    vanilla: (req) =>
+      Response.json(
+        Object.fromEntries(
+          new URLSearchParams(
+            req.url.slice(req.url.indexOf("?") + 1),
+          ).entries(),
+        ),
+      ),
+    elysia: new Elysia().get("/", (ctx) => ctx.query, {
+      query: TestObject,
+    }).fetch,
+    hono: new Hono().get("/", (ctx) =>
+      ctx.json(TestObject.parse(ctx.req.query())),
+    ).fetch,
+    zeta: createApp()
+      // @ts-ignore: expects response schema, but works without it
+      .get("/", { query: TestObject }, (ctx) => ctx.query)
+      .build(),
+  },
+});
 
-  const fetchTest = (fetch: ServerSideFetch) => async () =>
-    await fetch(buildRequest());
+await runBenchmark("Validate and Echo Path Params", {
+  buildRequest: () => new Request("http://localhost/path"),
+  fetchFunctions: {
+    elysia: new Elysia().get("/:test", (ctx) => ctx.params, {
+      params: TestObject,
+    }).fetch,
+    hono: new Hono().get("/:test", (ctx) =>
+      ctx.json(TestObject.parse(ctx.req.param())),
+    ).fetch,
+    zeta: createApp()
+      // @ts-ignore: expects response schema, but works without it
+      .get("/:test", { params: TestObject }, (ctx) => ctx.params)
+      .build(),
+  },
+});
 
-  console.log("Responses:", {
-    raw: await (await rawFetch(buildRequest())).text(),
-    zeta: await (await zetaFetch(buildRequest())).text(),
-    elysia: await (await elysiaFetch(buildRequest())).text(),
-    hono: await (await honoFetch(buildRequest())).text(),
-  });
+await runBenchmark("Response Validation", {
+  buildRequest: () => new Request("http://localhost/"),
+  fetchFunctions: {
+    vanilla: () => Response.json(TestObject.parse(STATIC_RESPONSE)),
+    elysia: new Elysia().get("/", () => STATIC_RESPONSE, {
+      response: TestObject,
+    }).fetch,
+    hono: new Hono().get("/", (ctx) =>
+      ctx.json(TestObject.parse(STATIC_RESPONSE)),
+    ).fetch,
+    zeta: createApp()
+      // @ts-ignore: expects response schema, but works without it
+      .get("/", { responses: TestObject }, () => STATIC_RESPONSE)
+      .build(),
+  },
+});
 
-  const bench = new Bench({ name: "Parse and echo all params" });
-  bench
-    .add("Raw fetch", fetchTest(rawFetch))
-    .add("Zeta", fetchTest(zetaFetch))
-    .add("Elysia", fetchTest(elysiaFetch))
-    .add("Hono", fetchTest(honoFetch));
-
-  await bench.run();
-
-  console.log(bench.name);
-  console.table(bench.table());
-}
+await runBenchmark("Single hook", {
+  buildRequest: () => new Request("http://localhost/"),
+  fetchFunctions: {
+    elysia: new Elysia()
+      .decorate({ fn: () => STATIC_RESPONSE })
+      .get("/", (ctx) => ctx.fn()).fetch,
+    hono: new Hono()
+      .use(
+        createMiddleware<{
+          Variables: {
+            fn: () => any;
+          };
+        }>((c, next) => {
+          c.set("fn", () => STATIC_RESPONSE);
+          return next();
+        }),
+      )
+      .get("/", (ctx) => ctx.json(ctx.var.fn())).fetch,
+    zeta: createApp()
+      .decorate({ fn: () => STATIC_RESPONSE })
+      .get("/", (ctx) => ctx.fn())
+      .build(),
+  },
+});
 
 process.exit(0);
