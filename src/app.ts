@@ -84,7 +84,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
 
   const cloneHooks = (): App["~zeta"]["hooks"] => {
     const cloned: App["~zeta"]["hooks"] = {};
-    for (const key of Object.keys(hooks) as Array<keyof LifeCycleHooks>) {
+    for (const key of Object.keys(hooks) as LifeCycleHookName[]) {
       if (hooks[key]) cloned[key] = [...hooks[key]] as any;
     }
     return cloned;
