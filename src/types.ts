@@ -434,10 +434,19 @@ export type RouterData = {
   def?: RouteDef;
   route: string;
   hooks: LifeCycleHooks;
+  compiledHandler: CompiledRouteHandler;
 } & (
   | { fetch: ServerSideFetch }
   | { handler: (ctx: OnBeforeHandleContext) => Promise<any> }
 );
+
+/**
+ * Function type called internally once a route is matched for a request.
+ */
+export type CompiledRouteHandler = (
+  request: Request,
+  ctx: any,
+) => MaybePromise<Response>;
 
 //
 // HANDLERS
@@ -512,9 +521,7 @@ export type LifeCycleHook<TCallback extends Function> = {
  * into the handler context.
  */
 export type OnGlobalRequestHook = LifeCycleHook<
-  (
-    ctx: Simplify<OnGlobalRequestContext>,
-  ) => MaybePromise<Record<string, any> | void>
+  (ctx: Simplify<OnGlobalRequestContext>) => Record<string, any> | void
 >;
 
 /**
@@ -560,15 +567,15 @@ export type OnMapResponseHook = LifeCycleHook<
  * Zeta will handle any `HttpError`s thrown, but you can handle your own errors
  * here.
  */
-export type OnGlobalErrorHooks = LifeCycleHook<
-  (ctx: Simplify<OnGlobalErrorContext>) => MaybePromise<void>
+export type OnGlobalErrorHook = LifeCycleHook<
+  (ctx: Simplify<OnGlobalErrorContext>) => void
 >;
 
 /**
  * Called after the response is sent back to the client.
  */
 export type OnGlobalAfterResponseHook = LifeCycleHook<
-  (ctx: Simplify<AfterResponseContext>) => MaybePromise<void>
+  (ctx: Simplify<AfterResponseContext>) => void
 >;
 
 export type LifeCycleHooks = {
@@ -577,7 +584,7 @@ export type LifeCycleHooks = {
   onBeforeHandle?: OnBeforeHandleHook[];
   onAfterHandle?: OnAfterHandleHook[];
   onMapResponse?: OnMapResponseHook[];
-  onGlobalError?: OnGlobalErrorHooks[];
+  onGlobalError?: OnGlobalErrorHook[];
   onGlobalAfterResponse?: OnGlobalAfterResponseHook[];
 };
 

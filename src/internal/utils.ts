@@ -1,5 +1,5 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { HttpError, ValidationGlobalError } from "../errors";
+import { HttpError } from "../errors";
 import { HttpStatus } from "../status";
 import type {
   App,
@@ -17,30 +17,24 @@ import { createDenoTransport } from "../transports/deno-transport";
 export function validateSchema<T>(
   schema: StandardSchemaV1<T, T>,
   input: unknown,
+  status: number,
+  message: string,
 ): T {
-  let res = schema["~standard"].validate(input);
+  const res = schema["~standard"].validate(input);
   if (res instanceof Promise) throw Error("Async validation not supported");
 
-  if (res.issues) throw new ValidationGlobalError(input, res.issues);
+  if (res.issues)
+    throw new HttpError(status, message, {
+      issues: res.issues,
+      input: input,
+    });
 
   return res.value;
 }
 
-function createHttpSchemaValidator(status: HttpStatus, message: string) {
-  return <T>(schema: StandardSchemaV1<T, T>, input: unknown): T => {
-    try {
-      return validateSchema<T>(schema, input);
-    } catch (err) {
-      if (err instanceof ValidationGlobalError) {
-        throw new HttpError(status, message, {
-          issues: err.issues,
-          input: err.input,
-        });
-      } else {
-        throw err;
-      }
-    }
-  };
+function createHttpSchemaValidator(status: number, message: string) {
+  return <T>(schema: StandardSchemaV1<T, T>, input: unknown): T =>
+    validateSchema<T>(schema, input, status, message);
 }
 
 export const validateInputSchema = createHttpSchemaValidator(
@@ -63,8 +57,7 @@ export function getRawPathname(request: Request): string {
 
   // Find end of pathname (before ? or #)
   for (let i = start + 1; i < request.url.length; i++) {
-    const char = request.url[i];
-    if (char === "?" || char === "#") {
+    if (request.url[i] === "?" || request.url[i] === "#") {
       return request.url.slice(start, i);
     }
   }
@@ -183,4 +176,16 @@ export function detectTransport(): Transport {
 
     app.listen();
     ---`);
+}
+
+export function cleanupCompiledWhitespace(code: string): string {
+  return (
+    code
+      // Remove lines only containing spaces
+      .replace(/^ +$/gm, "")
+      // Reduce multiple newlines to one
+      .replace(/\n\n+/gm, "\n\n")
+      // Remove blank lines after curly braces
+      .replaceAll("{\n\n", "{\n")
+  );
 }

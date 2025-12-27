@@ -1,18 +1,4 @@
-import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { HttpStatus } from "./status";
-
-/**
- * Thrown when validation fails. Refer to `.issues` for details on what went wrong.
- */
-export class ValidationGlobalError extends Error {
-  constructor(
-    readonly input: any,
-    readonly issues: ReadonlyArray<StandardSchemaV1.Issue>,
-  ) {
-    super("Validation error");
-    this.name = "ValidationGlobalError";
-  }
-}
 
 /**
  * Base class of all HTTP errors. You can throw this error or throw any of the

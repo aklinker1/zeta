@@ -99,11 +99,12 @@ export function createAppClient<TApp extends App>(
         headers: { ...headers } as Record<string, string>,
       } satisfies RequestInit;
 
-      const body =
+      const serializedBody =
         inputs.body == null ? undefined : smartSerialize(inputs.body);
-      if (body) {
-        init.body = body.serialized;
-        if (body.contentType) init.headers["Content-Type"] = body.contentType;
+      if (serializedBody) {
+        init.body = serializedBody.value;
+        if (serializedBody.contentType)
+          init.headers["Content-Type"] = serializedBody.contentType;
       }
 
       try {

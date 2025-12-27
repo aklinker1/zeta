@@ -1,63 +1,63 @@
 export function smartSerialize(value: unknown):
   | {
       contentType: string | undefined;
-      serialized: BodyInit;
+      value: BodyInit;
     }
   | undefined {
   if (value == null) return undefined;
 
   switch (typeof value) {
     case "string":
-      return { contentType: "text/plain", serialized: value };
+      return { contentType: "text/plain", value };
     case "number":
     case "boolean":
     case "bigint":
-      return { contentType: "text/plain", serialized: String(value) };
+      return { contentType: "text/plain", value: String(value) };
   }
 
   if (value instanceof FormData) {
     return {
       contentType: undefined, // Let fetch set the content type with a boundary
-      serialized: value,
+      value,
     };
   }
 
   if (value instanceof File) {
-    const serialized = new FormData();
-    serialized.append("file", value);
+    const form = new FormData();
+    form.append("file", value);
     return {
       contentType: undefined,
-      serialized,
+      value: form,
     };
   }
 
   if (typeof FileList !== "undefined" && value instanceof FileList) {
-    const serialized = new FormData();
+    const form = new FormData();
     for (let i = 0; i < value.length; i++) {
-      serialized.append("files", value.item(i)!);
+      form.append("files", value.item(i)!);
     }
     return {
       contentType: undefined,
-      serialized,
+      value: form,
     };
   }
 
   if (value instanceof Blob) {
     return {
       contentType: value.type,
-      serialized: value,
+      value,
     };
   }
 
   return {
     contentType: "application/json",
-    serialized: JSON.stringify(value),
+    value: JSON.stringify(value),
   };
 }
 
 export function smartDeserialize(
   arg: Response | Request,
-): Promise<unknown> | unknown {
+): Promise<unknown> | undefined {
   if (arg instanceof Request && arg.method === "GET") return;
 
   const contentType = arg.headers.get("content-type");
