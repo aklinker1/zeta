@@ -8,7 +8,7 @@ import type {
   ServerSideFetch,
 } from "../types";
 import { smartDeserialize, smartSerialize } from "./serialization";
-import { cleanupCompiledWhitespace } from "./utils";
+import { cleanupCompiledWhitespace, IsStatusResult } from "./utils";
 
 export function compileRouteHandler(
   options: CompileOptions,
@@ -35,15 +35,15 @@ ${options.hooks.onTransform?.length ? compileCtxModifierHookCall("onTransform", 
 ${options.hooks.onBeforeHandle?.length ? compileCtxModifierHookCall("onBeforeHandle", options.hooks.onBeforeHandle.length) : ""}
 
   ctx.response = await ctx.matchedRoute.data.handler(ctx);
-  if (typeof ctx.response?.then === utils.FUNCTION) ctx.response = await ctx.response;
-
-  ${
-    options.def?.responses == null
-      ? ""
-      : "~standard" in options.def.responses
-        ? "ctx.response = ctx.matchedRoute.data.def.responses.parse(ctx.response);"
-        : "ctx.response = ctx.matchedRoute.data.def.responses[ctx.set.status].parse(ctx.response);"
+  if (ctx.response) {
+    if (ctx.response[utils.IsStatusResult]) {
+      set.status = ctx.response.status;
+      ctx.response = ctx.response.body;
+    }
+    if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
   }
+
+  ${compileValidateResponse(options)}
 
 ${options.hooks.onAfterHandle?.length ? compileResponseModifierHookCall("onAfterHandle", options.hooks.onAfterHandle.length) : ""}
 
@@ -73,6 +73,7 @@ const UTILS = {
   smartDeserialize,
   smartSerialize,
   FUNCTION: "function",
+  IsStatusResult,
 };
 
 type CompileOptions = {
@@ -132,4 +133,16 @@ function compileResponseModifierHookCall(
   }
 
   return lines.join("\n");
+}
+
+function compileValidateResponse(options: CompileOptions): string {
+  // No validation
+  if (!options.def?.responses) return "";
+
+  // One schema defined
+  if ("~standard" in options.def.responses)
+    return "ctx.response = ctx.matchedRoute.data.def.responses.parse(ctx.response);";
+
+  // Multiple schemas based on the status code
+  return "ctx.response = ctx.matchedRoute.data.def.responses[ctx.set.status].parse(ctx.response);";
 }

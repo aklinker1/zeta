@@ -32,7 +32,13 @@ describe("compileRouteHandler", () => {
           // TODO: Add back ability to return responses from hooks to short-circuit the handler
 
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
-          if (typeof ctx.response?.then === utils.FUNCTION) ctx.response = await ctx.response;
+          if (ctx.response) {
+            if (ctx.response[utils.IsStatusResult]) {
+              set.status = ctx.response.status;
+              ctx.response = ctx.response.body;
+            }
+            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+          }
 
           if (ctx.response == null) {
             return new Response(undefined, {
@@ -69,7 +75,13 @@ describe("compileRouteHandler", () => {
           // TODO: Add back ability to return responses from hooks to short-circuit the handler
 
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
-          if (typeof ctx.response?.then === utils.FUNCTION) ctx.response = await ctx.response;
+          if (ctx.response) {
+            if (ctx.response[utils.IsStatusResult]) {
+              set.status = ctx.response.status;
+              ctx.response = ctx.response.body;
+            }
+            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+          }
 
           if (ctx.response == null) {
             return new Response(undefined, {
@@ -112,7 +124,13 @@ describe("compileRouteHandler", () => {
                 ctx[key] = onTransformRes0[key];
 
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
-          if (typeof ctx.response?.then === utils.FUNCTION) ctx.response = await ctx.response;
+          if (ctx.response) {
+            if (ctx.response[utils.IsStatusResult]) {
+              set.status = ctx.response.status;
+              ctx.response = ctx.response.body;
+            }
+            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+          }
 
           if (ctx.response == null) {
             return new Response(undefined, {
@@ -154,7 +172,13 @@ describe("compileRouteHandler", () => {
                 ctx[key] = onBeforeHandleRes0[key];
 
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
-          if (typeof ctx.response?.then === utils.FUNCTION) ctx.response = await ctx.response;
+          if (ctx.response) {
+            if (ctx.response[utils.IsStatusResult]) {
+              set.status = ctx.response.status;
+              ctx.response = ctx.response.body;
+            }
+            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+          }
 
           if (ctx.response == null) {
             return new Response(undefined, {
@@ -188,7 +212,13 @@ describe("compileRouteHandler", () => {
           // TODO: Add back ability to return responses from hooks to short-circuit the handler
 
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
-          if (typeof ctx.response?.then === utils.FUNCTION) ctx.response = await ctx.response;
+          if (ctx.response) {
+            if (ctx.response[utils.IsStatusResult]) {
+              set.status = ctx.response.status;
+              ctx.response = ctx.response.body;
+            }
+            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+          }
 
           const onAfterHandleRes0 = await ctx.matchedRoute.data.hooks.onAfterHandle[0].callback(ctx);
           if (onAfterHandleRes0) ctx.response = onAfterHandleRes0;
@@ -227,7 +257,13 @@ describe("compileRouteHandler", () => {
           // TODO: Add back ability to return responses from hooks to short-circuit the handler
 
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
-          if (typeof ctx.response?.then === utils.FUNCTION) ctx.response = await ctx.response;
+          if (ctx.response) {
+            if (ctx.response[utils.IsStatusResult]) {
+              set.status = ctx.response.status;
+              ctx.response = ctx.response.body;
+            }
+            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+          }
 
           const onMapResponseRes0 = await ctx.matchedRoute.data.hooks.onMapResponse[0].callback(ctx);
           if (onMapResponseRes0) ctx.response = onMapResponseRes0;
