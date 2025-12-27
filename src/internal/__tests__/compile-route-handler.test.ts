@@ -1,10 +1,14 @@
 import { describe, it, expect } from "bun:test";
 import { compileRouteHandler } from "../compile-route-handler";
 
+process.env.NODE_ENV = "production";
+
 describe("compileRouteHandler", () => {
   describe("when compiling a mounted fetch function", () => {
     it("should return a simple function", () => {
       const actual = compileRouteHandler({
+        def: undefined,
+        schemaAdapter: undefined,
         route: "/",
         method: "GET",
         hooks: {},
@@ -20,6 +24,8 @@ describe("compileRouteHandler", () => {
   describe("when compiling route handlers", () => {
     it("should return a simple function with context", () => {
       const actual = compileRouteHandler({
+        def: undefined,
+        schemaAdapter: undefined,
         route: "/",
         method: "GET",
         hooks: {},
@@ -60,6 +66,8 @@ describe("compileRouteHandler", () => {
 
     it("should get the request body for non-GET methods", () => {
       const actual = compileRouteHandler({
+        def: undefined,
+        schemaAdapter: undefined,
         route: "/",
         method: "POST",
         hooks: {},
@@ -103,6 +111,8 @@ describe("compileRouteHandler", () => {
 
     it("should include onTransform hook calls", () => {
       const actual = compileRouteHandler({
+        def: undefined,
+        schemaAdapter: undefined,
         hooks: {
           onTransform: [{ id: "", applyTo: "local", callback: () => {} }],
         },
@@ -151,6 +161,8 @@ describe("compileRouteHandler", () => {
 
     it("should include onBeforeHandle hook calls", () => {
       const actual = compileRouteHandler({
+        def: undefined,
+        schemaAdapter: undefined,
         hooks: {
           onBeforeHandle: [{ id: "", applyTo: "local", callback: () => {} }],
         },
@@ -199,6 +211,8 @@ describe("compileRouteHandler", () => {
 
     it("should include onAfterHandle hook calls", () => {
       const actual = compileRouteHandler({
+        def: undefined,
+        schemaAdapter: undefined,
         hooks: {
           onAfterHandle: [{ id: "", applyTo: "local", callback: () => {} }],
         },
@@ -244,6 +258,8 @@ describe("compileRouteHandler", () => {
 
     it("should include onMapResponse hook calls", () => {
       const actual = compileRouteHandler({
+        def: undefined,
+        schemaAdapter: undefined,
         hooks: {
           onMapResponse: [{ id: "", applyTo: "local", callback: () => {} }],
         },

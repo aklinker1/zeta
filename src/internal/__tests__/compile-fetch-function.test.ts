@@ -1,6 +1,8 @@
 import { describe, it, expect } from "bun:test";
 import { compileFetchFunction } from "../compile-fetch-function";
 
+process.env.NODE_ENV = "production";
+
 const origin = "http://localhost";
 const getRoute = () => undefined;
 
@@ -70,8 +72,6 @@ describe("compileFetchFunction", () => {
 
           try {
           const onGlobalRequestRes0 = utils.hooks.onGlobalRequest[0].callback(ctx);
-          if (onGlobalRequestRes0 instanceof Promise)
-            console.warn("Warning: Promise returned from onGlobalRequest hook. Promises returned from onGlobalRequest are not awaited, ignoring the return value.");
           if (onGlobalRequestRes0)
             if (typeof onGlobalRequestRes0.body === utils.FUNCTION)
               return onGlobalRequestRes0;
