@@ -33,8 +33,6 @@ export function compileRouteHandler(
 return async (request, ctx) => {
   ${options.method === "GET" ? "" : ADD_CTX_BODY}
 
-  // TODO: Add back ability to return responses from hooks to short-circuit the handler
-
 ${options.hooks.onTransform?.length ? compileCtxModifierHookCall("onTransform", options.hooks.onTransform.length) : ""}
 
   ${options.def?.body ? "ctx.body = utils.validateInputSchema(ctx.matchedRoute.data.def.body, ctx.body);" : ""}

@@ -35,8 +35,6 @@ describe("compileRouteHandler", () => {
       expect(actual.toString()).toMatchInlineSnapshot(
         `
         "async (request, ctx) => {
-          // TODO: Add back ability to return responses from hooks to short-circuit the handler
-
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
@@ -80,8 +78,6 @@ describe("compileRouteHandler", () => {
           ctx.body = utils.smartDeserialize(request);
           if (ctx.body) ctx.body = await ctx.body;
 
-          // TODO: Add back ability to return responses from hooks to short-circuit the handler
-
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
@@ -123,8 +119,6 @@ describe("compileRouteHandler", () => {
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "async (request, ctx) => {
-          // TODO: Add back ability to return responses from hooks to short-circuit the handler
-
           const onTransformRes0 = await ctx.matchedRoute.data.hooks.onTransform[0].callback(ctx);
           if (onTransformRes0)
             if (typeof onTransformRes0.body === utils.FUNCTION)
@@ -173,8 +167,6 @@ describe("compileRouteHandler", () => {
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "async (request, ctx) => {
-          // TODO: Add back ability to return responses from hooks to short-circuit the handler
-
           const onBeforeHandleRes0 = await ctx.matchedRoute.data.hooks.onBeforeHandle[0].callback(ctx);
           if (onBeforeHandleRes0)
             if (typeof onBeforeHandleRes0.body === utils.FUNCTION)
@@ -223,8 +215,6 @@ describe("compileRouteHandler", () => {
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "async (request, ctx) => {
-          // TODO: Add back ability to return responses from hooks to short-circuit the handler
-
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
@@ -270,8 +260,6 @@ describe("compileRouteHandler", () => {
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "async (request, ctx) => {
-          // TODO: Add back ability to return responses from hooks to short-circuit the handler
-
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
