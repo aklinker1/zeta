@@ -289,6 +289,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
       const route = `${prefix}${path}`;
       const hooks = cloneHooks();
       const compiledHandler = compileRouteHandler({
+        schemaAdapter: options?.schemaAdapter,
         def,
         hooks,
         method,
@@ -324,10 +325,12 @@ export function createApp<TPrefix extends BasePrefix = "">(
       const route = `${prefix}${path}/**`;
       const hooks = cloneHooks();
       const compiledHandler = compileRouteHandler({
+        schemaAdapter: options?.schemaAdapter,
         hooks,
         method: "ANY",
         route,
         fetch,
+        def,
       });
 
       addRoutesEntry(Method.Any, route, {

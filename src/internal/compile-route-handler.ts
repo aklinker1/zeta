@@ -5,10 +5,12 @@ import type {
   LifeCycleHooks,
   OnBeforeHandleContext,
   RouteDef,
+  SchemaAdapter,
   ServerSideFetch,
 } from "../types";
 import { smartDeserialize, smartSerialize } from "./serialization";
 import { cleanupCompiledWhitespace, IsStatusResult } from "./utils";
+import { getMeta } from "../meta";
 
 export function compileRouteHandler(
   options: CompileOptions,
@@ -19,6 +21,8 @@ export function compileRouteHandler(
       //#sourceURL=${getSourceUrl(options)}
     `)();
   }
+
+  const responseContentTypeMap = getResponseContentTypeMap(options);
 
   const js = `
 return async (request, ctx) => {
@@ -37,7 +41,7 @@ ${options.hooks.onBeforeHandle?.length ? compileCtxModifierHookCall("onBeforeHan
   ctx.response = await ctx.matchedRoute.data.handler(ctx);
   if (ctx.response) {
     if (ctx.response[utils.IsStatusResult]) {
-      set.status = ctx.response.status;
+      ctx.set.status = ctx.response.status;
       ctx.response = ctx.response.body;
     }
     if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
@@ -57,7 +61,7 @@ ${options.hooks.onMapResponse?.length ? compileResponseModifierHookCall("onMapRe
   }
 
   const serialized = utils.smartSerialize(ctx.response);
-  ctx.set.headers["Content-Type"] = serialized.contentType; // TODO: responseMeta?.contentType ?? serialized.contentType
+  ctx.set.headers["Content-Type"] = ${responseContentTypeMap ? "responseContentTypeMap[ctx.set.status] ??" : ""} serialized.contentType
   return new Response(serialized.value, {
     status: ctx.set.status,
     headers: ctx.set.headers,
@@ -65,7 +69,11 @@ ${options.hooks.onMapResponse?.length ? compileResponseModifierHookCall("onMapRe
 }
 //#sourceURL=${getSourceUrl(options)}
   `;
-  return new Function("utils", cleanupCompiledWhitespace(js))(UTILS);
+  return new Function(
+    "utils",
+    "responseContentTypeMap",
+    cleanupCompiledWhitespace(js),
+  )(UTILS, responseContentTypeMap);
 }
 
 // These functions are available in the generated code via the "utils" object.
@@ -77,7 +85,8 @@ const UTILS = {
 };
 
 type CompileOptions = {
-  def?: RouteDef;
+  schemaAdapter: SchemaAdapter | undefined;
+  def: RouteDef | undefined;
   method: string;
   route: string;
   hooks: LifeCycleHooks;
@@ -136,7 +145,7 @@ function compileResponseModifierHookCall(
 }
 
 function compileValidateResponse(options: CompileOptions): string {
-  // No validation
+  // No schemas defined
   if (!options.def?.responses) return "";
 
   // One schema defined
@@ -145,4 +154,32 @@ function compileValidateResponse(options: CompileOptions): string {
 
   // Multiple schemas based on the status code
   return "ctx.response = ctx.matchedRoute.data.def.responses[ctx.set.status].parse(ctx.response);";
+}
+
+function getResponseContentTypeMap(
+  options: CompileOptions,
+): Record<number, string> | undefined {
+  // No schemas defined
+  if (!options.def?.responses) return;
+
+  // One schema defined
+  if ("~standard" in options.def.responses) {
+    const { contentType } = getMeta(
+      options.schemaAdapter,
+      options.def.responses,
+    );
+    if (!contentType) return;
+
+    return { [200]: contentType };
+  }
+
+  // Multiple schemas based on the status code
+  const map: Record<number, string> = {};
+  for (const [status, schema] of Object.entries(options.def.responses)) {
+    const { contentType } = getMeta(options.schemaAdapter, schema);
+    map[Number(status)] = contentType;
+  }
+  if (Object.keys(map).length === 0) return;
+
+  return map;
 }

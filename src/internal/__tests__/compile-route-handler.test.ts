@@ -34,7 +34,7 @@ describe("compileRouteHandler", () => {
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
-              set.status = ctx.response.status;
+              ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
             if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
@@ -48,7 +48,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] = serialized.contentType; // TODO: responseMeta?.contentType ?? serialized.contentType
+          ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -77,7 +77,7 @@ describe("compileRouteHandler", () => {
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
-              set.status = ctx.response.status;
+              ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
             if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
@@ -91,7 +91,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] = serialized.contentType; // TODO: responseMeta?.contentType ?? serialized.contentType
+          ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -126,7 +126,7 @@ describe("compileRouteHandler", () => {
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
-              set.status = ctx.response.status;
+              ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
             if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
@@ -140,7 +140,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] = serialized.contentType; // TODO: responseMeta?.contentType ?? serialized.contentType
+          ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -174,7 +174,7 @@ describe("compileRouteHandler", () => {
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
-              set.status = ctx.response.status;
+              ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
             if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
@@ -188,7 +188,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] = serialized.contentType; // TODO: responseMeta?.contentType ?? serialized.contentType
+          ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -214,7 +214,7 @@ describe("compileRouteHandler", () => {
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
-              set.status = ctx.response.status;
+              ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
             if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
@@ -233,7 +233,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] = serialized.contentType; // TODO: responseMeta?.contentType ?? serialized.contentType
+          ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -259,7 +259,7 @@ describe("compileRouteHandler", () => {
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (ctx.response) {
             if (ctx.response[utils.IsStatusResult]) {
-              set.status = ctx.response.status;
+              ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
             if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
@@ -278,7 +278,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] = serialized.contentType; // TODO: responseMeta?.contentType ?? serialized.contentType
+          ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
