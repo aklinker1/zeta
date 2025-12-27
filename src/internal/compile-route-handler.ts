@@ -9,7 +9,12 @@ import type {
   ServerSideFetch,
 } from "../types";
 import { smartDeserialize, smartSerialize } from "./serialization";
-import { cleanupCompiledWhitespace, IsStatusResult } from "./utils";
+import {
+  cleanupCompiledWhitespace,
+  IsStatusResult,
+  validateInputSchema,
+  validateOutputSchema,
+} from "./utils";
 import { getMeta } from "../meta";
 
 export function compileRouteHandler(
@@ -32,9 +37,9 @@ return async (request, ctx) => {
 
 ${options.hooks.onTransform?.length ? compileCtxModifierHookCall("onTransform", options.hooks.onTransform.length) : ""}
 
-  ${options.def?.body ? "ctx.body = ctx.matchedRoute.data.def.body.parse(ctx.body);" : ""}
-  ${options.def?.params ? "ctx.params = ctx.matchedRoute.data.def.params.parse(ctx.params);" : ""}
-  ${options.def?.query ? "ctx.query = ctx.matchedRoute.data.def.query.parse(ctx.query);" : ""}
+  ${options.def?.body ? "ctx.body = utils.validateInputSchema(ctx.matchedRoute.data.def.body, ctx.body);" : ""}
+  ${options.def?.params ? "ctx.params = utils.validateInputSchema(ctx.matchedRoute.data.def.params, ctx.params);" : ""}
+  ${options.def?.query ? "ctx.query = utils.validateInputSchema(ctx.matchedRoute.data.def.query, ctx.query);" : ""}
 
 ${options.hooks.onBeforeHandle?.length ? compileCtxModifierHookCall("onBeforeHandle", options.hooks.onBeforeHandle.length) : ""}
 
@@ -44,7 +49,7 @@ ${options.hooks.onBeforeHandle?.length ? compileCtxModifierHookCall("onBeforeHan
       ctx.set.status = ctx.response.status;
       ctx.response = ctx.response.body;
     }
-    if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+    if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
   }
 
   ${compileValidateResponse(options)}
@@ -82,6 +87,8 @@ const UTILS = {
   smartSerialize,
   FUNCTION: "function",
   IsStatusResult,
+  validateInputSchema,
+  validateOutputSchema,
 };
 
 type CompileOptions = {
@@ -150,10 +157,10 @@ function compileValidateResponse(options: CompileOptions): string {
 
   // One schema defined
   if ("~standard" in options.def.responses)
-    return "ctx.response = ctx.matchedRoute.data.def.responses.parse(ctx.response);";
+    return "ctx.response = utils.validateOutputSchema(ctx.matchedRoute.data.def.responses, ctx.response);";
 
   // Multiple schemas based on the status code
-  return "ctx.response = ctx.matchedRoute.data.def.responses[ctx.set.status].parse(ctx.response);";
+  return "ctx.response = utils.validateOutputSchema(ctx.matchedRoute.data.def.responses[ctx.set.status], ctx.response);";
 }
 
 function getResponseContentTypeMap(

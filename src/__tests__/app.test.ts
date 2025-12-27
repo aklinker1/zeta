@@ -124,7 +124,6 @@ describe("App", () => {
 
             const response = await fetch(request);
 
-            console.log(await response.text());
             expect(response.status).toBe(status);
             expect(response.headers.get("content-type")).toBe(contentType);
           },

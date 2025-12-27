@@ -37,7 +37,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
           }
 
           if (ctx.response == null) {
@@ -80,7 +80,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
           }
 
           if (ctx.response == null) {
@@ -129,7 +129,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
           }
 
           if (ctx.response == null) {
@@ -177,7 +177,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
           }
 
           if (ctx.response == null) {
@@ -217,7 +217,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
           }
 
           const onAfterHandleRes0 = await ctx.matchedRoute.data.hooks.onAfterHandle[0].callback(ctx);
@@ -262,7 +262,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
           }
 
           const onMapResponseRes0 = await ctx.matchedRoute.data.hooks.onMapResponse[0].callback(ctx);
