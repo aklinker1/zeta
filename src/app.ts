@@ -335,7 +335,6 @@ export function createApp<TPrefix extends BasePrefix = "">(
         fetch,
         route,
         hooks,
-        // TODO: can I bake the above data into the compiled handler?
         compiledHandler,
       });
 
