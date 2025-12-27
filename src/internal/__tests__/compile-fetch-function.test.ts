@@ -71,13 +71,13 @@ describe("compileFetchFunction", () => {
           const ctx = new utils.Context(request, path, utils.origin);
 
           try {
-          const onGlobalRequestRes0 = utils.hooks.onGlobalRequest[0].callback(ctx);
-          if (onGlobalRequestRes0)
-            if (typeof onGlobalRequestRes0.body === utils.FUNCTION)
-              return onGlobalRequestRes0;
-            else
-              for (const key of Object.keys(onGlobalRequestRes0))
-                ctx[key] = onGlobalRequestRes0[key];
+            const onGlobalRequestRes0 = utils.hooks.onGlobalRequest[0].callback(ctx);
+            if (onGlobalRequestRes0)
+              if (typeof onGlobalRequestRes0.body === utils.FUNCTION)
+                return onGlobalRequestRes0;
+              else
+                for (const key of Object.keys(onGlobalRequestRes0))
+                  ctx[key] = onGlobalRequestRes0[key];
 
             const matchedRoute = utils.getRoute(request.method, path);
             if (matchedRoute == null) {

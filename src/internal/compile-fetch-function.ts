@@ -69,19 +69,19 @@ function compileOnGlobalRequestHook(hookCount: number): string {
   for (let i = 0; i < hookCount; i++) {
     const resultVar = `onGlobalRequestRes${i}`;
     lines.push(
-      `  const ${resultVar} = utils.hooks.onGlobalRequest[${i}].callback(ctx);`,
+      `    const ${resultVar} = utils.hooks.onGlobalRequest[${i}].callback(ctx);`,
       ...(process.env.NODE_ENV !== "production"
         ? [
-            `  if (${resultVar} instanceof Promise)`,
-            `    console.warn("Warning: Promise returned from onGlobalRequest hook. Promises returned from onGlobalRequest are not awaited, ignoring the return value.");`,
+            `    if (${resultVar} instanceof Promise)`,
+            `      console.warn("Warning: Promise returned from onGlobalRequest hook. Promises returned from onGlobalRequest are not awaited, ignoring the return value.");`,
           ]
         : []),
-      `  if (${resultVar})`,
-      `    if (typeof ${resultVar}.body === utils.FUNCTION)`,
-      `      return ${resultVar};`,
-      `    else`,
-      `      for (const key of Object.keys(${resultVar}))`,
-      `        ctx[key] = ${resultVar}[key];`,
+      `    if (${resultVar})`,
+      `      if (typeof ${resultVar}.body === utils.FUNCTION)`,
+      `        return ${resultVar};`,
+      `      else`,
+      `        for (const key of Object.keys(${resultVar}))`,
+      `          ctx[key] = ${resultVar}[key];`,
     );
   }
 
