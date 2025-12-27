@@ -48,7 +48,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] =  serialized.contentType
+          if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -91,7 +91,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] =  serialized.contentType
+          if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -140,7 +140,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] =  serialized.contentType
+          if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -188,7 +188,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] =  serialized.contentType
+          if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -233,7 +233,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] =  serialized.contentType
+          if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
@@ -278,7 +278,7 @@ describe("compileRouteHandler", () => {
           }
 
           const serialized = utils.smartSerialize(ctx.response);
-          ctx.set.headers["Content-Type"] =  serialized.contentType
+          if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
           return new Response(serialized.value, {
             status: ctx.set.status,
             headers: ctx.set.headers,
