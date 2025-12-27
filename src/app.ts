@@ -133,47 +133,6 @@ export function createApp<TPrefix extends BasePrefix = "">(
 
       const getRoute = compileRouter(router);
       return compileFetchFunction({ getRoute, hooks, origin });
-
-      // return (request) => {
-      //   const path = getRawPathname(request);
-      //   const ctx = new Context(request, path, origin);
-      //
-      //   // try {
-      //   if (hooks.onGlobalRequest) {
-      //     for (const hook of hooks.onGlobalRequest) {
-      //       let res = hook.callback(ctx);
-      //       if (res) {
-      //         for (const key in Object.keys(res)) {
-      //           (ctx as any)[key] = res[key];
-      //         }
-      //       }
-      //     }
-      //   }
-      //
-      //   const matchedRoute = getRoute(request.method, path);
-      //   if (matchedRoute == null)
-      //     throw new NotFoundHttpError(undefined, {
-      //       method: request.method,
-      //       path,
-      //     });
-      //   else ctx.matchedRoute = matchedRoute;
-      //
-      //   return ctx.matchedRoute.data.compiledHandler(request, ctx);
-      //   // } catch (error) {
-      //   //   ctx.error = error;
-      //   //   if (hooks.onGlobalError?.length) {
-      //   //     for (const hook of hooks.onGlobalError) {
-      //   //       await hook.callback(ctx);
-      //   //     }
-      //   //   }
-      //   // } finally {
-      //   //   if (hooks.onGlobalAfterResponse?.length) {
-      //   //     for (const hook of hooks.onGlobalAfterResponse) {
-      //   //       await hook.callback(ctx);
-      //   //     }
-      //   //   }
-      //   // }
-      // };
     },
 
     getOpenApiSpec: () => {
