@@ -69,7 +69,7 @@ function compileOnGlobalRequestHook(hookCount: number): string {
   for (let i = 0; i < hookCount; i++) {
     const resultVar = `onGlobalRequestRes${i}`;
     lines.push(
-      `  const ${resultVar} = ctx.matchedRoute.data.hooks.onGlobalRequest[${i}].callback(ctx);`,
+      `  const ${resultVar} = utils.hooks.onGlobalRequest[${i}].callback(ctx);`,
       ...(process.env.NODE_ENV !== "production"
         ? [
             `  if (${resultVar} instanceof Promise)`,
@@ -93,9 +93,7 @@ function compileOnGlobalErrorHook(hookCount: number, tabs: number): string {
   const lines: string[] = [`${indent}ctx.error = error;`];
 
   for (let i = 0; i < hookCount; i++) {
-    lines.push(
-      `${indent}ctx.matchedRoute.data.hooks.onGlobalError[${i}].callback(ctx);`,
-    );
+    lines.push(`${indent}utils.hooks.onGlobalError[${i}].callback(ctx);`);
   }
 
   return lines.join("\n");
@@ -131,7 +129,7 @@ function compileOnGlobalAfterResponseHook(
 
   for (let i = 0; i < hookCount; i++) {
     lines.push(
-      `${indent}  ctx.matchedRoute.data.hooks.onGlobalAfterResponse[${i}].callback(ctx);`,
+      `${indent}  utils.hooks.onGlobalAfterResponse[${i}].callback(ctx);`,
     );
   }
 

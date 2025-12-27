@@ -69,7 +69,7 @@ describe("compileFetchFunction", () => {
           const ctx = new utils.Context(request, path, utils.origin);
 
           try {
-          const onGlobalRequestRes0 = ctx.matchedRoute.data.hooks.onGlobalRequest[0].callback(ctx);
+          const onGlobalRequestRes0 = utils.hooks.onGlobalRequest[0].callback(ctx);
           if (onGlobalRequestRes0 instanceof Promise)
             console.warn("Warning: Promise returned from onGlobalRequest hook. Promises returned from onGlobalRequest are not awaited, ignoring the return value.");
           if (onGlobalRequestRes0)
@@ -150,7 +150,7 @@ describe("compileFetchFunction", () => {
               return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
             }).finally(() => {
               setTimeout(() => {
-                ctx.matchedRoute.data.hooks.onGlobalAfterResponse[0].callback(ctx);
+                utils.hooks.onGlobalAfterResponse[0].callback(ctx);
               })
             });
           } catch (error) {
@@ -161,7 +161,7 @@ describe("compileFetchFunction", () => {
             return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
           } finally {
             setTimeout(() => {
-              ctx.matchedRoute.data.hooks.onGlobalAfterResponse[0].callback(ctx);
+              utils.hooks.onGlobalAfterResponse[0].callback(ctx);
             })
           }
 
@@ -203,7 +203,7 @@ describe("compileFetchFunction", () => {
 
             return ctx.response.catch(error => {
               ctx.error = error;
-              ctx.matchedRoute.data.hooks.onGlobalError[0].callback(ctx);
+              utils.hooks.onGlobalError[0].callback(ctx);
 
               const status =
                 error instanceof utils.HttpError
@@ -213,7 +213,7 @@ describe("compileFetchFunction", () => {
             });
           } catch (error) {
             ctx.error = error;
-            ctx.matchedRoute.data.hooks.onGlobalError[0].callback(ctx);
+            utils.hooks.onGlobalError[0].callback(ctx);
 
             const status =
               error instanceof utils.HttpError
