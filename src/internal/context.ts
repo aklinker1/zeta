@@ -18,12 +18,10 @@ export class Context {
   ) {}
 
   get url(): URL {
-    // TODO: Cache response
     return new URL(this.request.url, this.origin);
   }
 
   get params(): Record<string, string> {
-    // TODO: Cache response
     return this.matchedRoute?.params ? getRawParams(this.matchedRoute) : {};
   }
 
@@ -39,7 +37,6 @@ export class Context {
     return this.request.method;
   }
 
-  // TODO: Add logic to call handler for returning this result
   status(status: number, body?: unknown): StatusResult {
     return {
       [IsStatusResult]: true,
