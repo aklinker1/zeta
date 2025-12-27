@@ -118,7 +118,7 @@ describe("App", () => {
           [HttpStatus.Ok, "text/csv"],
           [HttpStatus.Accepted, "application/xml"],
         ])(
-          "should set the content type automatically based on the status",
+          "should set the content type automatically based on the status %d",
           async (status, contentType) => {
             const request = new Request(`http://localhost/?status=${status}`);
 
@@ -303,7 +303,7 @@ describe("App", () => {
       expect(actual).toEqual(expected);
     });
 
-    it("should fallback to the mounted fetch function", async () => {
+    it("should fallback to the mounted fetch function at a path", async () => {
       const expected = "mounted response";
       const app = createApp()
         .get("/not-mounted", () => `not-${expected}`)

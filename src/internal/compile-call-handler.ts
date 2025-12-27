@@ -15,7 +15,7 @@ export function compileRouteHandler(
 ): CompiledRouteHandler {
   if (options.fetch) {
     return new Function(`
-      return (request, matchedRoute) => ctx.matchedRoute.data.fetch(request)
+      return (request, ctx) => ctx.matchedRoute.data.fetch(request)
       //#sourceURL=${getSourceUrl(options)}
     `)();
   }
@@ -106,8 +106,11 @@ function compileCtxModifierHookCall(
     lines.push(
       `  const ${resultVar} = await ctx.matchedRoute.data.hooks.${hook}[${i}].callback(ctx);`,
       `  if (${resultVar})`,
-      `    for (const key of Object.keys(${resultVar}))`,
-      `      ctx[key] = ${resultVar}[key];`,
+      `    if (typeof ${resultVar}.body === utils.FUNCTION)`,
+      `      return ${resultVar};`,
+      `    else`,
+      `      for (const key of Object.keys(${resultVar}))`,
+      `        ctx[key] = ${resultVar}[key];`,
     );
   }
 
@@ -125,6 +128,8 @@ function compileResponseModifierHookCall(
     lines.push(
       `  const ${resultVar} = await ctx.matchedRoute.data.hooks.${hook}[${i}].callback(ctx);`,
       `  if (${resultVar}) ctx.response = ${resultVar};`,
+      `  if (typeof ${resultVar}.body === utils.FUNCTION)`,
+      `    return ${resultVar};`,
     );
   }
 

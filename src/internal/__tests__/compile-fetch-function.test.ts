@@ -71,8 +71,11 @@ describe("compileFetchFunction", () => {
           try {
           const onGlobalRequestRes0 = ctx.matchedRoute.data.hooks.onGlobalRequest[0].callback(ctx);
           if (onGlobalRequestRes0)
-            for (const key of Object.keys(onGlobalRequestRes0))
-              ctx[key] = onGlobalRequestRes0[key];
+            if (typeof onGlobalRequestRes0.body === utils.FUNCTION)
+              return onGlobalRequestRes0;
+            else
+              for (const key of Object.keys(onGlobalRequestRes0))
+                ctx[key] = onGlobalRequestRes0[key];
 
             const matchedRoute = utils.getRoute(request.method, path);
             if (matchedRoute == null) {

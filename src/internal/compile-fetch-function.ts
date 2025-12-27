@@ -72,8 +72,11 @@ function compileOnGlobalRequestHook(hookCount: number): string {
       `  const ${resultVar} = ctx.matchedRoute.data.hooks.onGlobalRequest[${i}].callback(ctx);`,
       // TODO: Warn about not allowing promises during development?
       `  if (${resultVar})`,
-      `    for (const key of Object.keys(${resultVar}))`,
-      `      ctx[key] = ${resultVar}[key];`,
+      `    if (typeof ${resultVar}.body === utils.FUNCTION)`,
+      `      return ${resultVar};`,
+      `    else`,
+      `      for (const key of Object.keys(${resultVar}))`,
+      `        ctx[key] = ${resultVar}[key];`,
     );
   }
 

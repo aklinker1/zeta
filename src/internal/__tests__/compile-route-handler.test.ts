@@ -12,7 +12,7 @@ describe("Compile Route Handler", () => {
       });
 
       expect(actual.toString()).toMatchInlineSnapshot(
-        `"(request, matchedRoute) => ctx.matchedRoute.data.fetch(request)"`,
+        `"(request, ctx) => ctx.matchedRoute.data.fetch(request)"`,
       );
     });
   });
@@ -109,8 +109,11 @@ describe("Compile Route Handler", () => {
 
           const onTransformRes0 = await ctx.matchedRoute.data.hooks.onTransform[0].callback(ctx);
           if (onTransformRes0)
-            for (const key of Object.keys(onTransformRes0))
-              ctx[key] = onTransformRes0[key];
+            if (typeof onTransformRes0.body === utils.FUNCTION)
+              return onTransformRes0;
+            else
+              for (const key of Object.keys(onTransformRes0))
+                ctx[key] = onTransformRes0[key];
 
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (typeof ctx.response?.then === utils.FUNCTION) ctx.response = await ctx.response;
@@ -150,8 +153,11 @@ describe("Compile Route Handler", () => {
 
           const onBeforeHandleRes0 = await ctx.matchedRoute.data.hooks.onBeforeHandle[0].callback(ctx);
           if (onBeforeHandleRes0)
-            for (const key of Object.keys(onBeforeHandleRes0))
-              ctx[key] = onBeforeHandleRes0[key];
+            if (typeof onBeforeHandleRes0.body === utils.FUNCTION)
+              return onBeforeHandleRes0;
+            else
+              for (const key of Object.keys(onBeforeHandleRes0))
+                ctx[key] = onBeforeHandleRes0[key];
 
           ctx.response = await ctx.matchedRoute.data.handler(ctx);
           if (typeof ctx.response?.then === utils.FUNCTION) ctx.response = await ctx.response;
@@ -194,6 +200,8 @@ describe("Compile Route Handler", () => {
 
           const onAfterHandleRes0 = await ctx.matchedRoute.data.hooks.onAfterHandle[0].callback(ctx);
           if (onAfterHandleRes0) ctx.response = onAfterHandleRes0;
+          if (typeof onAfterHandleRes0.body === utils.FUNCTION)
+            return onAfterHandleRes0;
 
           if (ctx.response == null) {
             return new Response(undefined, {
@@ -233,6 +241,8 @@ describe("Compile Route Handler", () => {
 
           const onMapResponseRes0 = await ctx.matchedRoute.data.hooks.onMapResponse[0].callback(ctx);
           if (onMapResponseRes0) ctx.response = onMapResponseRes0;
+          if (typeof onMapResponseRes0.body === utils.FUNCTION)
+            return onMapResponseRes0;
 
           if (ctx.response == null) {
             return new Response(undefined, {
