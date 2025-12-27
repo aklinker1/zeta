@@ -62,8 +62,6 @@ ${options.hooks.onMapResponse?.length ? compileResponseModifierHookCall("onMapRe
     status: ctx.set.status,
     headers: ctx.set.headers,
   })
-
-  // TODO: onGlobalError, onGlobalRequest, onGlobalResponse
 }
 //#sourceURL=${getSourceUrl(options)}
   `;

@@ -28,7 +28,6 @@ export class Context {
   }
 
   get query(): Record<string, string> {
-    // TODO: Cache response
     return this.request.url.includes("?") ? getRawQuery(this.request) : {};
   }
 

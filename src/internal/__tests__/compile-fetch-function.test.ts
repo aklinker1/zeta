@@ -70,6 +70,8 @@ describe("compileFetchFunction", () => {
 
           try {
           const onGlobalRequestRes0 = ctx.matchedRoute.data.hooks.onGlobalRequest[0].callback(ctx);
+          if (onGlobalRequestRes0 instanceof Promise)
+            console.warn("Warning: Promise returned from onGlobalRequest hook. Promises returned from onGlobalRequest are not awaited, ignoring the return value.");
           if (onGlobalRequestRes0)
             if (typeof onGlobalRequestRes0.body === utils.FUNCTION)
               return onGlobalRequestRes0;

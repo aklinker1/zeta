@@ -1,8 +1,8 @@
 import { describe, it, expect } from "bun:test";
-import { compileRouteHandler } from "../compile-call-handler";
+import { compileRouteHandler } from "../compile-route-handler";
 
-describe("Compile Route Handler", () => {
-  describe("mounted fetch functions", () => {
+describe("compileRouteHandler", () => {
+  describe("when compiling a mounted fetch function", () => {
     it("should return a simple function", () => {
       const actual = compileRouteHandler({
         route: "/",
@@ -17,7 +17,7 @@ describe("Compile Route Handler", () => {
     });
   });
 
-  describe("route handlers", () => {
+  describe("when compiling route handlers", () => {
     it("should return a simple function with context", () => {
       const actual = compileRouteHandler({
         route: "/",
@@ -47,8 +47,6 @@ describe("Compile Route Handler", () => {
             status: ctx.set.status,
             headers: ctx.set.headers,
           })
-
-          // TODO: onGlobalError, onGlobalRequest, onGlobalResponse
         }"
       `,
       );
@@ -86,8 +84,6 @@ describe("Compile Route Handler", () => {
             status: ctx.set.status,
             headers: ctx.set.headers,
           })
-
-          // TODO: onGlobalError, onGlobalRequest, onGlobalResponse
         }"
       `,
       );
@@ -131,8 +127,6 @@ describe("Compile Route Handler", () => {
             status: ctx.set.status,
             headers: ctx.set.headers,
           })
-
-          // TODO: onGlobalError, onGlobalRequest, onGlobalResponse
         }"
       `);
     });
@@ -175,8 +169,6 @@ describe("Compile Route Handler", () => {
             status: ctx.set.status,
             headers: ctx.set.headers,
           })
-
-          // TODO: onGlobalError, onGlobalRequest, onGlobalResponse
         }"
       `);
     });
@@ -216,8 +208,6 @@ describe("Compile Route Handler", () => {
             status: ctx.set.status,
             headers: ctx.set.headers,
           })
-
-          // TODO: onGlobalError, onGlobalRequest, onGlobalResponse
         }"
       `);
     });
@@ -257,8 +247,6 @@ describe("Compile Route Handler", () => {
             status: ctx.set.status,
             headers: ctx.set.headers,
           })
-
-          // TODO: onGlobalError, onGlobalRequest, onGlobalResponse
         }"
       `);
     });

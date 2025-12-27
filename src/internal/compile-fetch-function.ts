@@ -70,7 +70,12 @@ function compileOnGlobalRequestHook(hookCount: number): string {
     const resultVar = `onGlobalRequestRes${i}`;
     lines.push(
       `  const ${resultVar} = ctx.matchedRoute.data.hooks.onGlobalRequest[${i}].callback(ctx);`,
-      // TODO: Warn about not allowing promises during development?
+      ...(process.env.NODE_ENV !== "production"
+        ? [
+            `  if (${resultVar} instanceof Promise)`,
+            `    console.warn("Warning: Promise returned from onGlobalRequest hook. Promises returned from onGlobalRequest are not awaited, ignoring the return value.");`,
+          ]
+        : []),
       `  if (${resultVar})`,
       `    if (typeof ${resultVar}.body === utils.FUNCTION)`,
       `      return ${resultVar};`,

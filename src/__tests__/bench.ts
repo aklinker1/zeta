@@ -15,6 +15,8 @@ import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
 import { z } from "zod/v4";
 
+process.env.NODE_ENV = "production";
+
 const TestObject = z.object({ test: z.string() });
 const STATIC_RESPONSE = { test: "response" };
 
