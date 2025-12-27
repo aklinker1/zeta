@@ -30,17 +30,15 @@ describe("compileFetchFunction", () => {
             }
 
             ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-            if (typeof ctx.response.then === utils.FUNCTION) {
-              return ctx.response.catch(error => {
-                const status =
-                  error instanceof utils.HttpError
-                    ? error.status
-                    : utils.HttpStatus.InternalServerError;
-                return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
-              })
-            }
+            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
 
-            return ctx.response;
+            return ctx.response.catch(error => {
+              const status =
+                error instanceof utils.HttpError
+                  ? error.status
+                  : utils.HttpStatus.InternalServerError;
+              return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+            });
           } catch (error) {
             const status =
               error instanceof utils.HttpError
@@ -87,17 +85,15 @@ describe("compileFetchFunction", () => {
             }
 
             ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-            if (typeof ctx.response.then === utils.FUNCTION) {
-              return ctx.response.catch(error => {
-                const status =
-                  error instanceof utils.HttpError
-                    ? error.status
-                    : utils.HttpStatus.InternalServerError;
-                return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
-              })
-            }
+            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
 
-            return ctx.response;
+            return ctx.response.catch(error => {
+              const status =
+                error instanceof utils.HttpError
+                  ? error.status
+                  : utils.HttpStatus.InternalServerError;
+              return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+            });
           } catch (error) {
             const status =
               error instanceof utils.HttpError
@@ -139,22 +135,19 @@ describe("compileFetchFunction", () => {
             }
 
             ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-            if (typeof ctx.response.then === utils.FUNCTION) {
-              return ctx.response.catch(error => {
-                const status =
-                  error instanceof utils.HttpError
-                    ? error.status
-                    : utils.HttpStatus.InternalServerError;
-                return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
-              }).finally(() => {
-                setTimeout(() => {
-                  ctx.matchedRoute.data.hooks.onGlobalAfterResponse[0].callback(ctx);
-                })
+            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
+
+            return ctx.response.catch(error => {
+              const status =
+                error instanceof utils.HttpError
+                  ? error.status
+                  : utils.HttpStatus.InternalServerError;
+              return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+            }).finally(() => {
+              setTimeout(() => {
+                ctx.matchedRoute.data.hooks.onGlobalAfterResponse[0].callback(ctx);
               })
-
-            }
-
-            return ctx.response;
+            });
           } catch (error) {
             const status =
               error instanceof utils.HttpError
@@ -201,20 +194,18 @@ describe("compileFetchFunction", () => {
             }
 
             ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-            if (typeof ctx.response.then === utils.FUNCTION) {
-              return ctx.response.catch(error => {
-                ctx.error = error;
-                ctx.matchedRoute.data.hooks.onGlobalError[0].callback(ctx);
+            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
 
-                const status =
-                  error instanceof utils.HttpError
-                    ? error.status
-                    : utils.HttpStatus.InternalServerError;
-                return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
-              })
-            }
+            return ctx.response.catch(error => {
+              ctx.error = error;
+              ctx.matchedRoute.data.hooks.onGlobalError[0].callback(ctx);
 
-            return ctx.response;
+              const status =
+                error instanceof utils.HttpError
+                  ? error.status
+                  : utils.HttpStatus.InternalServerError;
+              return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+            });
           } catch (error) {
             ctx.error = error;
             ctx.matchedRoute.data.hooks.onGlobalError[0].callback(ctx);

@@ -34,20 +34,18 @@ ${onGlobalRequestCount ? compileOnGlobalRequestHook(onGlobalRequestCount) : ""}
     }
 
     ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-    if (typeof ctx.response.then === utils.FUNCTION) {
-      return ctx.response.catch(error => {
-${onGlobalErrorCount ? compileOnGlobalErrorHook(onGlobalErrorCount, 4) : ""}
+    if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
 
-${compileErrorResponse(4)}
-      })${onGlobalAfterResponseCount ? compileOnGlobalAfterResponsePromiseFinally(onGlobalAfterResponseCount).replaceAll("\n", "\n    ") : ""}
-    }
+    return ctx.response.catch(error => {
+${onGlobalErrorCount ? compileOnGlobalErrorHook(onGlobalErrorCount, 3) : ""}
 
-    return ctx.response;
+${compileErrorResponse(3)}
+    })${onGlobalAfterResponseCount ? compileOnGlobalAfterResponsePromiseFinally(onGlobalAfterResponseCount, 2) : ""};
   } catch (error) {
 ${onGlobalErrorCount ? compileOnGlobalErrorHook(onGlobalErrorCount, 2) : ""}
 
 ${compileErrorResponse(2)}
-  } ${onGlobalAfterResponseCount ? compileOnGlobalAfterResponseFinally(onGlobalAfterResponseCount) : ""}
+  } ${onGlobalAfterResponseCount ? compileOnGlobalAfterResponseFinally(onGlobalAfterResponseCount, 1) : ""}
 }
 //#sourceURL=zeta-jit-generated://zeta-fetch-fn.js
   `;
@@ -95,30 +93,41 @@ function compileOnGlobalErrorHook(hookCount: number, tabs: number): string {
   return lines.join("\n");
 }
 
-function compileOnGlobalAfterResponseFinally(hookCount: number): string {
+function compileOnGlobalAfterResponseFinally(
+  hookCount: number,
+  tabs: number,
+): string {
+  const indent = "  ".repeat(tabs);
   return `finally {
-${compileOnGlobalAfterResponseHook(hookCount)}
-  }
+${compileOnGlobalAfterResponseHook(hookCount, tabs + 1)}
+${indent}}
 `;
 }
 
-function compileOnGlobalAfterResponsePromiseFinally(hookCount: number): string {
+function compileOnGlobalAfterResponsePromiseFinally(
+  hookCount: number,
+  tabs: number,
+): string {
+  const indent = "  ".repeat(tabs);
   return `.finally(() => {
-${compileOnGlobalAfterResponseHook(hookCount)}
-  })
-`;
+${compileOnGlobalAfterResponseHook(hookCount, tabs + 1)}
+${indent}})`;
 }
 
-function compileOnGlobalAfterResponseHook(hookCount: number): string {
-  const lines: string[] = ["    setTimeout(() => {"];
+function compileOnGlobalAfterResponseHook(
+  hookCount: number,
+  tabs: number,
+): string {
+  const indent = "  ".repeat(tabs);
+  const lines: string[] = [`${indent}setTimeout(() => {`];
 
   for (let i = 0; i < hookCount; i++) {
     lines.push(
-      `      ctx.matchedRoute.data.hooks.onGlobalAfterResponse[${i}].callback(ctx);`,
+      `${indent}  ctx.matchedRoute.data.hooks.onGlobalAfterResponse[${i}].callback(ctx);`,
     );
   }
 
-  lines.push("    })");
+  lines.push(`${indent}})`);
 
   return lines.join("\n");
 }
