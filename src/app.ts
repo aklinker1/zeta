@@ -1,13 +1,9 @@
-import { callHandler } from "./internal/call-handler";
-import { HttpError } from "./errors";
-import { HttpStatus } from "./status";
 import type {
   App,
   RouterData,
   RouteDef,
   BasePath,
   ServerSideFetch,
-  OnGlobalRequestContext,
   LifeCycleHook,
   DefaultAppData,
   BasePrefix,
@@ -17,14 +13,11 @@ import type {
 } from "./types";
 import { addRoute, createRouter } from "rou3";
 import { compileRouter } from "rou3/compiler";
-import {
-  callCtxModifierHooks,
-  detectTransport,
-  getRawPathname,
-  serializeErrorResponse,
-} from "./internal/utils";
+import { detectTransport } from "./internal/utils";
 import type { OpenAPIV3_1 } from "openapi-types";
 import { buildOpenApiDocs, buildScalarHtml } from "./open-api";
+import { compileRouteHandler } from "./internal/compile-call-handler";
+import { compileFetchFunction } from "./internal/compile-fetch-function";
 
 let appIdInc = 0;
 const nextAppId = () => `app-${appIdInc++}`;
@@ -139,81 +132,48 @@ export function createApp<TPrefix extends BasePrefix = "">(
       }
 
       const getRoute = compileRouter(router);
+      return compileFetchFunction({ getRoute, hooks, origin });
 
-      return async (request) => {
-        let url: URL | undefined;
-        const ctx: any = {
-          path: getRawPathname(request),
-          get url() {
-            if (url) return url;
-            return (url = new URL(request.url, origin));
-          },
-          request,
-          method: request.method,
-          set: {
-            status: HttpStatus.Ok,
-            headers: {},
-          },
-        } satisfies OnGlobalRequestContext;
-
-        try {
-          const onGlobalRequestResponse = await callCtxModifierHooks(
-            ctx,
-            hooks.onGlobalRequest,
-          );
-          if (onGlobalRequestResponse) {
-            ctx.response = onGlobalRequestResponse;
-            return onGlobalRequestResponse;
-          }
-
-          const response = await callHandler(
-            ctx,
-            getRoute,
-            options?.schemaAdapter,
-          );
-          ctx.response = response;
-
-          return response;
-        } catch (err) {
-          ctx.error = err;
-
-          if (hooks.onGlobalError) {
-            for (const hook of hooks.onGlobalError) {
-              const res = hook.callback(ctx);
-              if (res instanceof Promise) await res;
-            }
-          }
-
-          const status =
-            err instanceof HttpError
-              ? err.status
-              : HttpStatus.InternalServerError;
-          const res = Response.json(serializeErrorResponse(err), { status });
-          ctx.response = res;
-          return res;
-        } finally {
-          // Defer calls to the `onGlobalAfterResponse` hooks until after the response is sent
-          if (hooks.onGlobalAfterResponse) {
-            setTimeout(async () => {
-              try {
-                for (const hook of hooks.onGlobalAfterResponse!) {
-                  let res = hook.callback(ctx);
-                  if (res instanceof Promise) await res;
-                }
-              } catch (err) {
-                ctx.error = err;
-
-                if (hooks.onGlobalError) {
-                  for (const hook of hooks.onGlobalError) {
-                    const res = hook.callback(ctx);
-                    if (res instanceof Promise) await res;
-                  }
-                }
-              }
-            }, 0);
-          }
-        }
-      };
+      // return (request) => {
+      //   const path = getRawPathname(request);
+      //   const ctx = new Context(request, path, origin);
+      //
+      //   // try {
+      //   if (hooks.onGlobalRequest) {
+      //     for (const hook of hooks.onGlobalRequest) {
+      //       let res = hook.callback(ctx);
+      //       if (res) {
+      //         for (const key in Object.keys(res)) {
+      //           (ctx as any)[key] = res[key];
+      //         }
+      //       }
+      //     }
+      //   }
+      //
+      //   const matchedRoute = getRoute(request.method, path);
+      //   if (matchedRoute == null)
+      //     throw new NotFoundHttpError(undefined, {
+      //       method: request.method,
+      //       path,
+      //     });
+      //   else ctx.matchedRoute = matchedRoute;
+      //
+      //   return ctx.matchedRoute.data.compiledHandler(request, ctx);
+      //   // } catch (error) {
+      //   //   ctx.error = error;
+      //   //   if (hooks.onGlobalError?.length) {
+      //   //     for (const hook of hooks.onGlobalError) {
+      //   //       await hook.callback(ctx);
+      //   //     }
+      //   //   }
+      //   // } finally {
+      //   //   if (hooks.onGlobalAfterResponse?.length) {
+      //   //     for (const hook of hooks.onGlobalAfterResponse) {
+      //   //       await hook.callback(ctx);
+      //   //     }
+      //   //   }
+      //   // }
+      // };
     },
 
     getOpenApiSpec: () => {
@@ -327,11 +287,20 @@ export function createApp<TPrefix extends BasePrefix = "">(
       const def: RouteDef = args.length === 2 ? args[0] : undefined;
       const handler = args[1] ?? args[0];
       const route = `${prefix}${path}`;
+      const hooks = cloneHooks();
+      const compiledHandler = compileRouteHandler({
+        def,
+        hooks,
+        method,
+        route,
+        handler,
+      });
       addRoutesEntry(method, route, {
         def,
-        handler,
         route,
-        hooks: cloneHooks(),
+        hooks,
+        compiledHandler,
+        handler,
       });
       return app;
     },
@@ -353,11 +322,21 @@ export function createApp<TPrefix extends BasePrefix = "">(
       }
 
       const route = `${prefix}${path}/**`;
+      const hooks = cloneHooks();
+      const compiledHandler = compileRouteHandler({
+        hooks,
+        method: "ANY",
+        route,
+        fetch,
+      });
+
       addRoutesEntry(Method.Any, route, {
         def,
         fetch,
         route,
-        hooks: cloneHooks(),
+        hooks,
+        // TODO: can I bake the above data into the compiled handler?
+        compiledHandler,
       });
 
       return app as any;

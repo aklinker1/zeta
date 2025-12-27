@@ -63,8 +63,7 @@ export function getRawPathname(request: Request): string {
 
   // Find end of pathname (before ? or #)
   for (let i = start + 1; i < request.url.length; i++) {
-    const char = request.url[i];
-    if (char === "?" || char === "#") {
+    if (request.url[i] === "?" || request.url[i] === "#") {
       return request.url.slice(start, i);
     }
   }
@@ -183,4 +182,16 @@ export function detectTransport(): Transport {
 
     app.listen();
     ---`);
+}
+
+export function cleanupCompiledWhitespace(code: string): string {
+  return (
+    code
+      // Remove lines only containing spaces
+      .replace(/^ +$/gm, "")
+      // Reduce multiple newlines to one
+      .replace(/\n\n+/gm, "\n\n")
+      // Remove blank lines after curly braces
+      .replaceAll("{\n\n", "{\n")
+  );
 }
