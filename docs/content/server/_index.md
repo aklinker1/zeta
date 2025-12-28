@@ -1,9 +1,12 @@
 ---
+title: Quick Start
+extra:
+  group: Get Started
 ---
 
-# Getting Started
+## Overview
 
-First install Zeta from [NPM](https://www.npmjs.com/package/@aklinker1/zeta) or [JSR](https://jsr.io/@aklinker1/zeta):
+Zeta is available on both [JSR](https://jsr.io/@aklinker1/zeta) and [NPM](https://www.npmjs.com/package/@aklinker1/zeta):
 
 ```sh
 bun add @aklinker1/zeta

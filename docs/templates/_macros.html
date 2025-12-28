@@ -1,0 +1,79 @@
+<!-- prettier-ignore -->
+{% macro icon(name) -%}
+  {{ config.extra.icons[name] | safe -}}
+{% endmacro icon %}
+
+<!-- prettier-ignore -->
+{% macro group_icon(group) -%}
+  {{ config.extra.icons[config.extra.group_icons[group]] | safe -}}
+{% endmacro group_icon %}
+
+<!-- prettier-ignore -->
+{% macro get_sections_top_level_section_path(section) -%}
+  {% set path = section.ancestors | nth(n=1) -%}
+  {% if path == "" -%}
+    {{ section.relative_path -}}
+  {% else -%}
+    {{ path -}}
+  {% endif -%}
+{% endmacro get_sections_top_level_section_path %}
+
+<!-- prettier-ignore -->
+{% macro render_section_group(section) %}
+<ul>
+  <li class="section-label">
+    {{ macros::group_icon(group=section.extra.group) }}
+    <span>{{ section.extra.group }}</span>
+  </li>
+  <li class="page-link" data-active-target="exact">
+    <a href="{{ section.permalink | safe }}">{{ section.title }}</a>
+  </li>
+  {% for page in section.pages %}
+  <li class="page-link" data-active-target="exact">
+    <a href="{{ page.permalink | safe }}">{{ page.title }}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% endmacro render_section_group %}
+
+<!-- prettier-ignore -->
+{% macro render_sidebar(section) %}
+<div class="sidebar">
+  <div class="sidebar-content">
+    <!-- prettier-ignore -->
+    {% set root_section_path = macros::get_sections_top_level_section_path(section=section) %}
+    {% set root_section = get_section(path=root_section_path) %}
+
+    {{ macros::render_section_group(section=root_section) }}
+
+    <!-- prettier-ignore-->
+    {% for subsection_path in root_section.subsections %}
+    {% set subsection = get_section(path=subsection_path) %}
+    <div class="divider"></div>
+    {{ macros::render_section_group(section=subsection) }} {% endfor %}
+  </div>
+</div>
+{% endmacro render_sidebar %}
+
+<!-- prettier-ignore -->
+{% macro render_page_content(page) %}
+<div class="content prose">
+  <!-- prettier-ignore -->
+  {% if page.relative_path is ending_with("_index.md") %}
+    {# page is a section #}
+    {% set page_section = page %}
+  {% else %}
+    {# page is a page #}
+    {% set page_section_path = page.ancestors | last %}
+    {% set page_section = get_section(path=page_section_path) %}
+  {% endif %}
+  <p class="group">{{ page_section.extra.group }}</p>
+
+  <h1 class="title">{{ page.title }}</h1>
+  {% if page.description %}
+  <p class="description">{{ page.description }}</p>
+  {% endif %}
+  <br />
+  {{ page.content | safe }}
+</div>
+{% endmacro render_page_content %}

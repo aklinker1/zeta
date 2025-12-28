@@ -11,6 +11,137 @@ build_search_index = true
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
 highlight_code = true
+highlight_theme = "css"
 
 [extra]
 # Put all your custom variables here
+[extra.icons]
+i-lucide-diameter = """
+  <svg class="icon i-lucide-diameter" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+      <circle cx="19" cy="19" r="2"/>
+      <circle cx="5" cy="5" r="2"/>
+      <path d="M6.48 3.66a10 10 0 0 1 13.86 13.86M6.41 6.41l11.18 11.18M3.66 6.48a10 10 0 0 0 13.86 13.86"/>
+    </g>
+  </svg>
+"""
+i-lucide-flask-conical = """
+  <svg class="icon i-lucide-flask-conical" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path
+      d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"
+    />
+    <path d="M6.453 15h11.094" />
+    <path d="M8.5 2h7" />
+  </svg>
+"""
+i-lucide-iteration-cw = """
+  <svg class="icon i-lucide-iteration-cw"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+      <path d="M4 10a8 8 0 1 1 8 8H4"/>
+      <path d="m8 22l-4-4l4-4"/>
+    </g>
+  </svg>
+"""
+i-lucide-leaf = """
+  <svg class="icon i-lucide-leaf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8c0 5.5-4.78 10-10 10"/>
+      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+    </g>
+  </svg>
+"""
+i-lucide-monitor = """
+  <svg class="icon i-lucide-monitor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+      <rect width="20" height="14" x="2" y="3" rx="2"/>
+      <path d="M8 21h8m-4-4v4"/>
+    </g>
+  </svg>
+"""
+i-lucide-moon = """
+  <svg class="icon i-lucide-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>
+  </svg>
+"""
+i-lucide-orbit = """
+  <svg class="icon i-lucide-orbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+      <path d="M20.341 6.484A10 10 0 0 1 10.266 21.85m-6.607-4.334A10 10 0 0 1 13.74 2.152"/>
+      <circle cx="12" cy="12" r="3"/>
+      <circle cx="19" cy="5" r="2"/>
+      <circle cx="5" cy="19" r="2"/>
+    </g>
+  </svg>
+"""
+i-lucide-rocket = """
+  <svg class="icon i-lucide-rocket" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2"/>
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0m1 7v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+    </g>
+  </svg>
+"""
+i-lucide-search = """
+  <svg class="icon i-lucide-search" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"></circle>
+    <path d="m21 21-4.3-4.3"></path>
+  </svg>
+"""
+i-lucide-server = """
+  <svg class="icon i-lucide-server" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+      <rect width="20" height="8" x="2" y="2" rx="2" ry="2"/>
+      <rect width="20" height="8" x="2" y="14" rx="2" ry="2"/>
+      <path d="M6 6h.01M6 18h.01"/>
+    </g>
+  </svg>
+"""
+i-lucide-square-arrow-out-up-right = """
+  <svg class="icon i-lucide-square-arrow-out-up-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6m10 0l-9 9m3-9h6v6"
+    />
+  </svg>
+"""
+i-lucide-sun = """
+  <svg class="icon i-lucide-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+    </g>
+  </svg>
+"""
+logo = """
+  <svg
+    class="icon logo"
+    viewBox="0 0 88 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M19.044 23.4H0.108L0 20.916L11.88 4.14V4.104H5.544L4.824 7.74L0.72 7.38L1.44 0H18.936L19.008 2.196L6.948 19.224V19.296H14.94L15.66 14.976L19.764 15.336L19.044 23.4Z"
+      fill="currentColor"
+    />
+    <path
+      d="M39.9192 23.4H21.8472V19.296H24.3672V4.104H21.8472V0H39.7032L40.4232 6.84L36.3192 7.2L35.5992 4.104H29.1912V9.612H39.0552V13.68H29.1912V19.296H35.8152L36.5352 16.2L40.6392 16.56L39.9192 23.4Z"
+      fill="currentColor"
+    />
+    <path
+      d="M64.4271 7.92L60.3231 8.28L59.6031 4.104H55.8951V19.296H59.7111V23.4H47.4711V19.296H51.0711V4.104H47.3631L46.6431 8.28L42.5391 7.92L43.2591 0H63.7071L64.4271 7.92Z"
+      fill="currentColor"
+    />
+    <path
+      d="M87.7846 23.4H78.4606V19.296H80.3326L79.4686 16.92H71.5126L70.5406 19.296H72.7366V23.4H63.5206V19.296H65.6446L72.3406 4.104H69.1006V0H77.1286L85.5526 19.296H87.7846V23.4ZM78.1726 13.464L75.7246 6.876H75.5086L72.8806 13.464H78.1726Z"
+      fill="currentColor"
+    />
+  </svg>
+"""
+
+[extra.group_icons]
+"Get Started" = "i-lucide-rocket"
+Hooks = "i-lucide-orbit"
