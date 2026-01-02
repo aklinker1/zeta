@@ -116,5 +116,3 @@ const app = createApp().get(
 ```
 
 Zeta automatically uses the response schema's metadata to set the `Content-Type` header.
-
-## Custom Response Description
