@@ -71,7 +71,9 @@
     {% set page_section_path = page.ancestors | last %}
     {% set page_section = get_section(path=page_section_path) %}
   {% endif %}
+  {% if page_section.extra.group %}
   <p class="group">{{ page_section.extra.group }}</p>
+  {% endif %}
 
   <h1 class="title">{{ page.title }}</h1>
   {% if page.description %}

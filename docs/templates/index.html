@@ -1,3 +1,2 @@
-{% extends "base.html" %} {% block content %}
-<h1 class="title">@aklinker1/zeta</h1>
-{% endblock content %}
+{% import "_macros.html" as macros %} {% extends "base.html" %} {% block content
+%} {{ macros::render_page_content(page=section) }} {% endblock content %}
