@@ -47,7 +47,7 @@ ${options.hooks.onBeforeHandle?.length ? compileCtxModifierHookCall("onBeforeHan
       ctx.set.status = ctx.response.status;
       ctx.response = ctx.response.body;
     }
-    if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
+    if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
   }
 
   ${compileValidateResponse(options)}
@@ -119,7 +119,7 @@ function compileCtxModifierHookCall(
     lines.push(
       `  const ${resultVar} = await ctx.matchedRoute.data.hooks.${hook}[${i}].callback(ctx);`,
       `  if (${resultVar})`,
-      `    if (typeof ${resultVar}.body === utils.FUNCTION)`,
+      `    if (typeof ${resultVar}.body?.bytes === utils.FUNCTION)`,
       `      return ${resultVar};`,
       `    else`,
       `      for (const key of Object.keys(${resultVar}))`,
@@ -141,7 +141,7 @@ function compileResponseModifierHookCall(
     lines.push(
       `  const ${resultVar} = await ctx.matchedRoute.data.hooks.${hook}[${i}].callback(ctx);`,
       `  if (${resultVar}) ctx.response = ${resultVar};`,
-      `  if (typeof ${resultVar}.body === utils.FUNCTION)`,
+      `  if (typeof ${resultVar}.body?.bytes === utils.FUNCTION)`,
       `    return ${resultVar};`,
     );
   }

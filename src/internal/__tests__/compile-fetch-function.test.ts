@@ -73,7 +73,7 @@ describe("compileFetchFunction", () => {
           try {
             const onGlobalRequestRes0 = utils.hooks.onGlobalRequest[0].callback(ctx);
             if (onGlobalRequestRes0)
-              if (typeof onGlobalRequestRes0.body === utils.FUNCTION)
+              if (typeof onGlobalRequestRes0.body?.bytes === utils.FUNCTION)
                 return onGlobalRequestRes0;
               else
                 for (const key of Object.keys(onGlobalRequestRes0))

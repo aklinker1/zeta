@@ -41,7 +41,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
           }
 
           if (ctx.response == null) {
@@ -84,7 +84,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
           }
 
           if (ctx.response == null) {
@@ -121,7 +121,7 @@ describe("compileRouteHandler", () => {
         "async (request, ctx) => {
           const onTransformRes0 = await ctx.matchedRoute.data.hooks.onTransform[0].callback(ctx);
           if (onTransformRes0)
-            if (typeof onTransformRes0.body === utils.FUNCTION)
+            if (typeof onTransformRes0.body?.bytes === utils.FUNCTION)
               return onTransformRes0;
             else
               for (const key of Object.keys(onTransformRes0))
@@ -133,7 +133,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
           }
 
           if (ctx.response == null) {
@@ -169,7 +169,7 @@ describe("compileRouteHandler", () => {
         "async (request, ctx) => {
           const onBeforeHandleRes0 = await ctx.matchedRoute.data.hooks.onBeforeHandle[0].callback(ctx);
           if (onBeforeHandleRes0)
-            if (typeof onBeforeHandleRes0.body === utils.FUNCTION)
+            if (typeof onBeforeHandleRes0.body?.bytes === utils.FUNCTION)
               return onBeforeHandleRes0;
             else
               for (const key of Object.keys(onBeforeHandleRes0))
@@ -181,7 +181,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
           }
 
           if (ctx.response == null) {
@@ -221,12 +221,12 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
           }
 
           const onAfterHandleRes0 = await ctx.matchedRoute.data.hooks.onAfterHandle[0].callback(ctx);
           if (onAfterHandleRes0) ctx.response = onAfterHandleRes0;
-          if (typeof onAfterHandleRes0.body === utils.FUNCTION)
+          if (typeof onAfterHandleRes0.body?.bytes === utils.FUNCTION)
             return onAfterHandleRes0;
 
           if (ctx.response == null) {
@@ -266,12 +266,12 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body === utils.FUNCTION) return ctx.response;
+            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
           }
 
           const onMapResponseRes0 = await ctx.matchedRoute.data.hooks.onMapResponse[0].callback(ctx);
           if (onMapResponseRes0) ctx.response = onMapResponseRes0;
-          if (typeof onMapResponseRes0.body === utils.FUNCTION)
+          if (typeof onMapResponseRes0.body?.bytes === utils.FUNCTION)
             return onMapResponseRes0;
 
           if (ctx.response == null) {

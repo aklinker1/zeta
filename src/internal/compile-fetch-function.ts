@@ -77,7 +77,7 @@ function compileOnGlobalRequestHook(hookCount: number): string {
           ]
         : []),
       `    if (${resultVar})`,
-      `      if (typeof ${resultVar}.body === utils.FUNCTION)`,
+      `      if (typeof ${resultVar}.body?.bytes === utils.FUNCTION)`,
       `        return ${resultVar};`,
       `      else`,
       `        for (const key of Object.keys(${resultVar}))`,
