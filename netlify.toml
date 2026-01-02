@@ -1,0 +1,12 @@
+# https://www.getzola.org/documentation/deployment/netlify/
+
+[build]
+base    = "docs"
+publish = "public"
+command = "ZOLA_BIN=$(binrc install getzola/zola) && $ZOLA_BIN build"
+
+[build.environment]
+ZOLA_VERSION = "0.21.0"
+
+[context.deploy-preview]
+command = "ZOLA_BIN=$(binrc install getzola/zola) && $ZOLA_BIN build --base-url $DEPLOY_PRIME_URL"
