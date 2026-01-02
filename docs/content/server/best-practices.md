@@ -112,7 +112,7 @@ Now, why do this over just importing services from `dependencies.ts`?
 3. By using dependency injection, you can easily swap out one implementation for another without changing the code that uses it.
 4. In some cases, you'll have to construct services that depend on the request context. In that case, you'll have to pull those services from the request context anyways, so be consistent.
 
-Now, manually constructing a "dependency tree" as shown above can be tedious, but full-blow DI solutions can be hard to learn and don't work well with TypeScript. I created [`@aklinker1/zero-ioc`](https://jsr.io/@aklinker1/zero-ioc) to create asimple, intuative, DI/IOC container with full type-safety. Try it out!
+Now, manually constructing a "dependency tree" as shown above can be tedious, but full-blow DI solutions can be hard to learn and don't work well with TypeScript. I created [`@aklinker1/zero-ioc`](https://jsr.io/@aklinker1/zero-ioc) to create a simple, intuitive, DI/IOC container with full type-safety. Try it out!
 
 ```ts
 // dependencies.ts

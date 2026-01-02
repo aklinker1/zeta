@@ -8,18 +8,18 @@ weight: 2
 To add query parameters to your endpoint, just add them to the definition:
 
 ```ts
-const app = createApp()
-  .get(
-    "/api/movies/:movieId",
-    {
+const app = createApp().get(
+  "/api/movies/:movieId",
+  {
     query: z.object({
-      sortBy: z.enum(["title-asc", "title-desc", ...]),
-    })
+      sortBy: z.enum(["title-asc", "title-desc" /* ... */]),
+    }),
   },
   ({ query }) => {
     console.log(query.sortBy);
     // ...
-  })
+  },
+);
 ```
 
 Query parameters are available via the context's `query` property.

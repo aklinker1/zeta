@@ -22,7 +22,7 @@ After finishing it, it seemed like Elysia's type-system was straining my local l
 
 ## Current Status
 
-As elluded to, Elysia has made some good improvements:
+As alluded to, Elysia has made some good improvements:
 
 1. Performance
 2. Standard Schema support (Zod)

@@ -10,7 +10,7 @@ As an app grows, you will want to break it up into separate files. Zeta is built
 There are two types of apps:
 
 - **Top-level app**: This is the root app that you call `listen()` on and add child apps to.
-- **Child apps**: These are apps are small and usually scoped to a specific feature or route.
+- **Child apps**: These apps are small and usually scoped to a specific feature or route.
 
 ```ts
 const apiApp = createApp({

@@ -10,7 +10,7 @@ Features:
 - Full-stack type-safety
 - OpenAPI first
 - Standard schema validation
-- Composable architechure
+- Composable architecture
 - Easy to test
 - Fast
 

@@ -20,9 +20,9 @@ export const requestLoggerPlugin = createApp()
       startTime: Date.now(),
     };
   })
-  .onGlobalAfterResponse(({ method, route, set }) => {
+  .onGlobalAfterResponse(({ method, route, set, startTime }) => {
     console.log(
-      `${method} ${route} -> ${set.status} took ${Date.now() - response.startTime}ms`,
+      `${method} ${route} -> ${set.status} took ${Date.now() - startTime}ms`,
     );
   })
   .export();

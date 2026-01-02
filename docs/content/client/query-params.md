@@ -1,6 +1,6 @@
 ---
 title: Query Params
-description: Path parameters are passed in via the third argument's `query` property.
+description: Query parameters are passed in via the third argument's `query` property.
 weight: 2
 ---
 

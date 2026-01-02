@@ -8,7 +8,7 @@ extra:
 
 ## Overview
 
-If you're server and client code are in different codebases, you'll have to generate your client using [openapi-generator](https://openapi-generator.tech/docs/generators/typescript-axios) and your OpenAPI spec.
+If your server and client code are in different codebases, you'll have to generate your client using [openapi-generator](https://openapi-generator.tech/docs/generators/typescript-axios) and your OpenAPI spec.
 
 If your server and client code are in the same codebase, you can take advantage of Zeta's built-in, lightweight wrapper around `fetch` to create a type-safe client.
 
