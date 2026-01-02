@@ -1,0 +1,20 @@
+{% import "_macros.html" as macros %}
+
+<blockquote class="alert {{ type | lower }}">
+  <p>
+    <!-- prettier-ignore -->
+    {% if type == "note" %}
+      {{ macros::icon(name="i-lucide-info")}}
+    {% elif type == "tip" %}
+      {{ macros::icon(name="i-lucide-lightbulb")}}
+    {% elif type == "warning" %}
+      {{ macros::icon(name="i-lucide-alert-triangle")}}
+    {% elif type == "danger" %}
+      {{ macros::icon(name="i-lucide-bomb")}}
+    {% else %}
+      {{ macros::icon(name="i-lucide-alert-circle")}}
+    {% endif %}
+    <span>{{ type | upper }}</span>
+  </p>
+  {{ body | markdown(inline=true) | safe }}
+</blockquote>

@@ -1,0 +1,60 @@
+{% import "_macros.html" as macros %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Zeta</title>
+    <style>
+      body {
+        /* Anti-flashbang */
+        background-color: #1f1e28;
+        color: #ffffff;
+      }
+    </style>
+    <link rel="stylesheet" href="/styles.css" />
+    <script defer src="/main.js"></script>
+    <link rel="icon" href="/favicon.png" />
+  </head>
+
+  <body>
+    <div class="nav-bar">
+      <div class="top">
+        <a href="/" class="logo">{{ macros::icon(name="logo") }}</a>
+        <button class="search-button">
+          {{ macros::icon(name="i-lucide-search") }}
+
+          <span class="placeholder">Search...</span>
+          <span>Ctrl K</span>
+        </button>
+
+        <button class="theme-button">
+          {{ macros::icon(name="i-lucide-moon") }} {{
+          macros::icon(name="i-lucide-sun") }}
+        </button>
+      </div>
+      <div class="bottom">
+        <a href="/server" data-active-target>
+          {{ macros::icon(name="i-lucide-server") }}
+          <span>Server</span>
+        </a>
+        <a href="/client" data-active-target>
+          {{ macros::icon(name="i-lucide-monitor") }}
+          <span>Client</span>
+        </a>
+        <a href="/testing" data-active-target>
+          {{ macros::icon(name="i-lucide-flask-conical") }}
+          <span>Testing</span>
+        </a>
+        <div class="spacer"></div>
+        <a href="https://jsr.io/@aklinker1/zeta/doc" target="_blank">
+          <span>API Reference</span>
+          {{ macros::icon(name="i-lucide-square-arrow-out-up-right") }}
+        </a>
+      </div>
+    </div>
+    <section class="section">
+      <div class="container">{% block content %} {% endblock content %}</div>
+    </section>
+  </body>
+</html>
