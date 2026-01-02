@@ -47,8 +47,12 @@
     {{ macros::render_section_group(section=root_section) }}
 
     <!-- prettier-ignore-->
+    {% set_global subsections = [] %}
     {% for subsection_path in root_section.subsections %}
-    {% set subsection = get_section(path=subsection_path) %}
+        {% set subsection = get_section(path=subsection_path) %}
+        {% set_global subsections = subsections | concat(with=subsection) %}
+    {% endfor %}
+    {% for subsection in subsections %}
     <div class="divider"></div>
     {{ macros::render_section_group(section=subsection) }} {% endfor %}
   </div>
@@ -71,7 +75,9 @@
 
   <h1 class="title">{{ page.title }}</h1>
   {% if page.description %}
-  <p class="description">{{ page.description }}</p>
+  <p class="description">
+    {{ page.description | markdown(inline=true) | safe }}
+  </p>
   {% endif %}
   <br />
   {{ page.content | safe }}
