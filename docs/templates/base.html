@@ -28,10 +28,20 @@
           <span>Ctrl K</span>
         </button>
 
-        <button class="theme-button">
-          {{ macros::icon(name="i-lucide-moon") }} {{
-          macros::icon(name="i-lucide-sun") }}
-        </button>
+        <div class="right-buttons">
+          <button class="theme-button">
+            {{ macros::icon(name="i-lucide-moon") }} {{
+            macros::icon(name="i-lucide-sun") }}
+          </button>
+
+          <a
+            class="github-button"
+            href="https://github.com/aklinker1/zeta"
+            target="_blank"
+          >
+            {{ macros::icon(name="i-lucide-github") }}
+          </a>
+        </div>
       </div>
       <div class="bottom">
         <a href="/server" data-active-target>

@@ -141,7 +141,14 @@ img {
   flex-grow: 1;
 }
 
-.nav-bar .theme-button {
+.nav-bar .right-buttons {
+  display: flex;
+  align-items: center;
+  gap: calc(2 * var(--spacing));
+}
+
+.nav-bar .theme-button,
+.nav-bar .github-button {
   background-color: oklch(from var(--color-neutral) l c h / 50%);
   color: oklch(from var(--color-base-content) l c h / 50%);
   padding: calc(2 * var(--spacing));
@@ -151,10 +158,12 @@ img {
   display: flex;
   cursor: pointer;
 }
-.nav-bar .theme-button:hover {
+.nav-bar .theme-button:hover,
+.nav-bar .github-button:hover {
   background-color: var(--color-neutral);
 }
-.nav-bar .theme-button > * {
+.nav-bar .theme-button > *,
+.nav-bar .github-button > * {
   width: calc(5 * var(--spacing));
 }
 *[data-theme="dark"] .nav-bar .i-lucide-sun {
