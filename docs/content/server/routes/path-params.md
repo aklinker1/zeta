@@ -33,9 +33,9 @@ There are three ways to define a path parameter:
 2. `**` &ndash; Anonymous wildcard
 3. `**:paramName` &ndash; Named wildcard
 
-Wildcard parameters accept any number of path segments, and can be accessed by `params["**"]` or `params.paramName`, depending on if it is named or anonymous.
+Wildcard parameters accept any number of path segments, and can be accessed by `params["**"]` or `params.paramName`, depending on if it is anonymous or named.
 
-Here's an example using a named wildcard parameter to throw a 404 error if the API endpoint is not found:
+Here's an example using an anonymous wildcard parameter to throw a 404 error if the API endpoint is not found:
 
 ```ts
 const app = createApp({ prefix: "/api" })

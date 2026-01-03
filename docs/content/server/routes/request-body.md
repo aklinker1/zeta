@@ -71,7 +71,7 @@ Or you can use Zeta's built-in client which will [build the `FormData` for you](
 
 ## Files
 
-Similar to individual file uploads, Zeta provides a util for uploading `FileList`s: [`UploadFilesBody`](https://jsr.io/@aklinker1/zeta/doc/schema/~/UploadFilesBody) based on an input `File`.
+Similar to individual file uploads, Zeta provides a util for uploading `FileList`s: [`UploadFilesBody`](https://jsr.io/@aklinker1/zeta/doc/schema/~/UploadFilesBody).
 
 ```ts
 import { UploadFilesBody } from "@aklinker1/zeta/schemas";
@@ -87,7 +87,7 @@ const app = createApp().post(
 );
 ```
 
-In the handler, instead of a `FileList`, you'll be provided an array of `File` instances.
+In the handler, instead of a `FileList`, you'll be provided a `File[]`.
 
 On the client side, the body is still `FormData`, but the key is `files` instead:
 
@@ -126,7 +126,7 @@ const app = createApp().post(
 
 ## Other
 
-If you need to upload another data type, like for example CSV, you can do so by adding the `contentType` metadata to your body schema:
+If you need to upload another data type, like CSV, you can do so by adding the `contentType` metadata to your body schema:
 
 ```ts
 import { z } from "zod";

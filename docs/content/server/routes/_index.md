@@ -71,18 +71,21 @@ export const app = createApp().get(
 );
 ```
 
-All available properties are typed, so you're editor can tell you what's available.
+All available properties are typed, so your editor can tell you what's available.
 
 ## Handler Context
 
 The handler function receives "context" as its first argument. This object contains information about the request:
 
 - `route` &ndash; The matched route
-- `path` &ndash; The parsed path parameters
+- `path` &ndash; The full URL pathname
+- `params` &ndash; The parsed path parameters
 - `query` &ndash; The parsed query parameters
 - `body` &ndash; The parsed request body
 - `request` &ndash; The original `Request` instance
 - `url` &ndash; The parsed URL
+- `set` &ndash; Util for setting response headers
+- `status` &ndash; Util for setting the response status
 
 ### Decorate
 

@@ -61,4 +61,4 @@ describe("App", () => {
 });
 ```
 
-Details for how to use the `client` object can be found in Zeta's [Client-side docs](@/client/_index.md);
+Details for how to use the `client` object can be found in Zeta's [Client-side docs](@/client/_index.md).
