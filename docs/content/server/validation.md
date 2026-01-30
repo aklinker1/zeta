@@ -57,5 +57,4 @@ Create your own adapter implementing the [`SchemaAdapter` interface](https://jsr
 You need to implement 3 functions:
 
 1. `toJsonSchema` returns a JSON schema representation of the given schema.
-2. `parseParamsRecord` converts an object definition used for `path` and `query` parameters to `path`/`query` parameter definitions.
-3. `getMeta` returns metadata about the given schema.
+2. `getMeta` returns metadata about the given schema.

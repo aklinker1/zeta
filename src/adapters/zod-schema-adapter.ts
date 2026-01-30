@@ -23,21 +23,6 @@ export const zodSchemaAdapter: SchemaAdapter = {
     delete res.$schema;
     return res;
   },
-  parseParamsRecord: (params: any) => {
-    if (params?._zod?.def?.type !== "object")
-      throw Error(
-        "Query, params, and header schemas must be simple Zode objects defined with z.object({ ... })",
-      );
-
-    return Object.entries(params._zod.def.shape).map(
-      ([key, schema]: [string, any]) => ({
-        name: key,
-        schema,
-        optional: schema.safeParse(undefined).success,
-        ...z.globalRegistry.get(schema),
-      }),
-    );
-  },
   getMeta: (schema: any) => {
     return z.globalRegistry.get(schema);
   },

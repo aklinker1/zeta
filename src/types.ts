@@ -1037,17 +1037,6 @@ export interface SchemaAdapter {
    * @returns The JSON schema.
    */
   toJsonSchema: (schema: any) => any;
-  /**
-   * Used to pull out the openapi parameters from a schema.
-   * @param schema The schema to parse.
-   * @returns An array of objects used to generate the OpenAPI docs.
-   */
-  parseParamsRecord: (schema: StandardSchemaV1) => Array<{
-    name: string;
-    optional: boolean;
-    schema: StandardSchemaV1;
-    description?: string;
-  }>;
   getMeta: (schema: StandardSchemaV1) => Record<string, any> | undefined;
 }
 

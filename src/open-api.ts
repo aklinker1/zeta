@@ -1,14 +1,14 @@
-import type { OpenAPI } from "openapi-types";
-import type { App, BasePath, SchemaAdapter } from "./types";
-import type { CreateAppOptions } from "./app";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { getHttpStatusName } from "./status";
+import type { OpenAPI } from "openapi-types";
+import type { CreateAppOptions } from "./app";
+import { getMeta } from "./meta";
 import {
   ErrorResponseJsonSchema,
   isZetaSchema,
   type ZetaSchema,
 } from "./schema";
-import { getMeta } from "./meta";
+import { getHttpStatusName } from "./status";
+import type { App, BasePath, SchemaAdapter } from "./types";
 
 export function buildOpenApiDocs(
   options: CreateAppOptions<any> | undefined,
@@ -146,19 +146,25 @@ export function buildScalarHtml(
 function mapParameters(
   adapter: SchemaAdapter,
   schema: StandardSchemaV1 | undefined,
-  _in: "query" | "path" | "header",
+  in_: "query" | "path" | "header",
 ): OpenAPI.Parameters {
   if (!schema) return [];
 
-  return adapter
-    .parseParamsRecord(schema)
-    .map(({ schema, optional, description, name }) => ({
+  const openApiSchema = adapter.toJsonSchema(schema);
+  if (openApiSchema.type !== "object")
+    throw Error(
+      `Param in ${in_} must have { "type": "object", ... }, but got ${JSON.stringify(openApiSchema, null, 2)}`,
+    );
+
+  return Object.entries(openApiSchema.properties).map(
+    ([name, def]: [string, any]) => ({
       name,
-      in: _in,
-      description,
-      schema: adapter.toJsonSchema(schema),
-      required: !optional,
-    }));
+      in: in_,
+      description: def.description,
+      schema: def,
+      required: !!openApiSchema.required?.includes(name),
+    }),
+  );
 }
 
 function buildResponse(
