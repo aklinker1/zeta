@@ -2,10 +2,8 @@
  * Contains a schema adapter for app's using [`zod`](https://npmjs.com/package/zod).
  * @module
  */
+import { z } from "zod";
 import type { SchemaAdapter } from "../types";
-
-const zod = "zod";
-const { z } = await import(zod);
 
 /**
  * Usage:
