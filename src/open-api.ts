@@ -1,5 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { OpenAPI } from "openapi-types";
+import { titleCase } from "scule";
 import type { CreateAppOptions } from "./app";
 import { getMeta } from "./meta";
 import {
@@ -54,6 +55,11 @@ export function buildOpenApiDocs(
 
         (docs.paths[openApiPath] as any)[method.toLowerCase()] = {
           ...openApiOperation,
+          summary:
+            openApiOperation.summary ??
+            (openApiOperation.operationId
+              ? titleCase(openApiOperation.operationId)
+              : undefined),
           requestBody: body
             ? {
                 content: {
