@@ -411,7 +411,7 @@ export class NotImplementedHttpError extends HttpError {
     options?: ErrorOptions,
   ) {
     super(HttpStatus.NotImplemented, message, additionalInfo, options);
-    this.name = "NotImplementedError";
+    this.name = "NotImplementedHttpError";
   }
 }
 
