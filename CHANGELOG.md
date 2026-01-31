@@ -1,5 +1,48 @@
 # Changelog
 
+## v2.0.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v1.3.3...v2.0.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Compile optimized fetch and route handler functions ([#5](https://github.com/aklinker1/zeta/pull/5))
+- Build path/query/header OpenAPI parameters without `SchemaAdapter.parseParamsRecord` ([4b011cd](https://github.com/aklinker1/zeta/commit/4b011cd))
+- **open-api:** Automatically generate `summary` based on `operationId` ([f54af7d](https://github.com/aklinker1/zeta/commit/f54af7d))
+
+### 🔥 Performance
+
+- Reduce internal overhead to increase request throughput by ~1.5-3x ([#3](https://github.com/aklinker1/zeta/pull/3))
+
+### 🩹 Fixes
+
+- **openapi:** Correctly handle generating spec with a "/" endpoint ([4bd258f](https://github.com/aklinker1/zeta/commit/4bd258f))
+- Properly detect `Response` short-circuit ([edfe3d4](https://github.com/aklinker1/zeta/commit/edfe3d4))
+- **jsr:** Make zod an optional dependency, not a dynamic import ([5c55921](https://github.com/aklinker1/zeta/commit/5c55921))
+
+### 📖 Documentation
+
+- Add docs site ([#6](https://github.com/aklinker1/zeta/pull/6))
+- Fix typos ([2f44171](https://github.com/aklinker1/zeta/commit/2f44171))
+- Update badges ([15cde06](https://github.com/aklinker1/zeta/commit/15cde06))
+- Add Github link ([bee6ada](https://github.com/aklinker1/zeta/commit/bee6ada))
+- Hide search until it's implemented ([5716954](https://github.com/aklinker1/zeta/commit/5716954))
+- Update docs link in README ([9232d79](https://github.com/aklinker1/zeta/commit/9232d79))
+
+### 🏡 Chore
+
+- Upgrade to bun 1.3.5 ([a86e6a3](https://github.com/aklinker1/zeta/commit/a86e6a3))
+- Setup netlify publishing ([f5a3d1c](https://github.com/aklinker1/zeta/commit/f5a3d1c))
+- Remove unused script ([bca770e](https://github.com/aklinker1/zeta/commit/bca770e))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Compile optimized fetch and route handler functions ([#5](https://github.com/aklinker1/zeta/pull/5))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v1.3.3
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.3.2...v1.3.3)
