@@ -33,7 +33,7 @@ const app = createApp().post(
 Most of the time the body will be an object, but it can be any valid JSON value, like a number, string, array, boolean, etc.
 
 {% alert(type="warning") %}
-Devs forget to set the `Content-Type` header when using `fetch` directly with a JSON body. If you forget, the `body` will be `undefined` in the handler!
+Devs often forget to set the `Content-Type` header when using `fetch` directly with a JSON body. If you forget, the `body` will be `undefined` in the handler!
 {% end %}
 
 ## File

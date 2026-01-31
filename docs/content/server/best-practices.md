@@ -153,11 +153,13 @@ export const IntId = z.coerce.number().min(0).meta({ ref: "IntId" });
 export const Username = z.string().min(2).max(32).meta({ ref: "Username" });
 export const Password = z.string().min(8).max(128).meta({ ref: "Password" });
 export const Role = z.enum(["admin", "user", "guest"]).meta({ ref: "Role" });
-export const User = z.object({
-  id: IntId,
-  username: Username,
-  role: Role,
-});
+export const User = z
+  .object({
+    id: IntId,
+    username: Username,
+    role: Role,
+  })
+  .meta({ ref: "User" });
 
 // IO Schemas
 

@@ -15,7 +15,7 @@ Here's an example app:
 import { createApp } from "@aklinker1/zeta";
 import { z } from "zod";
 
-const app = createApp().get(
+export const app = createApp().get(
   "/health",
   {
     operationId: "healthCheck",

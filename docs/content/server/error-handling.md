@@ -60,10 +60,11 @@ To disable the stack trace, set `NODE_ENV=production` in the environment variabl
 Alternatively, you can use a subclass of `HttpError` so you don't have to manually pass the status into the constructor:
 
 ```diff
-+import { NotImplementedError } from "@aklinker1/zeta";
+-import { HttpError } from "@aklinker1/zeta";
++import { NotImplementedHttpError } from "@aklinker1/zeta";
 
 const app = createApp().get("/users", {}, () => {
 - throw new HttpError(HttpStatus.NotImplemented, "TODO");
-+ throw new NotImplementedError("TODO");
++ throw new NotImplementedHttpError("TODO");
 });
 ```
