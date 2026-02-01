@@ -45,18 +45,22 @@ describe("compileRouteHandler", () => {
           }
 
           if (ctx.response == null) {
-            return new Response(undefined, {
-              status: ctx.set.status,
-              headers: ctx.set.headers,
-            })
+            return (
+              ctx.response = new Response(undefined, {
+                status: ctx.set.status,
+                headers: ctx.set.headers,
+              })
+            )
           }
 
           const serialized = utils.smartSerialize(ctx.response);
           if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
-          return new Response(serialized.value, {
-            status: ctx.set.status,
-            headers: ctx.set.headers,
-          })
+          return (
+            ctx.response = new Response(serialized.value, {
+              status: ctx.set.status,
+              headers: ctx.set.headers,
+            })
+          )
         }"
       `,
       );
@@ -88,18 +92,22 @@ describe("compileRouteHandler", () => {
           }
 
           if (ctx.response == null) {
-            return new Response(undefined, {
-              status: ctx.set.status,
-              headers: ctx.set.headers,
-            })
+            return (
+              ctx.response = new Response(undefined, {
+                status: ctx.set.status,
+                headers: ctx.set.headers,
+              })
+            )
           }
 
           const serialized = utils.smartSerialize(ctx.response);
           if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
-          return new Response(serialized.value, {
-            status: ctx.set.status,
-            headers: ctx.set.headers,
-          })
+          return (
+            ctx.response = new Response(serialized.value, {
+              status: ctx.set.status,
+              headers: ctx.set.headers,
+            })
+          )
         }"
       `,
       );
@@ -137,18 +145,22 @@ describe("compileRouteHandler", () => {
           }
 
           if (ctx.response == null) {
-            return new Response(undefined, {
-              status: ctx.set.status,
-              headers: ctx.set.headers,
-            })
+            return (
+              ctx.response = new Response(undefined, {
+                status: ctx.set.status,
+                headers: ctx.set.headers,
+              })
+            )
           }
 
           const serialized = utils.smartSerialize(ctx.response);
           if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
-          return new Response(serialized.value, {
-            status: ctx.set.status,
-            headers: ctx.set.headers,
-          })
+          return (
+            ctx.response = new Response(serialized.value, {
+              status: ctx.set.status,
+              headers: ctx.set.headers,
+            })
+          )
         }"
       `);
     });
@@ -185,18 +197,22 @@ describe("compileRouteHandler", () => {
           }
 
           if (ctx.response == null) {
-            return new Response(undefined, {
-              status: ctx.set.status,
-              headers: ctx.set.headers,
-            })
+            return (
+              ctx.response = new Response(undefined, {
+                status: ctx.set.status,
+                headers: ctx.set.headers,
+              })
+            )
           }
 
           const serialized = utils.smartSerialize(ctx.response);
           if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
-          return new Response(serialized.value, {
-            status: ctx.set.status,
-            headers: ctx.set.headers,
-          })
+          return (
+            ctx.response = new Response(serialized.value, {
+              status: ctx.set.status,
+              headers: ctx.set.headers,
+            })
+          )
         }"
       `);
     });
@@ -230,18 +246,22 @@ describe("compileRouteHandler", () => {
             return onAfterHandleRes0;
 
           if (ctx.response == null) {
-            return new Response(undefined, {
-              status: ctx.set.status,
-              headers: ctx.set.headers,
-            })
+            return (
+              ctx.response = new Response(undefined, {
+                status: ctx.set.status,
+                headers: ctx.set.headers,
+              })
+            )
           }
 
           const serialized = utils.smartSerialize(ctx.response);
           if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
-          return new Response(serialized.value, {
-            status: ctx.set.status,
-            headers: ctx.set.headers,
-          })
+          return (
+            ctx.response = new Response(serialized.value, {
+              status: ctx.set.status,
+              headers: ctx.set.headers,
+            })
+          )
         }"
       `);
     });
@@ -275,18 +295,22 @@ describe("compileRouteHandler", () => {
             return onMapResponseRes0;
 
           if (ctx.response == null) {
-            return new Response(undefined, {
-              status: ctx.set.status,
-              headers: ctx.set.headers,
-            })
+            return (
+              ctx.response = new Response(undefined, {
+                status: ctx.set.status,
+                headers: ctx.set.headers,
+              })
+            )
           }
 
           const serialized = utils.smartSerialize(ctx.response);
           if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] =  serialized.contentType
-          return new Response(serialized.value, {
-            status: ctx.set.status,
-            headers: ctx.set.headers,
-          })
+          return (
+            ctx.response = new Response(serialized.value, {
+              status: ctx.set.status,
+              headers: ctx.set.headers,
+            })
+          )
         }"
       `);
     });

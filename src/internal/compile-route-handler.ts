@@ -1,4 +1,5 @@
 import type { MaybePromise } from "elysia";
+import { getMeta } from "../meta";
 import type {
   CompiledRouteHandler,
   LifeCycleHookName,
@@ -15,7 +16,6 @@ import {
   validateInputSchema,
   validateOutputSchema,
 } from "./utils";
-import { getMeta } from "../meta";
 
 export function compileRouteHandler(
   options: CompileOptions,
@@ -57,18 +57,22 @@ ${options.hooks.onAfterHandle?.length ? compileResponseModifierHookCall("onAfter
 ${options.hooks.onMapResponse?.length ? compileResponseModifierHookCall("onMapResponse", options.hooks.onMapResponse.length) : ""}
 
   if (ctx.response == null) {
-    return new Response(undefined, {
-      status: ctx.set.status,
-      headers: ctx.set.headers,
-    })
+    return (
+      ctx.response = new Response(undefined, {
+        status: ctx.set.status,
+        headers: ctx.set.headers,
+      })
+    )
   }
 
   const serialized = utils.smartSerialize(ctx.response);
   if (!ctx.set.headers["Content-Type"]) ctx.set.headers["Content-Type"] = ${responseContentTypeMap ? "responseContentTypeMap[ctx.set.status] ??" : ""} serialized.contentType
-  return new Response(serialized.value, {
-    status: ctx.set.status,
-    headers: ctx.set.headers,
-  })
+  return (
+    ctx.response = new Response(serialized.value, {
+      status: ctx.set.status,
+      headers: ctx.set.headers,
+    })
+  )
 }
 //#sourceURL=${getSourceUrl(options)}
   `;

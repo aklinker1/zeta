@@ -39,14 +39,24 @@ describe("compileFetchFunction", () => {
                 error instanceof utils.HttpError
                   ? error.status
                   : utils.HttpStatus.InternalServerError;
-              return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+              return (
+                ctx.response = Response.json(
+                  utils.serializeErrorResponse(error),
+                  { status, headers: ctx.set.headers },
+                )
+              );
             });
           } catch (error) {
             const status =
               error instanceof utils.HttpError
                 ? error.status
                 : utils.HttpStatus.InternalServerError;
-            return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+            return (
+              ctx.response = Response.json(
+                utils.serializeErrorResponse(error),
+                { status, headers: ctx.set.headers },
+              )
+            );
           } 
         }"
       `);
@@ -97,14 +107,24 @@ describe("compileFetchFunction", () => {
                 error instanceof utils.HttpError
                   ? error.status
                   : utils.HttpStatus.InternalServerError;
-              return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+              return (
+                ctx.response = Response.json(
+                  utils.serializeErrorResponse(error),
+                  { status, headers: ctx.set.headers },
+                )
+              );
             });
           } catch (error) {
             const status =
               error instanceof utils.HttpError
                 ? error.status
                 : utils.HttpStatus.InternalServerError;
-            return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+            return (
+              ctx.response = Response.json(
+                utils.serializeErrorResponse(error),
+                { status, headers: ctx.set.headers },
+              )
+            );
           } 
         }"
       `);
@@ -147,7 +167,12 @@ describe("compileFetchFunction", () => {
                 error instanceof utils.HttpError
                   ? error.status
                   : utils.HttpStatus.InternalServerError;
-              return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+              return (
+                ctx.response = Response.json(
+                  utils.serializeErrorResponse(error),
+                  { status, headers: ctx.set.headers },
+                )
+              );
             }).finally(() => {
               setTimeout(() => {
                 utils.hooks.onGlobalAfterResponse[0].callback(ctx);
@@ -158,7 +183,12 @@ describe("compileFetchFunction", () => {
               error instanceof utils.HttpError
                 ? error.status
                 : utils.HttpStatus.InternalServerError;
-            return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+            return (
+              ctx.response = Response.json(
+                utils.serializeErrorResponse(error),
+                { status, headers: ctx.set.headers },
+              )
+            );
           } finally {
             setTimeout(() => {
               utils.hooks.onGlobalAfterResponse[0].callback(ctx);
@@ -209,7 +239,12 @@ describe("compileFetchFunction", () => {
                 error instanceof utils.HttpError
                   ? error.status
                   : utils.HttpStatus.InternalServerError;
-              return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+              return (
+                ctx.response = Response.json(
+                  utils.serializeErrorResponse(error),
+                  { status, headers: ctx.set.headers },
+                )
+              );
             });
           } catch (error) {
             ctx.error = error;
@@ -219,7 +254,12 @@ describe("compileFetchFunction", () => {
               error instanceof utils.HttpError
                 ? error.status
                 : utils.HttpStatus.InternalServerError;
-            return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));
+            return (
+              ctx.response = Response.json(
+                utils.serializeErrorResponse(error),
+                { status, headers: ctx.set.headers },
+              )
+            );
           } 
         }"
       `);
