@@ -130,12 +130,7 @@ export interface App<TAppData extends AppData = AppData> {
   onGlobalRequest(
     callback: (
       ctx: OnGlobalRequestContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<void>,
-  ): this;
-  onGlobalRequest(
-    callback: (
-      ctx: OnGlobalRequestContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<Response>,
+    ) => MaybePromise<Response | void>,
   ): this;
   onGlobalRequest<TNewCtx extends Record<string, any>>(
     callback: (
@@ -154,12 +149,7 @@ export interface App<TAppData extends AppData = AppData> {
   onTransform(
     callback: (
       ctx: OnTransformContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<void>,
-  ): this;
-  onTransform(
-    callback: (
-      ctx: OnTransformContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<Response>,
+    ) => MaybePromise<Response | void>,
   ): this;
   onTransform<TNewCtx extends Record<string, any>>(
     callback: (
@@ -178,12 +168,7 @@ export interface App<TAppData extends AppData = AppData> {
   onBeforeHandle(
     callback: (
       ctx: OnBeforeHandleContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<void>,
-  ): this;
-  onBeforeHandle(
-    callback: (
-      ctx: OnBeforeHandleContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<Response>,
+    ) => MaybePromise<Response | void>,
   ): this;
   onBeforeHandle<TNewCtx extends Record<string, any>>(
     callback: (
