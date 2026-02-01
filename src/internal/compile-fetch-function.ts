@@ -1,13 +1,13 @@
 import type { MatchedRoute } from "rou3";
+import { HttpError, NotFoundHttpError } from "../errors";
+import { HttpStatus } from "../status";
 import type { LifeCycleHooks, RouterData, ServerSideFetch } from "../types";
+import { Context } from "./context";
 import {
   cleanupCompiledWhitespace,
   getRawPathname,
   serializeErrorResponse,
 } from "./utils";
-import { Context } from "./context";
-import { HttpError, NotFoundHttpError } from "../errors";
-import { HttpStatus } from "../status";
 
 export function compileFetchFunction(options: CompileOptions): ServerSideFetch {
   const onGlobalRequestCount = options.hooks.onGlobalRequest?.length;
@@ -144,7 +144,12 @@ function compileErrorResponse(tabs: number): string {
 ${indent}  error instanceof utils.HttpError
 ${indent}    ? error.status
 ${indent}    : utils.HttpStatus.InternalServerError;
-${indent}return (ctx.response = Response.json(utils.serializeErrorResponse(error), { status }));`;
+${indent}return (
+${indent}  ctx.response = Response.json(
+${indent}    utils.serializeErrorResponse(error),
+${indent}    { status, headers: ctx.set.headers },
+${indent}  )
+${indent});`;
 }
 
 type CompileOptions = {
