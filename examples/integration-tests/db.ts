@@ -5,7 +5,6 @@ import { dirname } from "node:path";
 export async function openDb(
   filename = "data/integration-tests-app.db",
 ): Promise<Database> {
-  console.log({ filename });
   if (filename !== ":memory:") {
     await mkdir(dirname(filename), { recursive: true });
   }
