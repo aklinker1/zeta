@@ -147,6 +147,7 @@ describe("compileFetchFunction", () => {
         "(request) => {
           const path = utils.getRawPathname(request);
           const ctx = new utils.Context(request, path, utils.origin);
+          let handlerReturnedPromise = false;
 
           try {
             const matchedRoute = utils.getRoute(request.method, path);
@@ -162,6 +163,7 @@ describe("compileFetchFunction", () => {
             ctx.response = matchedRoute.data.compiledHandler(request, ctx);
             if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
 
+            handlerReturnedPromise = true;
             return ctx.response.catch(error => {
               const status =
                 error instanceof utils.HttpError
@@ -190,9 +192,11 @@ describe("compileFetchFunction", () => {
               )
             );
           } finally {
-            setTimeout(() => {
-              utils.hooks.onGlobalAfterResponse[0].callback(ctx);
-            })
+            if (!handlerReturnedPromise) {
+              setTimeout(() => {
+                utils.hooks.onGlobalAfterResponse[0].callback(ctx);
+              })
+            }
           }
 
         }"

@@ -19,6 +19,7 @@ export function compileFetchFunction(options: CompileOptions): ServerSideFetch {
 return (request) => {
   const path = utils.getRawPathname(request);
   const ctx = new utils.Context(request, path, utils.origin);
+  ${onGlobalAfterResponseCount ? "let handlerReturnedPromise = false;" : ""}
 
   try {
 ${onGlobalRequestCount ? compileOnGlobalRequestHook(onGlobalRequestCount) : ""}
@@ -36,6 +37,7 @@ ${onGlobalRequestCount ? compileOnGlobalRequestHook(onGlobalRequestCount) : ""}
     ctx.response = matchedRoute.data.compiledHandler(request, ctx);
     if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
 
+    ${onGlobalAfterResponseCount ? "handlerReturnedPromise = true;" : ""}
     return ctx.response.catch(error => {
 ${onGlobalErrorCount ? compileOnGlobalErrorHook(onGlobalErrorCount, 3) : ""}
 
@@ -105,7 +107,9 @@ function compileOnGlobalAfterResponseFinally(
 ): string {
   const indent = "  ".repeat(tabs);
   return `finally {
-${compileOnGlobalAfterResponseHook(hookCount, tabs + 1)}
+${indent}  if (!handlerReturnedPromise) {
+${compileOnGlobalAfterResponseHook(hookCount, tabs + 2)}
+${indent}  }
 ${indent}}
 `;
 }
