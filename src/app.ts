@@ -1,23 +1,23 @@
-import type {
-  App,
-  RouterData,
-  RouteDef,
-  BasePath,
-  ServerSideFetch,
-  LifeCycleHook,
-  DefaultAppData,
-  BasePrefix,
-  SchemaAdapter,
-  Transport,
-  LifeCycleHookName,
-} from "./types";
+import type { OpenAPIV3_1 } from "openapi-types";
 import { addRoute, createRouter } from "rou3";
 import { compileRouter } from "rou3/compiler";
-import { detectTransport } from "./internal/utils";
-import type { OpenAPIV3_1 } from "openapi-types";
-import { buildOpenApiDocs, buildScalarHtml } from "./open-api";
-import { compileRouteHandler } from "./internal/compile-route-handler";
 import { compileFetchFunction } from "./internal/compile-fetch-function";
+import { compileRouteHandler } from "./internal/compile-route-handler";
+import { detectTransport } from "./internal/utils";
+import { buildOpenApiDocs, buildScalarHtml } from "./open-api";
+import type {
+  App,
+  BasePath,
+  BasePrefix,
+  DefaultAppData,
+  LifeCycleHook,
+  LifeCycleHookName,
+  RouteDef,
+  RouterData,
+  SchemaAdapter,
+  ServerSideFetch,
+  Transport,
+} from "./types";
 
 let appIdInc = 0;
 const nextAppId = () => `app-${appIdInc++}`;
