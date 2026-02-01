@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      pre {
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <p>/no-cors</p>
+    <pre id="noCorsResponse">Loading...</pre>
+    <hr />
+    <p>/api/cors</p>
+    <pre id="corsResponse">Loading...</pre>
+    <hr />
+    <p>/api/other</p>
+    <pre id="otherResponse">Loading...</pre>
+
+    <script>
+      async function fetchEndpoint(endpoint, pre) {
+        try {
+          const res = await fetch(`http://localhost:3000${endpoint}`);
+          const text = await res.text();
+
+          const meta = JSON.stringify(
+            {
+              status: res.status,
+              statusText: res.statusText,
+              headers: Object.fromEntries(res.headers),
+            },
+            null,
+            2,
+          );
+          pre.textContent = `${meta}\n${text}`;
+        } catch (err) {
+          pre.textContent = String(err);
+        }
+      }
+
+      fetchEndpoint("/no-cors", noCorsResponse);
+      fetchEndpoint("/api/cors", corsResponse);
+      fetchEndpoint("/api/other", otherResponse);
+    </script>
+  </body>
+</html>
