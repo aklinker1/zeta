@@ -4,15 +4,15 @@
  *
  * Usage:
  *
- *   bun run src/__tests__/bench.ts
- *   bun run src/__tests__/bench.ts "{{benchmark_name}}"
+ *   bun run benchmarks/overhead.ts
+ *   bun run benchmarks/overhead.ts "{{benchmark_name}}"
  */
-import { Bench } from "tinybench";
-import { createApp } from "../app";
-import type { ServerSideFetch } from "../types";
+import { createApp } from "@aklinker1/zeta";
+import type { ServerSideFetch } from "@aklinker1/zeta/types";
 import { Elysia } from "elysia";
 import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
+import { Bench } from "tinybench";
 import { z } from "zod/v4";
 
 process.env.NODE_ENV = "production";
