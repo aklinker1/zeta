@@ -7,6 +7,7 @@ import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
+import dedent from "dedent";
 
 // Initialize you SDK: https://opentelemetry.io/docs/languages/js/instrumentation
 const sdk = new NodeSDK({
@@ -40,9 +41,9 @@ const app = createApp()
   .get("/", () => "OK");
 
 app.listen(3000, () => {
-  console.log("Open telemetry example started.");
-  console.log("");
-  console.log(
-    "Open http://localhost:3000. It might take a few seconds after opening the URL to see the span in the console.",
-  );
+  console.log(dedent`
+    Open telemetry example started.
+
+    Open http://localhost:3000. It might take a few seconds after opening the URL to see the span in the console.
+  `);
 });

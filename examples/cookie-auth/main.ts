@@ -7,6 +7,7 @@ import {
   UnauthorizedHttpError,
 } from "@aklinker1/zeta";
 import * as cookie from "cookie";
+import dedent from "dedent";
 import z from "zod";
 import type { Setter } from "../../src/types";
 
@@ -215,25 +216,15 @@ const app = createApp()
   );
 
 app.listen(3000, () => {
-  console.log("Example server started!");
-  console.log("");
-  console.log("Try out using cookies for auth:");
-  console.log(
-    "1. Visit http://localhost:3000 and get a 401 since you're not logged in.",
-  );
-  console.log(
-    "2. Log in with tom and you will be redirected to the homepage to see the user details: http://localhost:3000/login?username=tom&password=toms-password",
-  );
-  console.log(
-    "3. Try to get the list of users, but see you get a 403 because tom is missing the required permission: http://localhost:3000/users",
-  );
-  console.log(
-    "4. Log out of Tom's account at http://localhost:3000/logout - You will be redirected back to the homepage with a 401",
-  );
-  console.log(
-    "5. Log in as aaron: http://localhost:3000/login?username=aaron&password=aarons-password",
-  );
-  console.log(
-    "6. Now you can access the list of users: http://localhost:3000/users",
-  );
+  console.log(dedent`
+    Example server started!
+
+    Try out using cookies for auth:
+    1. Visit http://localhost:3000 and get a 401 since you're not logged in.
+    2. Log in with tom and you will be redirected to the homepage to see the user details: http://localhost:3000/login?username=tom&password=toms-password
+    3. Try to get the list of users, but see you get a 403 because tom is missing the required permission: http://localhost:3000/users
+    4. Log out of Tom's account at http://localhost:3000/logout - You will be redirected back to the homepage with a 401
+    5. Log in as aaron: http://localhost:3000/login?username=aaron&password=aarons-password
+    6. Now you can access the list of users: http://localhost:3000/users
+  `);
 });

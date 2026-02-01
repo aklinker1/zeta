@@ -1,4 +1,5 @@
 import { createApp } from "@aklinker1/zeta";
+import dedent from "dedent";
 
 // For an overview of when each hook is called, see:
 // https://zeta.aklinker1.io/server/hooks
@@ -53,9 +54,11 @@ const app = createApp()
   .get("/example", () => "OK");
 
 app.listen(3000, () => {
-  console.log("Request logger example started!");
-  console.log("");
-  console.log("Visit the URLs below to see the request logs:");
-  console.log("  - http://localhost:3000");
-  console.log("  - http://localhost:3000/example");
+  console.log(dedent`
+    Request logger example started!
+
+    Visit the URLs below to see the request logs:
+    - http://localhost:3000
+    - http://localhost:3000/example
+  `);
 });
