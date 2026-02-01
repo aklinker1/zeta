@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from "openapi-types";
+import type { OpenAPI, OpenAPIV3_1 } from "openapi-types";
 import { addRoute, createRouter } from "rou3";
 import { compileRouter } from "rou3/compiler";
 import { compileFetchFunction } from "./internal/compile-fetch-function";
@@ -243,10 +243,15 @@ export function createApp<TPrefix extends BasePrefix = "">(
       app.method.apply(app, [Method.Any, ...args] as any) as any,
 
     method(method: string, path: BasePath, ...args: any[]) {
-      const def: RouteDef = args.length === 2 ? args[0] : undefined;
+      const routeDef: RouteDef | undefined =
+        args.length === 2 ? args[0] : undefined;
       const handler = args[1] ?? args[0];
       const route = `${prefix}${path}`;
       const hooks = cloneHooks();
+
+      // Merge app-level tags and security into route definition
+      const def: RouteDef | undefined = mergeAppDefaults(routeDef, options);
+
       const compiledHandler = compileRouteHandler({
         schemaAdapter: options?.schemaAdapter,
         def,
@@ -267,7 +272,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
 
     mount(...args: any[]) {
       let path = "";
-      let def = {};
+      let routeDef: RouteDef = {};
       let fetch: ServerSideFetch;
 
       if (args.length === 1) {
@@ -277,12 +282,16 @@ export function createApp<TPrefix extends BasePrefix = "">(
         fetch = args[1];
       } else {
         path = args[0];
-        def = args[1];
+        routeDef = args[1];
         fetch = args[2];
       }
 
       const route = `${prefix}${path}/**`;
       const hooks = cloneHooks();
+
+      // Merge app-level tags and security into route definition
+      const def = mergeAppDefaults(routeDef, options);
+
       const compiledHandler = compileRouteHandler({
         schemaAdapter: options?.schemaAdapter,
         hooks,
@@ -403,12 +412,63 @@ export type CreateAppOptions<TPrefix extends BasePrefix = ""> = {
 
   /** Configure how your application's OpenAPI docs are generated. */
   openApi?: Partial<OpenAPIV3_1.Document> & {};
+
+  /**
+   * OpenAPI tags to apply to all routes in this app. Route-level tags will
+   * override these app-level tags.
+   *
+   * @example
+   * ```ts
+   * const usersApp = createApp({
+   *   prefix: "/users",
+   *   tags: ["Users"],
+   * })
+   *   .get("/", {}, () => [...])  // Will have ["Users"] tag
+   *   .get("/:id", { tags: ["Admin"] }, () => {...})  // Will have ["Admin"] tag (overrides app-level)
+   * ```
+   */
+  tags?: string[];
+
+  /**
+   * OpenAPI security requirements to apply to all routes in this app.
+   * Route-level security will override these app-level security requirements.
+   *
+   * @example
+   * ```ts
+   * const authApp = createApp({
+   *   prefix: "/auth",
+   *   security: [{ bearerAuth: [] }],
+   * })
+   *   .get("/profile", {}, () => {...})  // Will require bearerAuth
+   *   .get("/admin", { security: [{ adminKey: [] }] }, () => {...})  // Will require adminKey (overrides app-level)
+   * ```
+   */
+  security?: OpenAPI.Document["security"];
   /**
    * Configure [Scalar](https://scalar.com/) UI docs.
    * @see https://github.com/scalar/scalar/blob/main/documentation/configuration.md#list-of-all-attributes
    */
   scalar?: any;
 };
+
+/**
+ * Apply app-level defaults (tags, security) to a route definition.
+ * Route-level values override app-level defaults.
+ */
+function mergeAppDefaults(
+  routeDef: RouteDef | undefined,
+  options: CreateAppOptions<any> | undefined,
+): RouteDef | undefined {
+  if (!options?.tags?.length && !options?.security?.length) {
+    return routeDef;
+  }
+
+  return {
+    tags: options.tags,
+    security: options.security,
+    ...routeDef,
+  };
+}
 
 enum Method {
   Get = "GET",

@@ -1,11 +1,12 @@
-import { describe, it, expect, mock } from "bun:test";
-import { createApp } from "../app";
-import { z } from "zod/v4";
-import { createTestAppClient } from "../testing";
+import { describe, expect, it, mock } from "bun:test";
 import { expectTypeOf } from "expect-type";
-import type { AnyDef, GetAppData } from "../types";
+import type { OpenAPI } from "openapi-types";
+import { z } from "zod/v4";
 import { zodSchemaAdapter } from "../adapters/zod-schema-adapter";
+import { createApp } from "../app";
 import { HttpStatus } from "../status";
+import { createTestAppClient } from "../testing";
+import type { AnyDef, GetAppData } from "../types";
 
 // Silence console.error logs
 globalThis.console.error = mock();
@@ -446,6 +447,121 @@ describe("App", () => {
         };
       }>();
       expect(actual).toMatchObject({ a: "A" });
+    });
+  });
+
+  describe("app-level OpenAPI options", () => {
+    describe("tags", () => {
+      it("should apply app-level tags to all routes", () => {
+        const app = createApp({
+          schemaAdapter: zodSchemaAdapter,
+          tags: ["Users"],
+        })
+          .get("/", { responses: z.string() }, () => "")
+          .post("/", { responses: z.string() }, () => "");
+
+        const spec = app.getOpenApiSpec() as OpenAPI.Document;
+
+        expect((spec.paths!["/"] as any).get.tags).toEqual(["Users"]);
+        expect((spec.paths!["/"] as any).post.tags).toEqual(["Users"]);
+      });
+
+      it("should allow route-level tags to override app-level tags", () => {
+        const app = createApp({
+          schemaAdapter: zodSchemaAdapter,
+          tags: ["Users"],
+        }).get("/", { tags: ["Admin"], responses: z.string() }, () => "");
+
+        const spec = app.getOpenApiSpec() as OpenAPI.Document;
+
+        expect((spec.paths!["/"] as any).get.tags).toEqual(["Admin"]);
+      });
+
+      it("should preserve app-level tags when nested via use()", () => {
+        const usersApp = createApp({
+          prefix: "/users",
+          schemaAdapter: zodSchemaAdapter,
+          tags: ["Users"],
+        }).get("/", { responses: z.string() }, () => "");
+
+        const app = createApp({ schemaAdapter: zodSchemaAdapter }).use(
+          usersApp,
+        );
+
+        const spec = app.getOpenApiSpec() as OpenAPI.Document;
+
+        expect((spec.paths!["/users"] as any).get.tags).toEqual(["Users"]);
+      });
+    });
+
+    describe("security", () => {
+      it("should apply app-level security to all routes", () => {
+        const app = createApp({
+          schemaAdapter: zodSchemaAdapter,
+          security: [{ bearerAuth: [] }],
+        })
+          .get("/", { responses: z.string() }, () => "")
+          .post("/", { responses: z.string() }, () => "");
+
+        const spec = app.getOpenApiSpec() as OpenAPI.Document;
+
+        expect((spec.paths!["/"] as any).get.security).toEqual([
+          { bearerAuth: [] },
+        ]);
+        expect((spec.paths!["/"] as any).post.security).toEqual([
+          { bearerAuth: [] },
+        ]);
+      });
+
+      it("should allow route-level security to override app-level security", () => {
+        const app = createApp({
+          schemaAdapter: zodSchemaAdapter,
+          security: [{ bearerAuth: [] }],
+        }).get(
+          "/admin",
+          { security: [{ adminKey: [] }], responses: z.string() },
+          () => "",
+        );
+
+        const spec = app.getOpenApiSpec() as OpenAPI.Document;
+
+        expect((spec.paths!["/admin"] as any).get.security).toEqual([
+          { adminKey: [] },
+        ]);
+      });
+
+      it("should preserve app-level security when nested via use()", () => {
+        const authApp = createApp({
+          prefix: "/auth",
+          schemaAdapter: zodSchemaAdapter,
+          security: [{ bearerAuth: [] }],
+        }).get("/profile", { responses: z.string() }, () => "");
+
+        const app = createApp({ schemaAdapter: zodSchemaAdapter }).use(authApp);
+
+        const spec = app.getOpenApiSpec() as OpenAPI.Document;
+
+        expect((spec.paths!["/auth/profile"] as any).get.security).toEqual([
+          { bearerAuth: [] },
+        ]);
+      });
+    });
+
+    describe("tags and security combined", () => {
+      it("should apply both tags and security to routes", () => {
+        const app = createApp({
+          schemaAdapter: zodSchemaAdapter,
+          tags: ["Auth"],
+          security: [{ bearerAuth: [] }],
+        }).get("/profile", { responses: z.string() }, () => "");
+
+        const spec = app.getOpenApiSpec() as OpenAPI.Document;
+
+        expect((spec.paths!["/profile"] as any).get.tags).toEqual(["Auth"]);
+        expect((spec.paths!["/profile"] as any).get.security).toEqual([
+          { bearerAuth: [] },
+        ]);
+      });
     });
   });
 });
