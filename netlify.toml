@@ -3,10 +3,33 @@
 [build]
 base    = "docs"
 publish = "public"
-command = "ZOLA_BIN=$(binrc install getzola/zola) && $ZOLA_BIN build"
+command = """
+  ARCH=$(uname -m)
+  if [ "$ARCH" = "aarch64" ]; then
+    ZOLA_URL="https://github.com/getzola/zola/releases/download/v0.22.1/zola-v0.22.1-aarch64-unknown-linux-gnu.tar.gz"
+  elif [ "$ARCH" = "x86_64" ]; then
+    ZOLA_URL="https://github.com/getzola/zola/releases/download/v0.22.1/zola-v0.22.1-x86_64-unknown-linux-musl.tar.gz"
+  else
+    echo "Unsupported architecture: $ARCH"
+    exit 1
+  fi
+  curl -sL $ZOLA_URL | tar zxv && ./zola build
+"""
+
 
 [build.environment]
 ZOLA_VERSION = "0.21.0"
 
 [context.deploy-preview]
-command = "ZOLA_BIN=$(binrc install getzola/zola) && $ZOLA_BIN build --base-url $DEPLOY_PRIME_URL"
+command = """
+  ARCH=$(uname -m)
+  if [ "$ARCH" = "aarch64" ]; then
+    ZOLA_URL="https://github.com/getzola/zola/releases/download/v0.22.1/zola-v0.22.1-aarch64-unknown-linux-gnu.tar.gz"
+  elif [ "$ARCH" = "x86_64" ]; then
+    ZOLA_URL="https://github.com/getzola/zola/releases/download/v0.22.1/zola-v0.22.1-x86_64-unknown-linux-musl.tar.gz"
+  else
+    echo "Unsupported architecture: $ARCH"
+    exit 1
+  fi
+  curl -sL $ZOLA_URL | tar zxv && ./zola build --base-url $DEPLOY_PRIME_URL
+"""
