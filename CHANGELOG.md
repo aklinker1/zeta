@@ -1,5 +1,43 @@
 # Changelog
 
+## v2.1.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v2.0.0...v2.1.0)
+
+### 🚀 Enhancements
+
+- Support app-level `tags` and `security` apply to all app routes ([1de696e](https://github.com/aklinker1/zeta/commit/1de696e))
+
+### 🩹 Fixes
+
+- Fix `NotImplementedHttpError` name typo ([5e00476](https://github.com/aklinker1/zeta/commit/5e00476))
+- Include `set.headers` on response when an error is thrown ([6ac7be8](https://github.com/aklinker1/zeta/commit/6ac7be8))
+- Properly set `ctx.response` to a `Response` when returning a value from handlers. ([2f47650](https://github.com/aklinker1/zeta/commit/2f47650))
+- Only call `onGlobalAfterResponse` once ([8572374](https://github.com/aklinker1/zeta/commit/8572374))
+- **types:** Allow returning `Response ([ void` for `onGlobalRequest`, `onTransform`, and `onBeforeHandle` hooks](https://github.com/aklinker1/zeta/commit/ void` for `onGlobalRequest`, `onTransform`, and `onBeforeHandle` hooks))
+
+### 📖 Documentation
+
+- Fix typos ([3931a2e](https://github.com/aklinker1/zeta/commit/3931a2e))
+- Add examples for auth, open-telemetry, and request logging ([4e55f4d](https://github.com/aklinker1/zeta/commit/4e55f4d))
+
+### 🏡 Chore
+
+- Sort imports ([21f9859](https://github.com/aklinker1/zeta/commit/21f9859))
+- Add integration test example ([a746d13](https://github.com/aklinker1/zeta/commit/a746d13))
+- Use `dedent` in examples ([3c7c90a](https://github.com/aklinker1/zeta/commit/3c7c90a))
+- Ignore CHANGELOG.md from prettier formatting ([4bf825f](https://github.com/aklinker1/zeta/commit/4bf825f))
+- Add CORS example ([727f4e2](https://github.com/aklinker1/zeta/commit/727f4e2))
+- Add file upload example ([93cf160](https://github.com/aklinker1/zeta/commit/93cf160))
+- Cleanup tsconfig ([e76f43f](https://github.com/aklinker1/zeta/commit/e76f43f))
+- Move benchmark to benchmarks directory ([e0e942b](https://github.com/aklinker1/zeta/commit/e0e942b))
+- Fix formatting ([c5c9978](https://github.com/aklinker1/zeta/commit/c5c9978))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+- 6b687de ([@aaron](https://github.com/aaron))
+
 ## v2.0.0
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v1.3.3...v2.0.0)
