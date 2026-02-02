@@ -96,7 +96,7 @@ export function getRawParams(
   for (const key in params) {
     // Rename rou3's _ to ** to match type-system
     const outKey = key === "_" ? "**" : key;
-    res[outKey] = decodeURIComponent(params[key]);
+    res[outKey] = decodeURIComponent(params[key]!);
   }
   return res;
 }

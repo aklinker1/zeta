@@ -59,7 +59,7 @@
     "@opentelemetry/sdk-trace-node": "^2.5.0",
     "@opentelemetry/semantic-conventions": "^1.39.0",
     "@types/bun": "latest",
-    "@typescript/native-preview": "^7.0.0-dev.20251114.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260202.1",
     "changelogen": "^0.6.2",
     "cookie": "^1.1.1",
     "dedent": "^1.7.1",
