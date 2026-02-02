@@ -1,9 +1,9 @@
-import type { MaybePromise } from "elysia";
 import { getMeta } from "../meta";
 import type {
   CompiledRouteHandler,
   LifeCycleHookName,
   LifeCycleHooks,
+  MaybePromise,
   OnBeforeHandleContext,
   RouteDef,
   SchemaAdapter,
