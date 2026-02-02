@@ -173,6 +173,29 @@ describe("App", () => {
       );
     });
 
+    describe("path parameters parsing", () => {
+      it("should coerce path parameters when using z.coerce.number()", async () => {
+        let actual: any;
+        const app = createApp().get(
+          "/test/:id",
+          {
+            params: z.object({
+              id: z.coerce.number(),
+            }),
+          },
+          ({ params }) => void (actual = params),
+        );
+        const client = createTestAppClient(app);
+
+        await client.fetch("GET", "/test/:id", {
+          params: { id: "123" },
+        });
+
+        expect(actual).toEqual({ id: 123 });
+        expect(typeof actual.id).toBe("number");
+      });
+    });
+
     describe("query parameters parsing", () => {
       it.each<{
         input: Record<string, string>;
@@ -213,6 +236,27 @@ describe("App", () => {
           expect(actual).toEqual(expected);
         },
       );
+
+      it("should coerce query parameters when using z.coerce.number()", async () => {
+        let actual: any;
+        const app = createApp().get(
+          "/test",
+          {
+            query: z.object({
+              limit: z.coerce.number(),
+            }),
+          },
+          ({ query }) => void (actual = query),
+        );
+        const client = createTestAppClient(app);
+
+        await client.fetch("GET", "/test", {
+          query: { limit: "50" },
+        });
+
+        expect(actual).toEqual({ limit: 50 });
+        expect(typeof actual.limit).toBe("number");
+      });
     });
 
     describe("any", () => {

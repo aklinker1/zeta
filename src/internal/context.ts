@@ -11,6 +11,10 @@ export class Context {
 
   matchedRoute: MatchedRoute<RouterData> | undefined;
 
+  // Private storage for overwritten values
+  #params: Record<string, any> | undefined;
+  #query: Record<string, any> | undefined;
+
   constructor(
     public request: Request,
     public path: string,
@@ -21,12 +25,26 @@ export class Context {
     return new URL(this.request.url, this.origin);
   }
 
-  get params(): Record<string, string> {
+  get params(): Record<string, any> {
+    if (this.#params !== undefined) {
+      return this.#params;
+    }
     return this.matchedRoute?.params ? getRawParams(this.matchedRoute) : {};
   }
 
-  get query(): Record<string, string> {
+  set params(value: Record<string, any>) {
+    this.#params = value;
+  }
+
+  get query(): Record<string, any> {
+    if (this.#query !== undefined) {
+      return this.#query;
+    }
     return this.request.url.includes("?") ? getRawQuery(this.request) : {};
+  }
+
+  set query(value: Record<string, any>) {
+    this.#query = value;
   }
 
   get route(): string | undefined {
