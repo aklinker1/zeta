@@ -1,7 +1,7 @@
 {
   "name": "@aklinker1/zeta",
   "description": "Composable, testable, OpenAPI-first backend framework with validation built-in",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "license": "MIT",
   "packageManager": "bun@1.3.5",

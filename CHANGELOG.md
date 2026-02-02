@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.1.1
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v2.1.0...v2.1.1)
+
+### 🩹 Fixes
+
+- Remove elysia import in production code ([8dd73c6](https://github.com/aklinker1/zeta/commit/8dd73c6))
+- Properly store parsed query and path params in context ([2576b77](https://github.com/aklinker1/zeta/commit/2576b77))
+
+### 📖 Documentation
+
+- Update netlify deploy commands ([b29c358](https://github.com/aklinker1/zeta/commit/b29c358))
+- Use correct zola version ([6e8f7ba](https://github.com/aklinker1/zeta/commit/6e8f7ba))
+- Fix zola download URLs ([982dc8f](https://github.com/aklinker1/zeta/commit/982dc8f))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v2.1.0
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v2.0.0...v2.1.0)
