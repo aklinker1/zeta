@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.1.2
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v2.1.1...v2.1.2)
+
+### 🩹 Fixes
+
+- Fix type error in shipped TS code ([84232be](https://github.com/aklinker1/zeta/commit/84232be))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v2.1.1
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v2.1.0...v2.1.1)
