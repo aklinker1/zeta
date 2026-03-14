@@ -7,7 +7,10 @@ import { createApp } from "../app";
 import { HttpStatus } from "../status";
 import { createTestAppClient } from "../testing";
 import type { AnyDef, GetAppData, Transport } from "../types";
-import { createBunTransport } from "../transports/bun-transport";
+import {
+  bunServerPlugin,
+  createBunTransport,
+} from "../transports/bun-transport";
 
 // Silence console.error logs
 globalThis.console.error = mock();
@@ -620,9 +623,11 @@ describe("App", () => {
       const app = createApp({
         schemaAdapter: zodSchemaAdapter,
         transport: createBunTransport(),
-      }).get("/", (ctx) => {
-        actual = ctx.server;
-      });
+      })
+        .use(bunServerPlugin)
+        .get("/", ({ server }) => {
+          actual = server;
+        });
       await app.build()(new Request("http://localhost:3000"), expected);
 
       expect(actual!).toBe(expected);
