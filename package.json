@@ -4,7 +4,7 @@
   "version": "2.1.3",
   "type": "module",
   "license": "MIT",
-  "packageManager": "bun@1.3.5",
+  "packageManager": "bun@1.3.10",
   "module": "dist/index.mjs",
   "types": "dist/index.d.mts",
   "exports": {
@@ -63,7 +63,8 @@
   "scripts": {
     "dev": "bun test --watch",
     "build": "tsdown src/{index,types,client,testing,schema,adapters/zod-schema-adapter,transports/bun-transport,transports/fetch-transport,transports/deno-transport}.ts",
-    "bench": "bun run src/__tests__/bench.ts",
+    "bench": "bun run --sequential build 'bench:*'",
+    "bench:overhead": "bun run benchmarks/overhead.ts",
     "example": "bun --watch run example.ts",
     "example:prod": "NODE_ENV=production bun run example",
     "docs:dev": "zola -r docs serve",
