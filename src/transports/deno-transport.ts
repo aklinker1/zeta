@@ -1,5 +1,5 @@
 import { createApp } from "../app";
-import type { RequestContext, Transport } from "../types";
+import type { App, RequestContext, Transport } from "../types";
 
 const SERVER_KEY = Symbol("deno-transport.server");
 
@@ -67,6 +67,14 @@ export function getDenoServer(ctx: RequestContext): Deno.HttpServer {
  *
  * @see `getDenoServer` for a simple function to return the server
  */
-export const denoServerPlugin = createApp()
+export const denoServerPlugin: App<{
+  prefix: "";
+  ctx: {
+    server: Deno.HttpServer;
+  };
+  exported: true;
+  routes: {};
+  transport: DenoTransport;
+}> = createApp()
   .onTransform((ctx) => ({ server: getDenoServer(ctx) }))
   .export();

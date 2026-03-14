@@ -1,4 +1,4 @@
-import type { RequestContext, Transport } from "../types";
+import type { App, RequestContext, Transport } from "../types";
 import { createApp } from "../app";
 
 const SERVER_KEY = Symbol("bun-transport.server");
@@ -63,6 +63,14 @@ export function getBunServer(ctx: RequestContext): Bun.Server {
  *
  * @see `getBunServer` for a simple function to return the server
  */
-export const bunServerPlugin = createApp()
+export const bunServerPlugin: App<{
+  prefix: "";
+  ctx: {
+    server: Bun.Server;
+  };
+  exported: true;
+  routes: {};
+  transport: BunTransport;
+}> = createApp()
   .onTransform((ctx) => ({ server: getBunServer(ctx) }))
   .export();
