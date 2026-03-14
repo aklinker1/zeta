@@ -1,7 +1,7 @@
 import { describe, it, expect, mock } from "bun:test";
 import { createApp } from "../app";
 import { createTestAppClient } from "../testing";
-import type { App } from "../types";
+import type { App, Transport } from "../types";
 import type { GetClientRoutes } from "../client";
 import { expectTypeOf } from "expect-type";
 import { z } from "zod/v4";
@@ -154,6 +154,7 @@ describe("Client", () => {
             "/images": {};
           };
         };
+        transport: Transport;
       }>;
       type Expected = {
         GET: {

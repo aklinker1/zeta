@@ -56,7 +56,7 @@ export interface App<TAppData extends AppData = AppData> {
   /**
    * Merge and simplify all the app routes into a single fetch function.
    */
-  build: () => ServerSideFetch;
+  build: () => ServerSideFetch<TAppData["transport"]>;
 
   /**
    * Returns your application's OpenAPI spec. You do not need to listen to a
@@ -587,6 +587,7 @@ export type AppData = {
   prefix: BasePrefix;
   ctx: BaseCtx;
   routes: BaseRoutes;
+  transport: AnyTransport;
 };
 
 /**
@@ -597,6 +598,7 @@ export type DefaultAppData = {
   prefix: "";
   ctx: {};
   routes: {};
+  transport: AnyTransport;
 };
 
 /**
@@ -651,16 +653,19 @@ export type BasePath = `/${string}`;
 // CONTEXT OBJECTS
 //
 
-/**
- * `ctx` type used in the `onGlobalRequest` hook.
- */
-export type OnGlobalRequestContext<TCtx extends BaseCtx = {}> = TCtx & {
+export interface RequestContext {
   request: Request;
   url: URL;
   path: string;
   method: string;
   set: Setter;
-};
+}
+
+/**
+ * `ctx` type used in the `onGlobalRequest` hook.
+ */
+export type OnGlobalRequestContext<TCtx extends BaseCtx = {}> = TCtx &
+  RequestContext;
 
 /**
  * `ctx` type used in the `onTransform` hook.
@@ -801,6 +806,7 @@ export type MergeApp<T1, T2> =
  * - `exported`: The second app's exported status overrides the first if
  *   present.
  * - `routes`: See `MergeRoutes` for details.
+ * - `transport`: Use the original transport, it cannot be overridden
  */
 export type MergeAppData<
   T1 extends AppData,
@@ -814,6 +820,7 @@ export type MergeAppData<
   routes: T2["routes"] extends BaseRoutes
     ? Simplify<MergeRoutes<T1["routes"], T2["routes"]>>
     : T1["routes"];
+  transport: T1["transport"];
 }>;
 
 /**
@@ -856,6 +863,7 @@ export type ApplyAppDataPrefix<
         >;
       }
     : TAppData["routes"];
+  transport: TAppData["transport"];
 };
 
 //
@@ -1029,9 +1037,20 @@ export interface SchemaAdapter {
 // TRANSPORTS
 //
 
-export interface Transport {
+export interface Transport<
+  TFetchArgs extends [request: Request, ...params: any[]] = [request: Request],
+> {
+  /**
+   * Actually bind the server to a local port for hosting.
+   */
   listen: (port: number, fetch: ServerSideFetch, cb?: () => void) => void;
+  /**
+   * Callback where the ctx object can be modified based on the args provided to the fetch function.
+   */
+  decorate?: (ctx: any, ...fetchArgs: TFetchArgs) => void;
 }
+
+export type AnyTransport = Transport<[request: Request, ...params: any[]]>;
 
 //
 // SETTER
@@ -1070,7 +1089,10 @@ export type MaybePromise<T> = Promise<T> | T;
 /**
  * A function that, given a request, returns a response. This type is compliant with WinterCG.
  */
-export type ServerSideFetch = (request: Request) => MaybePromise<Response>;
+export type ServerSideFetch<TTransport extends AnyTransport = Transport> =
+  TTransport extends Transport<infer Params>
+    ? (...args: Params) => MaybePromise<Response>
+    : never;
 
 /**
  * Apply a string prefix to all the keys of an object.

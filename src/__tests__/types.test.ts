@@ -5,6 +5,7 @@ import { z } from "zod/v4";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { ErrorResponse } from "../schema";
 import type { HttpStatus } from "../status";
+import type { BunTransport } from "../transports/bun-transport";
 
 describe("Types", () => {
   describe("MergeRoutes", () => {
@@ -86,6 +87,7 @@ describe("Types", () => {
         routes: {};
         exported: false;
         ctx: { a: "A" };
+        transport: t.Transport;
       };
       type B = {
         routes: { GET: { "/b": {} } };
@@ -95,6 +97,7 @@ describe("Types", () => {
         exported: A["exported"];
         ctx: { a: "A" };
         routes: { GET: { "/b": {} } };
+        transport: t.Transport;
       };
 
       type Actual = t.MergeAppData<A, B>;
@@ -108,18 +111,21 @@ describe("Types", () => {
         exported: false;
         ctx: { a: "A" };
         routes: { GET: { "/a": {} } };
+        transport: t.Transport;
       };
       type B = {
         prefix: "/test";
         exported: true;
         ctx: { b: "B" };
         routes: { GET: { "/b": {} } };
+        transport: BunTransport;
       };
       type Expected = {
         prefix: "/test";
         exported: true;
         ctx: { a: "A"; b: "B" };
         routes: { GET: { "/a": {}; "/b": {} } };
+        transport: t.Transport;
       };
 
       type Actual = t.MergeAppData<A, B>;
@@ -389,6 +395,7 @@ describe("Types", () => {
             [p in Path]: Def;
           };
         };
+        transport: t.Transport;
       };
       type Expected = {
         params: Record<string, string>;
@@ -414,6 +421,7 @@ describe("Types", () => {
             [p in Path]: Def;
           };
         };
+        transport: t.Transport;
       };
       type Expected = Ctx;
 
@@ -434,6 +442,7 @@ describe("Types", () => {
             [p in Path]: Def;
           };
         };
+        transport: t.Transport;
       };
       type Expected = {
         route: Path;
@@ -464,6 +473,7 @@ describe("Types", () => {
             [p in Path]: Def;
           };
         };
+        transport: t.Transport;
       };
       type Expected = {
         route: Path;
@@ -487,6 +497,7 @@ describe("Types", () => {
         routes: {
           GET: { "/test": { body: z.ZodObject<{ id: z.ZodString }> } };
         };
+        transport: t.Transport;
       }>;
       type Expected = MyApp;
 
@@ -503,6 +514,7 @@ describe("Types", () => {
         routes: {
           GET: { "/test": { body: z.ZodObject<{ id: z.ZodString }> } };
         };
+        transport: t.Transport;
       }>;
       type Expected = t.App<{
         prefix: "";
@@ -511,6 +523,7 @@ describe("Types", () => {
         routes: {
           GET: { "/api/test": { body: z.ZodObject<{ id: z.ZodString }> } };
         };
+        transport: t.Transport;
       }>;
 
       type Actual = t.ApplyAppPrefix<MyApp>;
@@ -541,6 +554,7 @@ describe("Types", () => {
             };
           };
         };
+        transport: t.Transport;
       };
       type Expected = {
         ctx: AppData["ctx"];
@@ -555,6 +569,7 @@ describe("Types", () => {
             "/api/users": AppData["routes"]["POST"]["/users"];
           };
         };
+        transport: t.Transport;
       };
 
       type Actual = t.ApplyAppDataPrefix<AppData>;
@@ -570,6 +585,7 @@ describe("Types", () => {
         exported: false;
         prefix: "/api";
         routes: {};
+        transport: t.Transport;
       };
       type ChildAppData = {
         ctx: { b: "b" };
@@ -578,12 +594,14 @@ describe("Types", () => {
         routes: {
           GET: { "/users": t.AnyDef };
         };
+        transport: BunTransport;
       };
       type Expected = {
         ctx: { a: "a" };
         exported: false;
         prefix: "/api";
         routes: ChildAppData["routes"];
+        transport: t.Transport;
       };
 
       type Actual = t.UseAppData<ParentAppData, ChildAppData>;
@@ -597,6 +615,7 @@ describe("Types", () => {
         exported: false;
         prefix: "/api";
         routes: {};
+        transport: t.Transport;
       };
       type ChildAppData = {
         ctx: { b: "b" };
@@ -605,6 +624,7 @@ describe("Types", () => {
         routes: {
           GET: { "/users": t.AnyDef };
         };
+        transport: BunTransport;
       };
       type Expected = {
         ctx: { a: "a"; b: "b" };
@@ -613,6 +633,7 @@ describe("Types", () => {
         routes: {
           GET: { "/users": t.AnyDef };
         };
+        transport: t.Transport;
       };
 
       type Actual = t.UseAppData<ParentAppData, ChildAppData>;

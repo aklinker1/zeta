@@ -1,7 +1,12 @@
 import type { MatchedRoute } from "rou3";
 import { HttpError, NotFoundHttpError } from "../errors";
 import { HttpStatus } from "../status";
-import type { LifeCycleHooks, RouterData, ServerSideFetch } from "../types";
+import type {
+  AnyTransport,
+  LifeCycleHooks,
+  RouterData,
+  ServerSideFetch,
+} from "../types";
 import { Context } from "./context";
 import {
   cleanupCompiledWhitespace,
@@ -16,9 +21,10 @@ export function compileFetchFunction(options: CompileOptions): ServerSideFetch {
   const onGlobalErrorCount = options.hooks.onGlobalError?.length;
 
   const js = `
-return (request) => {
+return (request${options.transport?.decorate ? ", ...args" : ""}) => {
   const path = utils.getRawPathname(request);
   const ctx = new utils.Context(request, path, utils.origin);
+  ${options.transport?.decorate ? `utils.transport.decorate(ctx, request, ...args);` : ""}
   ${onGlobalAfterResponseCount ? "let handlerReturnedPromise = false;" : ""}
 
   try {
@@ -62,6 +68,7 @@ ${compileErrorResponse(2)}
     HttpError,
     HttpStatus,
     serializeErrorResponse,
+    transport: options.transport,
   });
 }
 
@@ -163,4 +170,5 @@ type CompileOptions = {
     path: string,
   ) => MatchedRoute<RouterData> | undefined;
   origin: string;
+  transport: AnyTransport;
 };

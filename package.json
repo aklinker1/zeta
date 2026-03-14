@@ -36,6 +36,10 @@
       "types": "./dist/transports/bun-transport.d.mts",
       "default": "./dist/transports/bun-transport.mjs"
     },
+    "./transports/fetch-transport": {
+      "types": "./dist/transports/fetch-transport.d.mts",
+      "default": "./dist/transports/fetch-transport.mjs"
+    },
     "./transports/deno-transport": {
       "types": "./dist/transports/deno-transport.d.mts",
       "default": "./dist/transports/deno-transport.mjs"
@@ -58,7 +62,7 @@
   ],
   "scripts": {
     "dev": "bun test --watch",
-    "build": "tsdown src/{index,types,client,testing,schema,adapters/zod-schema-adapter,transports/bun-transport,transports/deno-transport}.ts",
+    "build": "tsdown src/{index,types,client,testing,schema,adapters/zod-schema-adapter,transports/bun-transport,transports/fetch-transport,transports/deno-transport}.ts",
     "bench": "bun run src/__tests__/bench.ts",
     "example": "bun --watch run example.ts",
     "example:prod": "NODE_ENV=production bun run example",
@@ -80,6 +84,7 @@
     "@opentelemetry/sdk-trace-node": "^2.5.0",
     "@opentelemetry/semantic-conventions": "^1.39.0",
     "@types/bun": "latest",
+    "@types/deno": "^2.5.0",
     "@typescript/native-preview": "^7.0.0-dev.20260202.1",
     "changelogen": "^0.6.2",
     "cookie": "^1.1.1",
@@ -99,10 +104,14 @@
     "zod": "^4.1.11"
   },
   "peerDependencies": {
-    "@types/bun": "*"
+    "@types/bun": "*",
+    "@types/deno": "*"
   },
   "peerDependenciesMeta": {
     "@types/bun": {
+      "optional": true
+    },
+    "@types/deno": {
       "optional": true
     }
   }
