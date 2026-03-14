@@ -1,5 +1,30 @@
 # Changelog
 
+## v2.2.0
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v2.1.3...v2.2.0)
+
+### 🚀 Enhancements
+
+- Expose transport parameters (like `server` object) in request handlers ([#11](https://github.com/aklinker1/zeta/pull/11))
+
+### 🩹 Fixes
+
+- Replace module augmentation with helper functions ([#14](https://github.com/aklinker1/zeta/pull/14))
+
+### 📖 Documentation
+
+- Add transport docs ([8c2cfa5](https://github.com/aklinker1/zeta/commit/8c2cfa5))
+
+### 🏡 Chore
+
+- Fix benchmark scripts ([e10b8f7](https://github.com/aklinker1/zeta/commit/e10b8f7))
+- Add explicit types to transport helpers ([b5b56ab](https://github.com/aklinker1/zeta/commit/b5b56ab))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v2.1.3
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v2.1.2...v2.1.3)
