@@ -18,5 +18,5 @@
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true
   },
-  "exclude": ["node_modules", ".git", "dist"]
+  "exclude": ["./node_modules/**", "./.git/**", "./dist/**"]
 }

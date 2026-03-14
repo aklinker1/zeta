@@ -1,15 +1,13 @@
-import type { Transport } from "../types";
+import { createApp } from "../app";
+import type { RequestContext, Transport } from "../types";
+
+const SERVER_KEY = Symbol("deno-transport.server");
 
 export type DenoTransport = Transport<
   [request: Request, server: Deno.HttpServer]
 >;
 
-declare module "../types" {
-  interface RequestContext {
-    // @ts-expect-error: Ignore conflict with bun transport, only one will be imported in production.
-    server: Deno.HttpServer;
-  }
-}
+type ServeOptions = Parameters<typeof Deno.serve>[0];
 
 export function createDenoTransport(
   options?: Omit<ServeOptions, "port">,
@@ -20,7 +18,7 @@ export function createDenoTransport(
   };
 
   const decorate: DenoTransport["decorate"] = (ctx, _request, server) => {
-    ctx.server = server;
+    ctx[SERVER_KEY] = server;
   };
 
   return {
@@ -29,4 +27,46 @@ export function createDenoTransport(
   };
 }
 
-type ServeOptions = Parameters<typeof Deno.serve>[0];
+/**
+ * Given the request context, return Deno's `server` object. Throws an error if the Deno transport is not provided on the top-level app.
+ *
+ * @example
+ * ```ts
+ * const app = createApp({
+ *   transport: createDenoTransport(),
+ * }).get("/", (ctx) => {
+ *   const server = getDenoServer(ctx);
+ * })
+ * ```
+ *
+ * @see `denoServerPlugin` to add the `server` object to request context directly.
+ */
+export function getDenoServer(ctx: RequestContext): Deno.HttpServer {
+  const server = (ctx as any)[SERVER_KEY];
+  if (!server)
+    throw Error(
+      "Deno server not found. Did you forget to provide the deno transport?",
+    );
+
+  return server;
+}
+
+/**
+ * Plugin that decorates Deno's `server` object in the request context.
+ *
+ * @example
+ * ```ts
+ * const app = createApp({
+ *   transport: createDenoTransport(),
+ * })
+ *   .use(denoServerPlugin)
+ *   .get("/", ({ server }) => {
+ *     // ...
+ *   })
+ * ```
+ *
+ * @see `getDenoServer` for a simple function to return the server
+ */
+export const denoServerPlugin = createApp()
+  .onTransform((ctx) => ({ server: getDenoServer(ctx) }))
+  .export();
