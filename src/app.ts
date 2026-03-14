@@ -1,9 +1,11 @@
 import type { OpenAPI, OpenAPIV3_1 } from "openapi-types";
 import { addRoute, createRouter } from "rou3";
 import { compileRouter } from "rou3/compiler";
+
 import { compileFetchFunction } from "./internal/compile-fetch-function";
 import { compileRouteHandler } from "./internal/compile-route-handler";
 import { buildOpenApiDocs, buildScalarHtml } from "./open-api";
+import { createFetchTransport } from "./transports/fetch-transport";
 import type {
   AnyTransport,
   App,
@@ -18,7 +20,6 @@ import type {
   ServerSideFetch,
   Transport,
 } from "./types";
-import { createFetchTransport } from "./transports/fetch-transport";
 
 let appIdInc = 0;
 const nextAppId = () => `app-${appIdInc++}`;
@@ -131,12 +132,7 @@ export function createApp<
       const router = createRouter<RouterData>();
       for (const [method, methodValue] of Object.entries(routes)) {
         for (const [path, data] of Object.entries(methodValue)) {
-          addRoute(
-            router,
-            method === Method.Any ? undefined : method,
-            path,
-            data,
-          );
+          addRoute(router, method === Method.Any ? undefined : method, path, data);
         }
       }
 
@@ -164,8 +160,7 @@ export function createApp<
     },
 
     decorate: (...args: any[]) => {
-      const obj: Record<string, any> =
-        args.length === 2 ? { [args[0]]: args[1] } : args[0];
+      const obj: Record<string, any> = args.length === 2 ? { [args[0]]: args[1] } : args[0];
 
       hooks.onTransform ??= [];
       hooks.onTransform.push({
@@ -241,20 +236,14 @@ export function createApp<
       return app;
     },
 
-    get: (...args: any[]) =>
-      app.method.apply(app, [Method.Get, ...args] as any) as any,
-    post: (...args: any[]) =>
-      app.method.apply(app, [Method.Post, ...args] as any) as any,
-    put: (...args: any[]) =>
-      app.method.apply(app, [Method.Put, ...args] as any) as any,
-    delete: (...args: any[]) =>
-      app.method.apply(app, [Method.Delete, ...args] as any) as any,
-    any: (...args: any[]) =>
-      app.method.apply(app, [Method.Any, ...args] as any) as any,
+    get: (...args: any[]) => app.method.apply(app, [Method.Get, ...args] as any) as any,
+    post: (...args: any[]) => app.method.apply(app, [Method.Post, ...args] as any) as any,
+    put: (...args: any[]) => app.method.apply(app, [Method.Put, ...args] as any) as any,
+    delete: (...args: any[]) => app.method.apply(app, [Method.Delete, ...args] as any) as any,
+    any: (...args: any[]) => app.method.apply(app, [Method.Any, ...args] as any) as any,
 
     method(method: string, path: BasePath, ...args: any[]) {
-      const routeDef: RouteDef | undefined =
-        args.length === 2 ? args[0] : undefined;
+      const routeDef: RouteDef | undefined = args.length === 2 ? args[0] : undefined;
       const handler = args[1] ?? args[0];
       const route = `${prefix}${path}`;
       const hooks = cloneHooks();
@@ -324,9 +313,7 @@ export function createApp<
 
     use: (childApp) => {
       // Bring in routes
-      for (const [method, methodValue] of Object.entries(
-        childApp["~zeta"].routes,
-      )) {
+      for (const [method, methodValue] of Object.entries(childApp["~zeta"].routes)) {
         for (const [subRoute, routeValue] of Object.entries(methodValue)) {
           const route = `${prefix}${subRoute}`;
           addRoutesEntry(method, route, { ...routeValue, route });
@@ -334,14 +321,9 @@ export function createApp<
       }
 
       // Add the child's global hooks to parent
-      for (const hookName of Object.keys(
-        childApp["~zeta"].hooks,
-      ) as LifeCycleHookName[]) {
-        for (const hook of childApp["~zeta"].hooks[
-          hookName
-        ]! as LifeCycleHook<any>[]) {
-          if (hook.applyTo !== "global" && !childApp["~zeta"].exported)
-            continue;
+      for (const hookName of Object.keys(childApp["~zeta"].hooks) as LifeCycleHookName[]) {
+        for (const hook of childApp["~zeta"].hooks[hookName]! as LifeCycleHook<any>[]) {
+          if (hook.applyTo !== "global" && !childApp["~zeta"].exported) continue;
 
           if (hooks[hookName]) {
             // Don't add a hook if it's already there

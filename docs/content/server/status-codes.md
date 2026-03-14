@@ -5,7 +5,8 @@ weight: 5
 
 ## Enum
 
-Zeta provides an enum of all standard HTTP status codes. You should use this instead of literal values for readability.
+Zeta provides an enum of all standard HTTP status codes. You should use this instead of literal
+values for readability.
 
 ```diff
 +import { HttpStatus } from "@aklinker1/zeta/status";

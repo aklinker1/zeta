@@ -1,13 +1,10 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { OpenAPI } from "openapi-types";
 import { titleCase } from "scule";
+
 import type { CreateAppOptions } from "./app";
 import { getMeta } from "./meta";
-import {
-  ErrorResponseJsonSchema,
-  isZetaSchema,
-  type ZetaSchema,
-} from "./schema";
+import { ErrorResponseJsonSchema, isZetaSchema, type ZetaSchema } from "./schema";
 import { getHttpStatusName } from "./status";
 import type { App, BasePath, SchemaAdapter } from "./types";
 
@@ -57,16 +54,12 @@ export function buildOpenApiDocs(
           ...openApiOperation,
           summary:
             openApiOperation.summary ??
-            (openApiOperation.operationId
-              ? titleCase(openApiOperation.operationId)
-              : undefined),
+            (openApiOperation.operationId ? titleCase(openApiOperation.operationId) : undefined),
           requestBody: body
             ? {
                 content: {
                   [getMeta(adapter, body)?.contentType ?? "application/json"]: {
-                    schema: isZetaSchema(body)
-                      ? body.toJsonSchema?.()
-                      : adapter.toJsonSchema(body),
+                    schema: isZetaSchema(body) ? body.toJsonSchema?.() : adapter.toJsonSchema(body),
                   },
                 },
               }
@@ -162,15 +155,13 @@ function mapParameters(
       `Param in ${in_} must have { "type": "object", ... }, but got ${JSON.stringify(openApiSchema, null, 2)}`,
     );
 
-  return Object.entries(openApiSchema.properties).map(
-    ([name, def]: [string, any]) => ({
-      name,
-      in: in_,
-      description: def.description,
-      schema: def,
-      required: !!openApiSchema.required?.includes(name),
-    }),
-  );
+  return Object.entries(openApiSchema.properties).map(([name, def]: [string, any]) => ({
+    name,
+    in: in_,
+    description: def.description,
+    schema: def,
+    required: !!openApiSchema.required?.includes(name),
+  }));
 }
 
 function buildResponse(
@@ -181,8 +172,7 @@ function buildResponse(
   const meta = getMeta(adapter, schema);
 
   if (isZetaSchema(schema)) {
-    const description =
-      meta?.responseDescription ?? getHttpStatusName(status) ?? "";
+    const description = meta?.responseDescription ?? getHttpStatusName(status) ?? "";
 
     if (schema["~zeta"].type === "NoResponse") {
       return {

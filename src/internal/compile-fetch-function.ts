@@ -1,23 +1,14 @@
 import type { MatchedRoute } from "rou3";
+
 import { HttpError, NotFoundHttpError } from "../errors";
 import { HttpStatus } from "../status";
-import type {
-  AnyTransport,
-  LifeCycleHooks,
-  RouterData,
-  ServerSideFetch,
-} from "../types";
+import type { AnyTransport, LifeCycleHooks, RouterData, ServerSideFetch } from "../types";
 import { Context } from "./context";
-import {
-  cleanupCompiledWhitespace,
-  getRawPathname,
-  serializeErrorResponse,
-} from "./utils";
+import { cleanupCompiledWhitespace, getRawPathname, serializeErrorResponse } from "./utils";
 
 export function compileFetchFunction(options: CompileOptions): ServerSideFetch {
   const onGlobalRequestCount = options.hooks.onGlobalRequest?.length;
-  const onGlobalAfterResponseCount =
-    options.hooks.onGlobalAfterResponse?.length;
+  const onGlobalAfterResponseCount = options.hooks.onGlobalAfterResponse?.length;
   const onGlobalErrorCount = options.hooks.onGlobalError?.length;
 
   const js = `
@@ -108,10 +99,7 @@ function compileOnGlobalErrorHook(hookCount: number, tabs: number): string {
   return lines.join("\n");
 }
 
-function compileOnGlobalAfterResponseFinally(
-  hookCount: number,
-  tabs: number,
-): string {
+function compileOnGlobalAfterResponseFinally(hookCount: number, tabs: number): string {
   const indent = "  ".repeat(tabs);
   return `finally {
 ${indent}  if (!handlerReturnedPromise) {
@@ -121,27 +109,19 @@ ${indent}}
 `;
 }
 
-function compileOnGlobalAfterResponsePromiseFinally(
-  hookCount: number,
-  tabs: number,
-): string {
+function compileOnGlobalAfterResponsePromiseFinally(hookCount: number, tabs: number): string {
   const indent = "  ".repeat(tabs);
   return `.finally(() => {
 ${compileOnGlobalAfterResponseHook(hookCount, tabs + 1)}
 ${indent}})`;
 }
 
-function compileOnGlobalAfterResponseHook(
-  hookCount: number,
-  tabs: number,
-): string {
+function compileOnGlobalAfterResponseHook(hookCount: number, tabs: number): string {
   const indent = "  ".repeat(tabs);
   const lines: string[] = [`${indent}setTimeout(() => {`];
 
   for (let i = 0; i < hookCount; i++) {
-    lines.push(
-      `${indent}  utils.hooks.onGlobalAfterResponse[${i}].callback(ctx);`,
-    );
+    lines.push(`${indent}  utils.hooks.onGlobalAfterResponse[${i}].callback(ctx);`);
   }
 
   lines.push(`${indent}})`);
@@ -165,10 +145,7 @@ ${indent});`;
 
 type CompileOptions = {
   hooks: LifeCycleHooks;
-  getRoute: (
-    method: string,
-    path: string,
-  ) => MatchedRoute<RouterData> | undefined;
+  getRoute: (method: string, path: string) => MatchedRoute<RouterData> | undefined;
   origin: string;
   transport: AnyTransport;
 };

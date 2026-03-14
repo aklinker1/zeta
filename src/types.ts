@@ -8,6 +8,7 @@
  */
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { OpenAPI } from "openapi-types";
+
 import type { IsStatusResult } from "./internal/utils";
 import type { HttpStatus } from "./status";
 
@@ -108,11 +109,7 @@ export interface App<TAppData extends AppData = AppData> {
   decorate<TKey extends string, TValue>(
     key: TKey,
     value: TValue,
-  ): App<
-    Simplify<
-      MergeAppData<TAppData, { ctx: { [key in TKey]: Readonly<TValue> } }>
-    >
-  >;
+  ): App<Simplify<MergeAppData<TAppData, { ctx: { [key in TKey]: Readonly<TValue> } }>>>;
   /**
    * Add multiple static values to the handler context.
    */
@@ -133,9 +130,7 @@ export interface App<TAppData extends AppData = AppData> {
     ) => MaybePromise<Response | void>,
   ): this;
   onGlobalRequest<TNewCtx extends Record<string, any>>(
-    callback: (
-      ctx: OnGlobalRequestContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<TNewCtx>,
+    callback: (ctx: OnGlobalRequestContext<GetAppDataCtx<TAppData>>) => MaybePromise<TNewCtx>,
   ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
 
   /**
@@ -147,14 +142,10 @@ export interface App<TAppData extends AppData = AppData> {
    * @param callback The function to call.
    */
   onTransform(
-    callback: (
-      ctx: OnTransformContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<Response | void>,
+    callback: (ctx: OnTransformContext<GetAppDataCtx<TAppData>>) => MaybePromise<Response | void>,
   ): this;
   onTransform<TNewCtx extends Record<string, any>>(
-    callback: (
-      ctx: OnTransformContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<TNewCtx>,
+    callback: (ctx: OnTransformContext<GetAppDataCtx<TAppData>>) => MaybePromise<TNewCtx>,
   ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
 
   /**
@@ -171,9 +162,7 @@ export interface App<TAppData extends AppData = AppData> {
     ) => MaybePromise<Response | void>,
   ): this;
   onBeforeHandle<TNewCtx extends Record<string, any>>(
-    callback: (
-      ctx: OnBeforeHandleContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<TNewCtx>,
+    callback: (ctx: OnBeforeHandleContext<GetAppDataCtx<TAppData>>) => MaybePromise<TNewCtx>,
   ): App<MergeAppData<TAppData, { ctx: TNewCtx }>>;
 
   /**
@@ -184,9 +173,7 @@ export interface App<TAppData extends AppData = AppData> {
    * @param callback The function to call.
    */
   onAfterHandle(
-    callback: (
-      ctx: AfterHandleContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<unknown | void>,
+    callback: (ctx: AfterHandleContext<GetAppDataCtx<TAppData>>) => MaybePromise<unknown | void>,
   ): this;
 
   /**
@@ -197,9 +184,7 @@ export interface App<TAppData extends AppData = AppData> {
    * @param callback The function to call.
    */
   onMapResponse(
-    callback: (
-      ctx: AfterHandleContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<unknown | void>,
+    callback: (ctx: AfterHandleContext<GetAppDataCtx<TAppData>>) => MaybePromise<unknown | void>,
   ): this;
 
   /**
@@ -210,9 +195,7 @@ export interface App<TAppData extends AppData = AppData> {
    * @param callback The function to call.
    */
   onGlobalError(
-    callback: (
-      ctx: OnGlobalErrorContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<void>,
+    callback: (ctx: OnGlobalErrorContext<GetAppDataCtx<TAppData>>) => MaybePromise<void>,
   ): this;
 
   /**
@@ -220,9 +203,7 @@ export interface App<TAppData extends AppData = AppData> {
    * @param callback The function to call.
    */
   onGlobalAfterResponse(
-    callback: (
-      ctx: AfterResponseContext<GetAppDataCtx<TAppData>>,
-    ) => MaybePromise<void>,
+    callback: (ctx: AfterResponseContext<GetAppDataCtx<TAppData>>) => MaybePromise<void>,
   ): this;
 
   /**
@@ -231,9 +212,7 @@ export interface App<TAppData extends AppData = AppData> {
   get<TPath extends BasePath>(
     path: TPath,
     handler: RouteHandler<TAppData, TPath, AnyDef>,
-  ): App<
-    MergeAppData<TAppData, { routes: { GET: { [path in TPath]: AnyDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { GET: { [path in TPath]: AnyDef } } }>>;
   /**
    * Add a documented GET route to the app.
    */
@@ -241,9 +220,7 @@ export interface App<TAppData extends AppData = AppData> {
     path: TPath,
     def: TRouteDef,
     handler: RouteHandler<TAppData, TPath, TRouteDef>,
-  ): App<
-    MergeAppData<TAppData, { routes: { GET: { [path in TPath]: TRouteDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { GET: { [path in TPath]: TRouteDef } } }>>;
 
   /**
    * Add an undocumented POST route to the app.
@@ -251,9 +228,7 @@ export interface App<TAppData extends AppData = AppData> {
   post<TPath extends BasePath>(
     path: TPath,
     handler: RouteHandler<TAppData, TPath, AnyDef>,
-  ): App<
-    MergeAppData<TAppData, { routes: { POST: { [path in TPath]: AnyDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { POST: { [path in TPath]: AnyDef } } }>>;
   /**
    * Add a documented POST route to the app.
    */
@@ -261,9 +236,7 @@ export interface App<TAppData extends AppData = AppData> {
     path: TPath,
     def: TRouteDef,
     handler: RouteHandler<TAppData, TPath, TRouteDef>,
-  ): App<
-    MergeAppData<TAppData, { routes: { POST: { [path in TPath]: TRouteDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { POST: { [path in TPath]: TRouteDef } } }>>;
 
   /**
    * Add an undocumented PUT route to the app.
@@ -271,9 +244,7 @@ export interface App<TAppData extends AppData = AppData> {
   put<TPath extends BasePath>(
     path: TPath,
     handler: RouteHandler<TAppData, TPath, AnyDef>,
-  ): App<
-    MergeAppData<TAppData, { routes: { PUT: { [path in TPath]: AnyDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { PUT: { [path in TPath]: AnyDef } } }>>;
   /**
    * Add a documented PUT route to the app.
    */
@@ -281,9 +252,7 @@ export interface App<TAppData extends AppData = AppData> {
     path: TPath,
     def: TRouteDef,
     handler: RouteHandler<TAppData, TPath, TRouteDef>,
-  ): App<
-    MergeAppData<TAppData, { routes: { PUT: { [path in TPath]: TRouteDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { PUT: { [path in TPath]: TRouteDef } } }>>;
 
   /**
    * Add an undocumented DELETE route to the app.
@@ -291,9 +260,7 @@ export interface App<TAppData extends AppData = AppData> {
   delete<TPath extends BasePath>(
     path: TPath,
     handler: RouteHandler<TAppData, TPath, AnyDef>,
-  ): App<
-    MergeAppData<TAppData, { routes: { DELETE: { [path in TPath]: AnyDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { DELETE: { [path in TPath]: AnyDef } } }>>;
   /**
    * Add a documented DELETE route to the app.
    */
@@ -301,12 +268,7 @@ export interface App<TAppData extends AppData = AppData> {
     path: TPath,
     def: TRouteDef,
     handler: RouteHandler<TAppData, TPath, TRouteDef>,
-  ): App<
-    MergeAppData<
-      TAppData,
-      { routes: { DELETE: { [path in TPath]: TRouteDef } } }
-    >
-  >;
+  ): App<MergeAppData<TAppData, { routes: { DELETE: { [path in TPath]: TRouteDef } } }>>;
 
   /**
    * Add an undocumented route to the app that responds to any method used.
@@ -314,9 +276,7 @@ export interface App<TAppData extends AppData = AppData> {
   any<TPath extends BasePath>(
     path: TPath,
     handler: RouteHandler<TAppData, TPath, AnyDef>,
-  ): App<
-    MergeAppData<TAppData, { routes: { ANY: { [path in TPath]: AnyDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { ANY: { [path in TPath]: AnyDef } } }>>;
 
   /**
    * Add an documented route to the app that responds to any method used.
@@ -325,9 +285,7 @@ export interface App<TAppData extends AppData = AppData> {
     path: TPath,
     def: TRouteDef,
     handler: RouteHandler<TAppData, TPath, AnyDef>,
-  ): App<
-    MergeAppData<TAppData, { routes: { ANY: { [path in TPath]: TRouteDef } } }>
-  >;
+  ): App<MergeAppData<TAppData, { routes: { ANY: { [path in TPath]: TRouteDef } } }>>;
 
   /**
    * Add an undocumented route to the app using a custom method.
@@ -336,29 +294,17 @@ export interface App<TAppData extends AppData = AppData> {
     method: TMethod,
     path: TPath,
     handler: RouteHandler<TAppData, TPath, AnyDef>,
-  ): App<
-    MergeAppData<
-      TAppData,
-      { routes: { [method in TMethod]: { [path in TPath]: AnyDef } } }
-    >
-  >;
+  ): App<MergeAppData<TAppData, { routes: { [method in TMethod]: { [path in TPath]: AnyDef } } }>>;
   /**
    * Add a documented route to the app using a custom method.
    */
-  method<
-    TMethod extends string,
-    TPath extends BasePath,
-    TRouteDef extends RouteDef,
-  >(
+  method<TMethod extends string, TPath extends BasePath, TRouteDef extends RouteDef>(
     method: TMethod,
     path: TPath,
     def: TRouteDef,
     handler: RouteHandler<TAppData, TPath, TRouteDef>,
   ): App<
-    MergeAppData<
-      TAppData,
-      { routes: { [method in TMethod]: { [path in TPath]: TRouteDef } } }
-    >
+    MergeAppData<TAppData, { routes: { [method in TMethod]: { [path in TPath]: TRouteDef } } }>
   >;
 
   /**
@@ -373,12 +319,7 @@ export interface App<TAppData extends AppData = AppData> {
   mount<TPath extends BasePath>(
     path: TPath,
     fetch: ServerSideFetch,
-  ): App<
-    MergeAppData<
-      TAppData,
-      { routes: { ANY: { [path in `${TPath}/**`]: AnyDef } } }
-    >
-  >;
+  ): App<MergeAppData<TAppData, { routes: { ANY: { [path in `${TPath}/**`]: AnyDef } } }>>;
   /**
    * Mount another fetch function at `${path}/**`.
    */
@@ -386,26 +327,18 @@ export interface App<TAppData extends AppData = AppData> {
     path: TPath,
     def: TRouteDef,
     fetch: ServerSideFetch,
-  ): App<
-    MergeAppData<
-      TAppData,
-      { routes: { ANY: { [path in `${TPath}/**`]: TRouteDef } } }
-    >
-  >;
+  ): App<MergeAppData<TAppData, { routes: { ANY: { [path in `${TPath}/**`]: TRouteDef } } }>>;
 
   /**
    * Add a subapp to the app.
    */
-  use<TNewApp extends App>(
-    app: TNewApp,
-  ): App<UseAppData<TAppData, GetAppData<TNewApp>>>;
+  use<TNewApp extends App>(app: TNewApp): App<UseAppData<TAppData, GetAppData<TNewApp>>>;
 }
 
 /**
  * Given an `App`, return it's `AppData`.
  */
-export type GetAppData<TApp extends App> =
-  TApp extends App<infer TAppData> ? TAppData : never;
+export type GetAppData<TApp extends App> = TApp extends App<infer TAppData> ? TAppData : never;
 
 /**
  * Given an `App`, return the routes defined on it.
@@ -420,18 +353,12 @@ export type RouterData = {
   route: string;
   hooks: LifeCycleHooks;
   compiledHandler: CompiledRouteHandler;
-} & (
-  | { fetch: ServerSideFetch }
-  | { handler: (ctx: OnBeforeHandleContext) => Promise<any> }
-);
+} & ({ fetch: ServerSideFetch } | { handler: (ctx: OnBeforeHandleContext) => Promise<any> });
 
 /**
  * Function type called internally once a route is matched for a request.
  */
-export type CompiledRouteHandler = (
-  request: Request,
-  ctx: any,
-) => MaybePromise<Response>;
+export type CompiledRouteHandler = (request: Request, ctx: any) => MaybePromise<Response>;
 
 //
 // HANDLERS
@@ -448,16 +375,17 @@ export type RouteHandler<
   ctx: BuildHandlerContext<TAppData, TPath, TRouteDef>,
 ) => MaybePromise<GetRouteHandlerReturnType<TRouteDef>>;
 
-export type GetRouteHandlerReturnType<TRouteDef extends RouteDef> =
-  TRouteDef extends { responses: symbol } // is any check
-    ? any
-    : TRouteDef extends { responses: infer TResponses }
-      ? TResponses extends StandardSchemaV1
-        ? StandardSchemaV1.InferInput<TResponses>
-        : TRouteDef["responses"] extends Record<number, StandardSchemaV1<any>>
-          ? StatusResult
-          : never
-      : void;
+export type GetRouteHandlerReturnType<TRouteDef extends RouteDef> = TRouteDef extends {
+  responses: symbol;
+} // is any check
+  ? any
+  : TRouteDef extends { responses: infer TResponses }
+    ? TResponses extends StandardSchemaV1
+      ? StandardSchemaV1.InferInput<TResponses>
+      : TRouteDef["responses"] extends Record<number, StandardSchemaV1<any>>
+        ? StatusResult
+        : never
+    : void;
 
 /**
  * Given an `App`, a method, and a route, return the handler function's type.
@@ -468,11 +396,7 @@ export type GetRouteHandler<
   TRoute extends keyof GetAppRoutes<TApp>[TMethod],
 > = TRoute extends BasePath
   ? GetAppRoutes<TApp>[TMethod][TRoute] extends RouteDef
-    ? RouteHandler<
-        GetAppData<TApp>,
-        TRoute,
-        GetAppRoutes<TApp>[TMethod][TRoute]
-      >
+    ? RouteHandler<GetAppData<TApp>, TRoute, GetAppRoutes<TApp>[TMethod][TRoute]>
     : never
   : never;
 
@@ -514,9 +438,7 @@ export type OnGlobalRequestHook = LifeCycleHook<
  * the handler context.
  */
 export type OnTransformHook = LifeCycleHook<
-  (
-    ctx: Simplify<OnTransformContext>,
-  ) => MaybePromise<Record<string, any> | void>
+  (ctx: Simplify<OnTransformContext>) => MaybePromise<Record<string, any> | void>
 >;
 
 /**
@@ -524,9 +446,7 @@ export type OnTransformHook = LifeCycleHook<
  * handler context.
  */
 export type OnBeforeHandleHook = LifeCycleHook<
-  (
-    ctx: Simplify<OnBeforeHandleContext>,
-  ) => MaybePromise<Record<string, any> | void>
+  (ctx: Simplify<OnBeforeHandleContext>) => MaybePromise<Record<string, any> | void>
 >;
 
 /**
@@ -552,9 +472,7 @@ export type OnMapResponseHook = LifeCycleHook<
  * Zeta will handle any `HttpError`s thrown, but you can handle your own errors
  * here.
  */
-export type OnGlobalErrorHook = LifeCycleHook<
-  (ctx: Simplify<OnGlobalErrorContext>) => void
->;
+export type OnGlobalErrorHook = LifeCycleHook<(ctx: Simplify<OnGlobalErrorContext>) => void>;
 
 /**
  * Called after the response is sent back to the client.
@@ -664,54 +582,47 @@ export interface RequestContext {
 /**
  * `ctx` type used in the `onGlobalRequest` hook.
  */
-export type OnGlobalRequestContext<TCtx extends BaseCtx = {}> = TCtx &
-  RequestContext;
+export type OnGlobalRequestContext<TCtx extends BaseCtx = {}> = TCtx & RequestContext;
 
 /**
  * `ctx` type used in the `onTransform` hook.
  */
-export type OnTransformContext<TCtx extends BaseCtx = {}> =
-  OnGlobalRequestContext<TCtx> & {
-    route: string;
-    params?: Record<string, string>;
-    query?: Record<string, string>;
-    headers?: Record<string, string>;
-    body?: any;
-  };
+export type OnTransformContext<TCtx extends BaseCtx = {}> = OnGlobalRequestContext<TCtx> & {
+  route: string;
+  params?: Record<string, string>;
+  query?: Record<string, string>;
+  headers?: Record<string, string>;
+  body?: any;
+};
 
 /**
  * `ctx` type used in the `onBeforeHandle` hook.
  */
-export type OnBeforeHandleContext<TCtx extends BaseCtx = {}> =
-  OnTransformContext<TCtx>;
+export type OnBeforeHandleContext<TCtx extends BaseCtx = {}> = OnTransformContext<TCtx>;
 
 /**
  * `ctx` type used in the `onAfterHandle` hook.
  */
-export type AfterHandleContext<TCtx extends BaseCtx = {}> =
-  OnTransformContext<TCtx> & {
-    response?: unknown;
-  };
+export type AfterHandleContext<TCtx extends BaseCtx = {}> = OnTransformContext<TCtx> & {
+  response?: unknown;
+};
 
 /**
  * `ctx` type used in the `onMapResponse` hook.
  */
-export type OnMapResponseContext<TCtx extends BaseCtx = {}> =
-  AfterHandleContext<TCtx> & {};
+export type OnMapResponseContext<TCtx extends BaseCtx = {}> = AfterHandleContext<TCtx> & {};
 
 /**
  * `ctx` type used in the `onGlobalError` hook.
  */
-export type OnGlobalErrorContext<TCtx extends BaseCtx = {}> =
-  OnGlobalRequestContext<TCtx> &
-    Partial<OnMapResponseContext> & { error: unknown };
+export type OnGlobalErrorContext<TCtx extends BaseCtx = {}> = OnGlobalRequestContext<TCtx> &
+  Partial<OnMapResponseContext> & { error: unknown };
 
 /**
  * `ctx` type used in the `onGlobalAfterResponse` hook.
  */
-export type AfterResponseContext<TCtx extends BaseCtx = {}> =
-  OnGlobalRequestContext<TCtx> &
-    Partial<OnMapResponseContext> & { response: Response };
+export type AfterResponseContext<TCtx extends BaseCtx = {}> = OnGlobalRequestContext<TCtx> &
+  Partial<OnMapResponseContext> & { response: Response };
 
 /**
  * Given an `AppData` type, return the type of it's `ctx`.
@@ -729,19 +640,17 @@ export type StatusFn<TMap extends Record<any, any>> = TMap extends never
       body: StandardSchemaV1.InferInput<TMap[TStatus]>,
     ) => StatusResult;
 
-export type GetResponseStatusMap<TRouteDef extends RouteDef> =
-  TRouteDef extends { responses: unknown }
-    ? TRouteDef["responses"] extends symbol // is any check
-      ? Record<number, StandardSchemaV1<any, any>>
-      : TRouteDef["responses"] extends StandardSchemaV1
-        ? { 200: TRouteDef["responses"] }
-        : TRouteDef["responses"] extends Record<
-              number | string,
-              StandardSchemaV1
-            >
-          ? TRouteDef["responses"]
-          : any
-    : never;
+export type GetResponseStatusMap<TRouteDef extends RouteDef> = TRouteDef extends {
+  responses: unknown;
+}
+  ? TRouteDef["responses"] extends symbol // is any check
+    ? Record<number, StandardSchemaV1<any, any>>
+    : TRouteDef["responses"] extends StandardSchemaV1
+      ? { 200: TRouteDef["responses"] }
+      : TRouteDef["responses"] extends Record<number | string, StandardSchemaV1>
+        ? TRouteDef["responses"]
+        : any
+  : never;
 
 export type StatusResult = {
   [IsStatusResult]: true;
@@ -782,10 +691,7 @@ export type UseAppData<
   TParentData extends AppData,
   TChildData extends AppData,
 > = TChildData extends { exported: true }
-  ? MergeAppData<
-      TParentData,
-      Pick<ApplyAppDataPrefix<TChildData>, "ctx" | "routes">
-    >
+  ? MergeAppData<TParentData, Pick<ApplyAppDataPrefix<TChildData>, "ctx" | "routes">>
   : MergeAppData<TParentData, Pick<ApplyAppDataPrefix<TChildData>, "routes">>;
 
 /**
@@ -808,14 +714,9 @@ export type MergeApp<T1, T2> =
  * - `routes`: See `MergeRoutes` for details.
  * - `transport`: Use the original transport, it cannot be overridden
  */
-export type MergeAppData<
-  T1 extends AppData,
-  T2 extends Partial<AppData>,
-> = Simplify<{
+export type MergeAppData<T1 extends AppData, T2 extends Partial<AppData>> = Simplify<{
   prefix: T2["prefix"] extends string ? T2["prefix"] : T1["prefix"];
-  ctx: T2["ctx"] extends BaseCtx
-    ? Simplify<Spread<T1["ctx"], T2["ctx"]>>
-    : T1["ctx"];
+  ctx: T2["ctx"] extends BaseCtx ? Simplify<Spread<T1["ctx"], T2["ctx"]>> : T1["ctx"];
   exported: T2["exported"] extends boolean ? T2["exported"] : T1["exported"];
   routes: T2["routes"] extends BaseRoutes
     ? Simplify<MergeRoutes<T1["routes"], T2["routes"]>>
@@ -827,10 +728,9 @@ export type MergeAppData<
  * Merges two route objects together, 2 levels deep. If the same method/path
  * combination exists in both apps, the second app's route overrides the first.
  */
-export type MergeRoutes<
-  A extends Record<string, any>,
-  B extends Record<string, any>,
-> = Simplify<Merge<A, B>>;
+export type MergeRoutes<A extends Record<string, any>, B extends Record<string, any>> = Simplify<
+  Merge<A, B>
+>;
 
 //
 // APPLY PREFIX
@@ -841,18 +741,14 @@ export type MergeRoutes<
  * prefix applied to each route, and with the new prefix stored in the
  * `AppData`.
  */
-export type ApplyAppPrefix<
-  TApp extends App,
-  TNewPrefix extends BasePrefix = "",
-> = App<Simplify<ApplyAppDataPrefix<GetAppData<TApp>, TNewPrefix>>>;
+export type ApplyAppPrefix<TApp extends App, TNewPrefix extends BasePrefix = ""> = App<
+  Simplify<ApplyAppDataPrefix<GetAppData<TApp>, TNewPrefix>>
+>;
 
 /**
  * Same as `ApplyAppPrefix`, but at the `AppData` level.
  */
-export type ApplyAppDataPrefix<
-  TAppData extends AppData,
-  TNewPrefix extends BasePrefix = "",
-> = {
+export type ApplyAppDataPrefix<TAppData extends AppData, TNewPrefix extends BasePrefix = ""> = {
   ctx: TAppData["ctx"];
   exported: TAppData["exported"];
   prefix: TNewPrefix;
@@ -873,19 +769,18 @@ export type ApplyAppDataPrefix<
 /**
  * Given a route definition, return the input types of all the params.
  */
-export type GetRequestParamsInputFromDef<TRouteDef extends RouteDef> =
-  TRouteDef extends AnyDef
-    ? {
-        headers?: Record<string, string>;
-        params?: Record<string, string>;
-        query?: Record<string, string>;
-        body?: any;
-      }
-    : Simplify<{
-        [key in keyof GetDefParams<TRouteDef>]: TRouteDef[key] extends StandardSchemaV1
-          ? StandardSchemaV1.InferInput<TRouteDef[key]>
-          : never;
-      }>;
+export type GetRequestParamsInputFromDef<TRouteDef extends RouteDef> = TRouteDef extends AnyDef
+  ? {
+      headers?: Record<string, string>;
+      params?: Record<string, string>;
+      query?: Record<string, string>;
+      body?: any;
+    }
+  : Simplify<{
+      [key in keyof GetDefParams<TRouteDef>]: TRouteDef[key] extends StandardSchemaV1
+        ? StandardSchemaV1.InferInput<TRouteDef[key]>
+        : never;
+    }>;
 
 /**
  * Given a set of routes, a method, and a route, return the input types of all
@@ -895,9 +790,7 @@ export type GetRequestParamsInput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
   TRoute extends keyof TRoutes[TMethod],
-> = TRoute extends BasePath
-  ? GetRequestParamsInputFromDef<TRoutes[TMethod][TRoute]>
-  : never;
+> = TRoute extends BasePath ? GetRequestParamsInputFromDef<TRoutes[TMethod][TRoute]> : never;
 
 /**
  * Given a route definition, return the input type of the response schema.
@@ -917,9 +810,7 @@ export type GetResponseInput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
   TPath extends keyof TRoutes[TMethod],
-> = TPath extends BasePath
-  ? GetResponseInputFromDef<TRoutes[TMethod][TPath]>
-  : never;
+> = TPath extends BasePath ? GetResponseInputFromDef<TRoutes[TMethod][TPath]> : never;
 
 /**
  * Helper type for converting a schema or object containing schemas to their
@@ -934,8 +825,9 @@ type ToStandardSchemaOutputs<T> = T extends StandardSchemaV1
 /**
  * Given a route definition, return the output type of the param schemas.
  */
-export type GetRequestParamsOutputFromDef<TRouteDef extends RouteDef> =
-  ToStandardSchemaOutputs<GetDefParams<TRouteDef>>;
+export type GetRequestParamsOutputFromDef<TRouteDef extends RouteDef> = ToStandardSchemaOutputs<
+  GetDefParams<TRouteDef>
+>;
 
 /**
  * Given a set of routes, a method, and a route, return the output type of the
@@ -945,9 +837,7 @@ export type GetRequestParamsOutput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
   TRoute extends keyof TRoutes[TMethod],
-> = TRoute extends BasePath
-  ? GetRequestParamsOutputFromDef<TRoutes[TMethod][TRoute]>
-  : never;
+> = TRoute extends BasePath ? GetRequestParamsOutputFromDef<TRoutes[TMethod][TRoute]> : never;
 
 type SuccessStatusCodes =
   | 200
@@ -1001,9 +891,7 @@ export type GetResponseOutput<
   TRoutes extends BaseRoutes,
   TMethod extends keyof TRoutes,
   TPath extends keyof TRoutes[TMethod],
-> = TPath extends BasePath
-  ? GetResponseOutputFromDef<TRoutes[TMethod][TPath]>
-  : 1;
+> = TPath extends BasePath ? GetResponseOutputFromDef<TRoutes[TMethod][TPath]> : 1;
 
 type InputParams = "headers" | "params" | "query" | "body";
 
@@ -1077,9 +965,7 @@ export interface Setter {
 /**
  * Given a union of objects, combine them into a single object that's easy to read.
  */
-export type Simplify<T> = T extends { [key: string]: any }
-  ? { [K in keyof T]: T[K] }
-  : T;
+export type Simplify<T> = T extends { [key: string]: any } ? { [K in keyof T]: T[K] } : T;
 
 /**
  * Returns either a Promise of a type or just the type itself.
@@ -1090,17 +976,12 @@ export type MaybePromise<T> = Promise<T> | T;
  * A function that, given a request, returns a response. This type is compliant with WinterCG.
  */
 export type ServerSideFetch<TTransport extends AnyTransport = Transport> =
-  TTransport extends Transport<infer Params>
-    ? (...args: Params) => MaybePromise<Response>
-    : never;
+  TTransport extends Transport<infer Params> ? (...args: Params) => MaybePromise<Response> : never;
 
 /**
  * Apply a string prefix to all the keys of an object.
  */
-export type PrefixObjectKeys<
-  TPrefix extends string,
-  TObject extends Record<string, unknown>,
-> = {
+export type PrefixObjectKeys<TPrefix extends string, TObject extends Record<string, unknown>> = {
   [K in keyof TObject as `${TPrefix}${string & K extends "/" ? "" : string & K}`]: TObject[K];
 };
 

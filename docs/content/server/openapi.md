@@ -5,11 +5,14 @@ weight: 3
 
 ## Overview
 
-Zeta has OpenAPI docs built-in. Just make sure you've added a "schema adapter" to your top-level app. The adapter tells Zeta how to convert input/output models to JSON schemas.
+Zeta has OpenAPI docs built-in. Just make sure you've added a "schema adapter" to your top-level
+app. The adapter tells Zeta how to convert input/output models to JSON schemas.
 
 ## Endpoints
 
-By default, Zeta serves your OpenAPI spec at `/openapi.json` and the [Scalar API Reference](https://guides.scalar.com/scalar/scalar-api-references/getting-started) at `/scalar`.
+By default, Zeta serves your OpenAPI spec at `/openapi.json` and the
+[Scalar API Reference](https://guides.scalar.com/scalar/scalar-api-references/getting-started) at
+`/scalar`.
 
 In your top-level app, you can configure these endpoints:
 
@@ -34,13 +37,17 @@ const app = createApp({
 });
 ```
 
-This option is untyped, so refer to [Scalar's documentation](https://guides.scalar.com/scalar/scalar-api-references/configuration) for available options.
+This option is untyped, so refer to
+[Scalar's documentation](https://guides.scalar.com/scalar/scalar-api-references/configuration) for
+available options.
 
 ## Model References
 
-By default, the OpenAPI spec Zeta generates does not add any models to the `components.schemas` section of the spec. This can lead to duplicate object schemas.
+By default, the OpenAPI spec Zeta generates does not add any models to the `components.schemas`
+section of the spec. This can lead to duplicate object schemas.
 
-You can move models to the `components.schemas` section and use `$ref` by adding the `ref` metadata to your model:
+You can move models to the `components.schemas` section and use `$ref` by adding the `ref` metadata
+to your model:
 
 ```ts
 import z from "zod";
@@ -70,11 +77,11 @@ createApp().get(
 );
 ```
 
-You can add references to objects, enums, strings, arrays, etc. Any schema you define can have a reference, not just objects.
+You can add references to objects, enums, strings, arrays, etc. Any schema you define can have a
+reference, not just objects.
 
-{% alert(type="tip") %}
-All validation libraries support metadata, refer to your library's docs for more information.
-{% end %}
+{% alert(type="tip") %} All validation libraries support metadata, refer to your library's docs for
+more information. {% end %}
 
 ## Response Description
 
@@ -105,6 +112,5 @@ createApp().delete(
 );
 ```
 
-{% alert(type="tip") %}
-All validation libraries support metadata, refer to your library's docs for more information.
-{% end %}
+{% alert(type="tip") %} All validation libraries support metadata, refer to your library's docs for
+more information. {% end %}

@@ -30,10 +30,7 @@ async function runBenchmark(
     };
   },
 ): Promise<void> {
-  if (
-    process.argv[2] &&
-    !name.toLowerCase().includes(process.argv[2].toLowerCase())
-  ) {
+  if (process.argv[2] && !name.toLowerCase().includes(process.argv[2].toLowerCase())) {
     return;
   }
 
@@ -77,8 +74,7 @@ await runBenchmark("Validate and Echo JSON Body", {
       headers: { "Content-Type": "application/json" },
     }),
   fetchFunctions: {
-    vanilla: (req) =>
-      req.json().then((body) => Response.json(TestObject.parse(body))),
+    vanilla: (req) => req.json().then((body) => Response.json(TestObject.parse(body))),
     elysia: new Elysia().post("/", (ctx) => ctx.body, {
       body: TestObject,
     }).fetch,
@@ -97,18 +93,12 @@ await runBenchmark("Validate and Echo Query Params", {
   fetchFunctions: {
     vanilla: (req) =>
       Response.json(
-        Object.fromEntries(
-          new URLSearchParams(
-            req.url.slice(req.url.indexOf("?") + 1),
-          ).entries(),
-        ),
+        Object.fromEntries(new URLSearchParams(req.url.slice(req.url.indexOf("?") + 1)).entries()),
       ),
     elysia: new Elysia().get("/", (ctx) => ctx.query, {
       query: TestObject,
     }).fetch,
-    hono: new Hono().get("/", (ctx) =>
-      ctx.json(TestObject.parse(ctx.req.query())),
-    ).fetch,
+    hono: new Hono().get("/", (ctx) => ctx.json(TestObject.parse(ctx.req.query()))).fetch,
     zeta: createApp()
       // @ts-ignore: expects response schema, but works without it
       .get("/", { query: TestObject }, (ctx) => ctx.query)
@@ -122,9 +112,7 @@ await runBenchmark("Validate and Echo Path Params", {
     elysia: new Elysia().get("/:test", (ctx) => ctx.params, {
       params: TestObject,
     }).fetch,
-    hono: new Hono().get("/:test", (ctx) =>
-      ctx.json(TestObject.parse(ctx.req.param())),
-    ).fetch,
+    hono: new Hono().get("/:test", (ctx) => ctx.json(TestObject.parse(ctx.req.param()))).fetch,
     zeta: createApp()
       // @ts-ignore: expects response schema, but works without it
       .get("/:test", { params: TestObject }, (ctx) => ctx.params)
@@ -139,9 +127,7 @@ await runBenchmark("Response Validation", {
     elysia: new Elysia().get("/", () => STATIC_RESPONSE, {
       response: TestObject,
     }).fetch,
-    hono: new Hono().get("/", (ctx) =>
-      ctx.json(TestObject.parse(STATIC_RESPONSE)),
-    ).fetch,
+    hono: new Hono().get("/", (ctx) => ctx.json(TestObject.parse(STATIC_RESPONSE))).fetch,
     zeta: createApp()
       // @ts-ignore: expects response schema, but works without it
       .get("/", { responses: TestObject }, () => STATIC_RESPONSE)
@@ -152,9 +138,7 @@ await runBenchmark("Response Validation", {
 await runBenchmark("Single hook", {
   buildRequest: () => new Request("http://localhost/"),
   fetchFunctions: {
-    elysia: new Elysia()
-      .decorate({ fn: () => STATIC_RESPONSE })
-      .get("/", (ctx) => ctx.fn()).fetch,
+    elysia: new Elysia().decorate({ fn: () => STATIC_RESPONSE }).get("/", (ctx) => ctx.fn()).fetch,
     hono: new Hono()
       .use(
         createMiddleware<{

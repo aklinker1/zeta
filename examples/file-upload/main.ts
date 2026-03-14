@@ -1,10 +1,8 @@
-import { createApp, HttpStatus } from "@aklinker1/zeta";
-import {
-  NoResponse,
-  UploadFileBody,
-  UploadFilesBody,
-} from "@aklinker1/zeta/schema";
 import { resolve } from "node:path";
+
+import { createApp, HttpStatus } from "@aklinker1/zeta";
+import { NoResponse, UploadFileBody, UploadFilesBody } from "@aklinker1/zeta/schema";
+
 import testPage from "./index.html";
 
 async function writeFile(file: File): Promise<void> {

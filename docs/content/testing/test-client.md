@@ -6,9 +6,11 @@ weight: 2
 
 ## Overview
 
-The test client uses the same API as the regular [client](@/client/_index.md), but instead of just requiring the app types, it requires the actual app instance be passed in.
+The test client uses the same API as the regular [client](@/client/_index.md), but instead of just
+requiring the app types, it requires the actual app instance be passed in.
 
-Unlike the regular client, which requires your frontend and backend code to be in the same codebase, the test client can be used in standalone-backend applications since it's just testing server code.
+Unlike the regular client, which requires your frontend and backend code to be in the same codebase,
+the test client can be used in standalone-backend applications since it's just testing server code.
 
 Here's an example app:
 
@@ -61,4 +63,5 @@ describe("App", () => {
 });
 ```
 
-Details for how to use the `client` object can be found in Zeta's [Client-side docs](@/client/_index.md).
+Details for how to use the `client` object can be found in Zeta's
+[Client-side docs](@/client/_index.md).

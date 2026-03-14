@@ -26,7 +26,8 @@ Query parameters are available via the context's `query` property.
 
 ## Coercing Query Parameters
 
-Similar to path parameters, query parameters are strings by default. Use your validation library to coerce/transform the value into another type:
+Similar to path parameters, query parameters are strings by default. Use your validation library to
+coerce/transform the value into another type:
 
 ```ts
 const app = createApp().get(

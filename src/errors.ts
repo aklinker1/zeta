@@ -119,12 +119,7 @@ export class ProxyAuthenticationRequiredHttpError extends HttpError {
     additionalInfo?: Record<string, any>,
     options?: ErrorOptions,
   ) {
-    super(
-      HttpStatus.ProxyAuthenticationRequired,
-      message,
-      additionalInfo,
-      options,
-    );
+    super(HttpStatus.ProxyAuthenticationRequired, message, additionalInfo, options);
     this.name = "ProxyAuthenticationRequiredError";
   }
 }
@@ -364,12 +359,7 @@ export class RequestHeaderFieldsTooLargeHttpError extends HttpError {
     additionalInfo?: Record<string, any>,
     options?: ErrorOptions,
   ) {
-    super(
-      HttpStatus.RequestHeaderFieldsTooLarge,
-      message,
-      additionalInfo,
-      options,
-    );
+    super(HttpStatus.RequestHeaderFieldsTooLarge, message, additionalInfo, options);
     this.name = "RequestHeaderFieldsTooLargeError";
   }
 }
@@ -381,12 +371,7 @@ export class UnavailableForLegalReasonsHttpError extends HttpError {
     additionalInfo?: Record<string, any>,
     options?: ErrorOptions,
   ) {
-    super(
-      HttpStatus.UnavailableForLegalReasons,
-      message,
-      additionalInfo,
-      options,
-    );
+    super(HttpStatus.UnavailableForLegalReasons, message, additionalInfo, options);
     this.name = "UnavailableForLegalReasonsError";
   }
 }
@@ -518,12 +503,7 @@ export class NetworkAuthenticationRequiredHttpError extends HttpError {
     additionalInfo?: Record<string, any>,
     options?: ErrorOptions,
   ) {
-    super(
-      HttpStatus.NetworkAuthenticationRequired,
-      message,
-      additionalInfo,
-      options,
-    );
+    super(HttpStatus.NetworkAuthenticationRequired, message, additionalInfo, options);
     this.name = "NetworkAuthenticationRequiredError";
   }
 }

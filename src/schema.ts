@@ -1,10 +1,8 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
+
 import type { HttpStatus } from "./status";
 
-export type ZetaSchema<Input = unknown, Output = Input> = StandardSchemaV1<
-  Input,
-  Output
-> & {
+export type ZetaSchema<Input = unknown, Output = Input> = StandardSchemaV1<Input, Output> & {
   "~zeta": {
     type: string;
     meta: Record<string, any>;
@@ -61,44 +59,43 @@ function createZetaSchema<Input = unknown, Output = Input>(
  * );
  * ```
  */
-export const ErrorResponse: ZetaSchema<unknown, ErrorResponse> =
-  createZetaSchema<unknown, ErrorResponse>(
-    "ErrorResponse",
-    (value: unknown): StandardSchemaV1.Result<ErrorResponse> => {
-      if (value == null)
-        return {
-          issues: [{ message: `Expected an object, received ${value}` }],
-        };
+export const ErrorResponse: ZetaSchema<unknown, ErrorResponse> = createZetaSchema<
+  unknown,
+  ErrorResponse
+>("ErrorResponse", (value: unknown): StandardSchemaV1.Result<ErrorResponse> => {
+  if (value == null)
+    return {
+      issues: [{ message: `Expected an object, received ${value}` }],
+    };
 
-      if (typeof value !== "object")
-        return {
-          issues: [{ message: `Expected an object, received ${typeof value}` }],
-        };
+  if (typeof value !== "object")
+    return {
+      issues: [{ message: `Expected an object, received ${typeof value}` }],
+    };
 
-      const issues: StandardSchemaV1.Issue[] = [];
-      if (typeof (value as any).name !== "string") {
-        issues.push({
-          message: `Expected a string, received ${typeof (value as any).name}`,
-          path: ["name"],
-        });
-      }
-      if (typeof (value as any).message !== "string") {
-        issues.push({
-          message: `Expected a string, received ${typeof (value as any).message}`,
-          path: ["message"],
-        });
-      }
-      if (typeof (value as any).status !== "number") {
-        issues.push({
-          message: `Expected a number, received ${typeof (value as any).status}`,
-          path: ["status"],
-        });
-      }
-      if (issues.length > 0) return { issues };
+  const issues: StandardSchemaV1.Issue[] = [];
+  if (typeof (value as any).name !== "string") {
+    issues.push({
+      message: `Expected a string, received ${typeof (value as any).name}`,
+      path: ["name"],
+    });
+  }
+  if (typeof (value as any).message !== "string") {
+    issues.push({
+      message: `Expected a string, received ${typeof (value as any).message}`,
+      path: ["message"],
+    });
+  }
+  if (typeof (value as any).status !== "number") {
+    issues.push({
+      message: `Expected a number, received ${typeof (value as any).status}`,
+      path: ["status"],
+    });
+  }
+  if (issues.length > 0) return { issues };
 
-      return { value: value as ErrorResponse };
-    },
-  );
+  return { value: value as ErrorResponse };
+});
 
 export function isZetaSchema(schema: any): schema is ZetaSchema {
   return schema?.["~standard"]?.vendor === "@aklinker/zeta";
@@ -158,19 +155,16 @@ export const ErrorResponseJsonSchema = {
  * );
  * ```
  */
-export const NoResponse: ZetaSchema<undefined | null | void, void> =
-  createZetaSchema<undefined | null | void, void>(
-    "NoResponse",
-    (value: unknown): StandardSchemaV1.Result<void> => {
-      return value != null
-        ? {
-            issues: [
-              { message: `Expected undefined or null, got ${typeof value}` },
-            ],
-          }
-        : { value: undefined };
-    },
-  );
+export const NoResponse: ZetaSchema<undefined | null | void, void> = createZetaSchema<
+  undefined | null | void,
+  void
+>("NoResponse", (value: unknown): StandardSchemaV1.Result<void> => {
+  return value != null
+    ? {
+        issues: [{ message: `Expected undefined or null, got ${typeof value}` }],
+      }
+    : { value: undefined };
+});
 
 export const FormDataBody: ZetaSchema<FormData> = createZetaSchema<FormData>(
   "FormDataBody",
@@ -222,10 +216,7 @@ export const UploadFileBody: ZetaSchema<File> = createZetaSchema<File>(
   },
 );
 
-export const UploadFilesBody: ZetaSchema<FileList, File[]> = createZetaSchema<
-  FileList,
-  File[]
->(
+export const UploadFilesBody: ZetaSchema<FileList, File[]> = createZetaSchema<FileList, File[]>(
   "UploadFilesBody",
   (value): StandardSchemaV1.Result<File[]> => {
     if (!(value instanceof FormData)) {

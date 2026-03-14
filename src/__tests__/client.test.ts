@@ -1,12 +1,14 @@
 import { describe, it, expect, mock } from "bun:test";
-import { createApp } from "../app";
-import { createTestAppClient } from "../testing";
-import type { App, Transport } from "../types";
-import type { GetClientRoutes } from "../client";
+
 import { expectTypeOf } from "expect-type";
 import { z } from "zod/v4";
-import { HttpStatus } from "../status";
+
+import { createApp } from "../app";
+import type { GetClientRoutes } from "../client";
 import { ErrorResponse, NoResponse } from "../schema";
+import { HttpStatus } from "../status";
+import { createTestAppClient } from "../testing";
+import type { App, Transport } from "../types";
 
 // Silence console.error logs
 globalThis.console.error = mock();
@@ -20,10 +22,7 @@ describe("Client", () => {
         const expectedParams = { id };
 
         let actual: any;
-        const app = createApp().get(
-          "/api/users/:id",
-          (ctx) => void (actual = ctx),
-        );
+        const app = createApp().get("/api/users/:id", (ctx) => void (actual = ctx));
         const client = createTestAppClient(app);
 
         await client.fetch("GET", "/api/users/:id", {
@@ -40,10 +39,7 @@ describe("Client", () => {
         const expectedParams = { "**": id };
 
         let actual: any;
-        const app = createApp().get(
-          "/api/users/**",
-          (ctx) => void (actual = ctx),
-        );
+        const app = createApp().get("/api/users/**", (ctx) => void (actual = ctx));
         await createTestAppClient(app).fetch("GET", "/api/users/**", {
           params: { "**": id },
         });
@@ -58,10 +54,7 @@ describe("Client", () => {
         const expectedParams = { id };
 
         let actual: any;
-        const app = createApp().get(
-          "/api/users/**:id",
-          (ctx) => void (actual = ctx),
-        );
+        const app = createApp().get("/api/users/**:id", (ctx) => void (actual = ctx));
         await createTestAppClient(app).fetch("GET", "/api/users/**:id", {
           params: { id },
         });

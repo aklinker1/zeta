@@ -14,14 +14,11 @@ function getThemeFromStorage() {
   const theme = localStorage.getItem(THEME_STORAGE_KEY);
   if (Object.values(Theme).includes(theme)) return theme;
 
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? Theme.Dark
-    : Theme.Light;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? Theme.Dark : Theme.Light;
 }
 
 function updateTheme() {
-  if (theme === Theme.Dark)
-    document.documentElement.setAttribute(THEME_ATTR, "dark");
+  if (theme === Theme.Dark) document.documentElement.setAttribute(THEME_ATTR, "dark");
   else document.documentElement.removeAttribute(THEME_ATTR);
 }
 function saveTheme() {

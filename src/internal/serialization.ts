@@ -55,9 +55,7 @@ export function smartSerialize(value: unknown):
   };
 }
 
-export function smartDeserialize(
-  arg: Response | Request,
-): Promise<unknown> | undefined {
+export function smartDeserialize(arg: Response | Request): Promise<unknown> | undefined {
   if (arg instanceof Request && arg.method === "GET") return;
 
   const contentType = arg.headers.get("content-type");

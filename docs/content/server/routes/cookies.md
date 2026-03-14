@@ -6,9 +6,11 @@ weight: 6
 
 ## Overview
 
-If you need to get or set cookies, you need to do it yourself. Thankfully, cookies are super simple to work with.
+If you need to get or set cookies, you need to do it yourself. Thankfully, cookies are super simple
+to work with.
 
-I'd recommend using the [`cookie` package from npm](https://www.npmjs.com/package/cookie). Then you just need to use the `Cookie` and `Set-Cookie` headers.
+I'd recommend using the [`cookie` package from npm](https://www.npmjs.com/package/cookie). Then you
+just need to use the `Cookie` and `Set-Cookie` headers.
 
 ```ts
 import { createApp } from "@aklinker1/zeta";
@@ -30,16 +32,12 @@ export const app = createApp()
       const user = await authenticate(body.username, body.password);
       const sessionToken = await generateSessionToken(user);
 
-      set.headers["Set-Cookie"] = cookie.serialize(
-        SESSION_COOKIE_NAME,
-        sessionToken,
-        {
-          maxAge: 60 * 60 * 24 * 7, // 7 days
-          httpOnly: true,
-          secure: true,
-          sameSite: "strict",
-        },
-      );
+      set.headers["Set-Cookie"] = cookie.serialize(SESSION_COOKIE_NAME, sessionToken, {
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+      });
     },
   )
   .get(

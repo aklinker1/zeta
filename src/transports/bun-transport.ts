@@ -1,5 +1,5 @@
-import type { App, RequestContext, Transport } from "../types";
 import { createApp } from "../app";
+import type { App, RequestContext, Transport } from "../types";
 
 const SERVER_KEY = Symbol("bun-transport.server");
 
@@ -39,10 +39,7 @@ export function createBunTransport(
  */
 export function getBunServer(ctx: RequestContext): Bun.Server {
   const server = (ctx as any)[SERVER_KEY];
-  if (!server)
-    throw Error(
-      "Bun server not found. Did you forget to provide the bun transport?",
-    );
+  if (!server) throw Error("Bun server not found. Did you forget to provide the bun transport?");
 
   return server;
 }

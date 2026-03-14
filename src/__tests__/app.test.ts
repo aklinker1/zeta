@@ -1,16 +1,15 @@
 import { describe, expect, it, mock } from "bun:test";
+
 import { expectTypeOf } from "expect-type";
 import type { OpenAPI } from "openapi-types";
 import { z } from "zod/v4";
+
 import { zodSchemaAdapter } from "../adapters/zod-schema-adapter";
 import { createApp } from "../app";
 import { HttpStatus } from "../status";
 import { createTestAppClient } from "../testing";
+import { bunServerPlugin, createBunTransport } from "../transports/bun-transport";
 import type { AnyDef, GetAppData, Transport } from "../types";
-import {
-  bunServerPlugin,
-  createBunTransport,
-} from "../transports/bun-transport";
 
 // Silence console.error logs
 globalThis.console.error = mock();
@@ -61,11 +60,7 @@ describe("App", () => {
       ])(
         "should respond with the correct content type and value for %j",
         async ({ respondWith, expectedResponse }) => {
-          const app = createApp().get(
-            "/test",
-            { responses: z.any() },
-            () => respondWith,
-          );
+          const app = createApp().get("/test", { responses: z.any() }, () => respondWith);
           const client = createTestAppClient(app);
           const response = await client.fetch("GET", "/test", {});
 
@@ -101,18 +96,11 @@ describe("App", () => {
             query: z.object({
               status: z.coerce
                 .number()
-                .pipe(
-                  z.union([
-                    z.literal(HttpStatus.Ok),
-                    z.literal(HttpStatus.Accepted),
-                  ]),
-                ),
+                .pipe(z.union([z.literal(HttpStatus.Ok), z.literal(HttpStatus.Accepted)])),
             }),
             responses: {
               [HttpStatus.Ok]: z.string().meta({ contentType: "text/csv" }),
-              [HttpStatus.Accepted]: z
-                .string()
-                .meta({ contentType: "application/xml" }),
+              [HttpStatus.Accepted]: z.string().meta({ contentType: "application/xml" }),
             },
           },
           ({ query, status }) => status(query.status, ""),
@@ -157,24 +145,21 @@ describe("App", () => {
           input: 1,
           expected: "1",
         },
-      ])(
-        "should parse the request body correctly for: %j",
-        async ({ input, expected }) => {
-          let actual: any;
-          const app = createApp().post(
-            "/test",
-            { body: z.any() },
-            ({ body }) => void (actual = body),
-          );
-          const client = createTestAppClient(app);
+      ])("should parse the request body correctly for: %j", async ({ input, expected }) => {
+        let actual: any;
+        const app = createApp().post(
+          "/test",
+          { body: z.any() },
+          ({ body }) => void (actual = body),
+        );
+        const client = createTestAppClient(app);
 
-          await client.fetch("POST", "/test", {
-            body: input,
-          });
+        await client.fetch("POST", "/test", {
+          body: input,
+        });
 
-          expect(actual).toEqual(expected);
-        },
-      );
+        expect(actual).toEqual(expected);
+      });
     });
 
     describe("path parameters parsing", () => {
@@ -217,29 +202,26 @@ describe("App", () => {
         //   input: { a: "a", b: "b" },
         //   expected: { a: "a", b: "b" },
         // },
-      ])(
-        "should parse the query parameters correctly for: %j",
-        async ({ input, expected }) => {
-          let actual: any;
-          const app = createApp().get(
-            "/test",
-            {
-              query: z.object({
-                a: z.any().optional(),
-                b: z.any().optional(),
-              }),
-            },
-            ({ query }) => void (actual = query),
-          );
-          const client = createTestAppClient(app);
+      ])("should parse the query parameters correctly for: %j", async ({ input, expected }) => {
+        let actual: any;
+        const app = createApp().get(
+          "/test",
+          {
+            query: z.object({
+              a: z.any().optional(),
+              b: z.any().optional(),
+            }),
+          },
+          ({ query }) => void (actual = query),
+        );
+        const client = createTestAppClient(app);
 
-          await client.fetch("GET", `/test`, {
-            query: input,
-          });
+        await client.fetch("GET", `/test`, {
+          query: input,
+        });
 
-          expect(actual).toEqual(expected);
-        },
-      );
+        expect(actual).toEqual(expected);
+      });
 
       it("should coerce query parameters when using z.coerce.number()", async () => {
         let actual: any;
@@ -283,10 +265,7 @@ describe("App", () => {
       const expectedUsers: any[] = [];
       const expectedHealth = "ok";
       const expectedHtml = "Some html...";
-      const usersApp = createApp({ prefix: "/users" }).get(
-        "/",
-        () => expectedUsers,
-      );
+      const usersApp = createApp({ prefix: "/users" }).get("/", () => expectedUsers);
       const apiApp = createApp({ prefix: "/api" })
         .use(usersApp)
         .get("/health", () => expectedHealth);
@@ -534,9 +513,7 @@ describe("App", () => {
           tags: ["Users"],
         }).get("/", { responses: z.string() }, () => "");
 
-        const app = createApp({ schemaAdapter: zodSchemaAdapter }).use(
-          usersApp,
-        );
+        const app = createApp({ schemaAdapter: zodSchemaAdapter }).use(usersApp);
 
         const spec = app.getOpenApiSpec() as OpenAPI.Document;
 
@@ -555,29 +532,19 @@ describe("App", () => {
 
         const spec = app.getOpenApiSpec() as OpenAPI.Document;
 
-        expect((spec.paths!["/"] as any).get.security).toEqual([
-          { bearerAuth: [] },
-        ]);
-        expect((spec.paths!["/"] as any).post.security).toEqual([
-          { bearerAuth: [] },
-        ]);
+        expect((spec.paths!["/"] as any).get.security).toEqual([{ bearerAuth: [] }]);
+        expect((spec.paths!["/"] as any).post.security).toEqual([{ bearerAuth: [] }]);
       });
 
       it("should allow route-level security to override app-level security", () => {
         const app = createApp({
           schemaAdapter: zodSchemaAdapter,
           security: [{ bearerAuth: [] }],
-        }).get(
-          "/admin",
-          { security: [{ adminKey: [] }], responses: z.string() },
-          () => "",
-        );
+        }).get("/admin", { security: [{ adminKey: [] }], responses: z.string() }, () => "");
 
         const spec = app.getOpenApiSpec() as OpenAPI.Document;
 
-        expect((spec.paths!["/admin"] as any).get.security).toEqual([
-          { adminKey: [] },
-        ]);
+        expect((spec.paths!["/admin"] as any).get.security).toEqual([{ adminKey: [] }]);
       });
 
       it("should preserve app-level security when nested via use()", () => {
@@ -591,9 +558,7 @@ describe("App", () => {
 
         const spec = app.getOpenApiSpec() as OpenAPI.Document;
 
-        expect((spec.paths!["/auth/profile"] as any).get.security).toEqual([
-          { bearerAuth: [] },
-        ]);
+        expect((spec.paths!["/auth/profile"] as any).get.security).toEqual([{ bearerAuth: [] }]);
       });
     });
 
@@ -608,9 +573,7 @@ describe("App", () => {
         const spec = app.getOpenApiSpec() as OpenAPI.Document;
 
         expect((spec.paths!["/profile"] as any).get.tags).toEqual(["Auth"]);
-        expect((spec.paths!["/profile"] as any).get.security).toEqual([
-          { bearerAuth: [] },
-        ]);
+        expect((spec.paths!["/profile"] as any).get.security).toEqual([{ bearerAuth: [] }]);
       });
     });
   });

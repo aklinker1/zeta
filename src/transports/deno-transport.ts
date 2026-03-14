@@ -3,15 +3,11 @@ import type { App, RequestContext, Transport } from "../types";
 
 const SERVER_KEY = Symbol("deno-transport.server");
 
-export type DenoTransport = Transport<
-  [request: Request, server: Deno.HttpServer]
->;
+export type DenoTransport = Transport<[request: Request, server: Deno.HttpServer]>;
 
 type ServeOptions = Parameters<typeof Deno.serve>[0];
 
-export function createDenoTransport(
-  options?: Omit<ServeOptions, "port">,
-): DenoTransport {
+export function createDenoTransport(options?: Omit<ServeOptions, "port">): DenoTransport {
   const listen: DenoTransport["listen"] = (port, fetch, cb) => {
     Deno.serve({ ...options, port }, fetch);
     if (cb) setTimeout(cb, 0);
@@ -43,10 +39,7 @@ export function createDenoTransport(
  */
 export function getDenoServer(ctx: RequestContext): Deno.HttpServer {
   const server = (ctx as any)[SERVER_KEY];
-  if (!server)
-    throw Error(
-      "Deno server not found. Did you forget to provide the deno transport?",
-    );
+  if (!server) throw Error("Deno server not found. Did you forget to provide the deno transport?");
 
   return server;
 }

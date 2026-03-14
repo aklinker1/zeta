@@ -1,6 +1,7 @@
 import { describe, it, expect } from "bun:test";
-import { compileFetchFunction } from "../compile-fetch-function";
+
 import type { Transport } from "../../types";
+import { compileFetchFunction } from "../compile-fetch-function";
 
 process.env.NODE_ENV = "production";
 
@@ -77,9 +78,7 @@ describe("compileFetchFunction", () => {
         origin,
         getRoute,
         hooks: {
-          onGlobalRequest: [
-            { id: "", applyTo: "global", callback: () => void 0 },
-          ],
+          onGlobalRequest: [{ id: "", applyTo: "global", callback: () => void 0 }],
         },
         transport,
       });
@@ -146,9 +145,7 @@ describe("compileFetchFunction", () => {
         origin,
         getRoute,
         hooks: {
-          onGlobalAfterResponse: [
-            { id: "", applyTo: "global", callback: () => void 0 },
-          ],
+          onGlobalAfterResponse: [{ id: "", applyTo: "global", callback: () => void 0 }],
         },
         transport,
       });
@@ -221,9 +218,7 @@ describe("compileFetchFunction", () => {
         origin,
         getRoute,
         hooks: {
-          onGlobalError: [
-            { id: "", applyTo: "global", callback: () => void 0 },
-          ],
+          onGlobalError: [{ id: "", applyTo: "global", callback: () => void 0 }],
         },
         transport,
       });

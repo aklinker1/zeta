@@ -2,7 +2,8 @@
 
 ## Setup
 
-Install the version of [`bun`](https://bun.sh) specified in the `package.json#packageManager` field. Alternatively, use a version manager like [`bunv`](https://github.com/aklinker1/bunv).
+Install the version of [`bun`](https://bun.sh) specified in the `package.json#packageManager` field.
+Alternatively, use a version manager like [`bunv`](https://github.com/aklinker1/bunv).
 
 ## Scripts
 

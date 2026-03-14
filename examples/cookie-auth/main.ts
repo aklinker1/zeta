@@ -9,6 +9,7 @@ import {
 import * as cookie from "cookie";
 import dedent from "dedent";
 import z from "zod";
+
 import type { Setter } from "../../src/types";
 
 // Models
@@ -69,8 +70,7 @@ class Auth {
     const cookieString = this.ctx.request.headers.get("Cookie");
     if (!cookieString) return;
 
-    return (this._sessionId =
-      cookie.parse(cookieString)[this.SESSION_COOKIE_NAME]);
+    return (this._sessionId = cookie.parse(cookieString)[this.SESSION_COOKIE_NAME]);
   }
 
   /**
@@ -115,16 +115,12 @@ class Auth {
     const sessionId = crypto.randomUUID();
     Auth.sessionIdUserMap[sessionId] = user;
 
-    this.ctx.set.headers["Set-Cookie"] = cookie.serialize(
-      this.SESSION_COOKIE_NAME,
-      sessionId,
-      {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      },
-    );
+    this.ctx.set.headers["Set-Cookie"] = cookie.serialize(this.SESSION_COOKIE_NAME, sessionId, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
 
     return sessionId;
   }
@@ -133,16 +129,12 @@ class Auth {
     if (!this.sessionId) return;
 
     delete Auth.sessionIdUserMap[this.sessionId];
-    this.ctx.set.headers["Set-Cookie"] = cookie.serialize(
-      this.SESSION_COOKIE_NAME,
-      "",
-      {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 0,
-      },
-    );
+    this.ctx.set.headers["Set-Cookie"] = cookie.serialize(this.SESSION_COOKIE_NAME, "", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 0,
+    });
   }
 }
 
@@ -193,8 +185,7 @@ const app = createApp()
       const user = USERS.find((user) => user.username === query.username);
 
       if (!user) throw new UnauthorizedHttpError("Username not found");
-      if (user.password !== query.password)
-        throw new UnauthorizedHttpError("Incorrect password");
+      if (user.password !== query.password) throw new UnauthorizedHttpError("Incorrect password");
 
       auth.createSession(user);
       set.headers["Location"] = "/";

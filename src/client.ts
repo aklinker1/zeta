@@ -1,21 +1,12 @@
+import { smartDeserialize, smartSerialize } from "./internal/serialization";
+import type { ErrorResponse } from "./schema";
 /**
  * Main module used client-side in the same application. If you're frontend and
  * backend are in separate projects, generate your client using the OpenAPI docs.
  * @module
  */
-import type {
-  BaseRoutes,
-  GetRequestParamsInput,
-  GetResponseOutput,
-} from "./types";
-import type { ErrorResponse } from "./schema";
-import { smartDeserialize, smartSerialize } from "./internal/serialization";
-import type {
-  GetAppRoutes,
-  App,
-  ApplyAppPrefix,
-  ApplyAppDataPrefix,
-} from "./types";
+import type { BaseRoutes, GetRequestParamsInput, GetResponseOutput } from "./types";
+import type { GetAppRoutes, App, ApplyAppPrefix, ApplyAppDataPrefix } from "./types";
 
 /**
  * Type-safe client based on routes defined server-side.
@@ -58,11 +49,7 @@ export interface AppClient<TRoutes extends BaseRoutes> {
 export function createAppClient<TApp extends App>(
   options?: CreateAppClientOptions,
 ): AppClient<GetClientRoutes<TApp>> {
-  const {
-    baseUrl = location.origin,
-    fetch = globalThis.fetch,
-    headers = {},
-  } = options ?? {};
+  const { baseUrl = location.origin, fetch = globalThis.fetch, headers = {} } = options ?? {};
 
   const buildSearchParams = (query: Record<string, unknown>) => {
     return new URLSearchParams(
@@ -86,11 +73,8 @@ export function createAppClient<TApp extends App>(
   return {
     async fetch(method: string, route: string, inputs: any) {
       const searchParams =
-        inputs.query == null
-          ? ""
-          : `?${buildSearchParams(inputs.query).toString()}`;
-      const path =
-        inputs.params == null ? route : buildPath(route, inputs.params);
+        inputs.query == null ? "" : `?${buildSearchParams(inputs.query).toString()}`;
+      const path = inputs.params == null ? route : buildPath(route, inputs.params);
       const url = `${join(baseUrl, path)}${searchParams}`;
 
       const init = {
@@ -99,12 +83,10 @@ export function createAppClient<TApp extends App>(
         headers: { ...headers } as Record<string, string>,
       } satisfies RequestInit;
 
-      const serializedBody =
-        inputs.body == null ? undefined : smartSerialize(inputs.body);
+      const serializedBody = inputs.body == null ? undefined : smartSerialize(inputs.body);
       if (serializedBody) {
         init.body = serializedBody.value;
-        if (serializedBody.contentType)
-          init.headers["Content-Type"] = serializedBody.contentType;
+        if (serializedBody.contentType) init.headers["Content-Type"] = serializedBody.contentType;
       }
 
       try {
@@ -129,9 +111,7 @@ export function createAppClient<TApp extends App>(
  * Helper for converting an `App` to the routes it exposes.
  */
 export type GetClientRoutes<TApp> =
-  TApp extends App<infer AppData>
-    ? ApplyAppDataPrefix<AppData>["routes"]
-    : never;
+  TApp extends App<infer AppData> ? ApplyAppDataPrefix<AppData>["routes"] : never;
 
 /**
  * Thrown by the client when the response is not OK. When an `HttpError` is
@@ -154,9 +134,7 @@ export class RequestError extends Error {
  */
 export type GetAppClient<TApp extends App> = App extends { prefix: string }
   ? GetAppClient<ApplyAppPrefix<TApp>>
-  : AppClient<
-      GetAppRoutes<TApp> extends BaseRoutes ? GetAppRoutes<TApp> : never
-    >;
+  : AppClient<GetAppRoutes<TApp> extends BaseRoutes ? GetAppRoutes<TApp> : never>;
 
 /**
  * Configure the client's behavior.

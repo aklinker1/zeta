@@ -5,7 +5,8 @@ weight: 4
 
 ## Top-Level vs Child Apps
 
-As an app grows, you will want to break it up into separate files. Zeta is built purposefully to support this.
+As an app grows, you will want to break it up into separate files. Zeta is built purposefully to
+support this.
 
 There are two types of apps:
 
@@ -31,7 +32,8 @@ app.listen(3000);
 
 ## Isolation
 
-By default, app state is isolated from any children and vise-versa. Any modifications made to the child app are not available in the top-level app:
+By default, app state is isolated from any children and vise-versa. Any modifications made to the
+child app are not available in the top-level app:
 
 ```ts
 const childApp = createApp()
@@ -62,13 +64,16 @@ const app = createApp()
   });
 ```
 
-Isolation is enforced by the type-system. In both cases, you'll get a type error saying `example` is not available.
+Isolation is enforced by the type-system. In both cases, you'll get a type error saying `example` is
+not available.
 
 ## Plugins
 
-Sometimes, you need to reuse logic between child and top-level apps. To do this, you create a "plugin", and add it to any app that needs it.
+Sometimes, you need to reuse logic between child and top-level apps. To do this, you create a
+"plugin", and add it to any app that needs it.
 
-A "plugin" is just an app, but one that calls `export()` to break the isolation apps have by default:
+A "plugin" is just an app, but one that calls `export()` to break the isolation apps have by
+default:
 
 ```ts
 const plugin = createApp().decorate({ example: "value" }).export();
@@ -86,7 +91,8 @@ const app = createApp()
   });
 ```
 
-Note that the child app is still isolating it's own state from the top-level app. That's why the `example` property is still not available in the top-level app.
+Note that the child app is still isolating it's own state from the top-level app. That's why the
+`example` property is still not available in the top-level app.
 
 You need to also `use` the plugin on the top-level app, or any other child app that needs it:
 
@@ -101,13 +107,18 @@ const app = createApp()
 
 ### Deduplicating Plugins
 
-Zeta automatically deduplicates plugins when they are used multiple times. There is no runtime performance impact to using the same plugin multiple times in different apps that are eventually composed together.
+Zeta automatically deduplicates plugins when they are used multiple times. There is no runtime
+performance impact to using the same plugin multiple times in different apps that are eventually
+composed together.
 
 ## Order Matters
 
-When you `use` a plugin/child app, add a hook, or decorate the request context, order matters. Modifications like these are only applied to subsequent routes and operations after they are added to the app.
+When you `use` a plugin/child app, add a hook, or decorate the request context, order matters.
+Modifications like these are only applied to subsequent routes and operations after they are added
+to the app.
 
-For example, when decorating the context with an `example` property, the value will only be available in routes defined after `decorate()` is called.
+For example, when decorating the context with an `example` property, the value will only be
+available in routes defined after `decorate()` is called.
 
 ```ts
 const app = createApp()
@@ -137,4 +148,5 @@ const app = createApp()
   });
 ```
 
-In this example, even though the child app is added _after_ the context is decorated, the `example` property is not available in the child app.
+In this example, even though the child app is added _after_ the context is decorated, the `example`
+property is not available in the child app.

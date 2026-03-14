@@ -27,7 +27,8 @@ export const app = createApp().get(
 );
 ```
 
-Inside your test file, import your app and call `build()` to create your app's fetch function. Then just call the fetch function with a `Request` object!
+Inside your test file, import your app and call `build()` to create your app's fetch function. Then
+just call the fetch function with a `Request` object!
 
 ```ts
 // app.test.ts
@@ -64,12 +65,15 @@ describe("App", () => {
 });
 ```
 
-{% alert(type="warning") %}
-Only call `build()` once per app, otherwise it will throw an error.
+{% alert(type="warning") %} Only call `build()` once per app, otherwise it will throw an error.
 {% end %}
 
-Note that `fetch` always returns a `Response`, even if an error is thrown, like when a route is not found.
+Note that `fetch` always returns a `Response`, even if an error is thrown, like when a route is not
+found.
 
 ## Next Steps
 
-Testing the app like this works just fine, but it can be quite tedious to build the `Request` object and parse the response body inside every test. It's important to know you _can_ do this, but Zeta provides a more convenient way to test your app with it's [built-in test client](@/testing/test-client.md).
+Testing the app like this works just fine, but it can be quite tedious to build the `Request` object
+and parse the response body inside every test. It's important to know you _can_ do this, but Zeta
+provides a more convenient way to test your app with it's
+[built-in test client](@/testing/test-client.md).

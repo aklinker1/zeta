@@ -1,15 +1,10 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { MatchedRoute } from "rou3";
+
 import { HttpError } from "../errors";
 import type { ErrorResponse } from "../schema";
 import { HttpStatus } from "../status";
-import type {
-  App,
-  LifeCycleHook,
-  MaybePromise,
-  RouterData,
-  StatusResult,
-} from "../types";
+import type { App, LifeCycleHook, MaybePromise, RouterData, StatusResult } from "../types";
 
 export function validateSchema<T>(
   schema: StandardSchemaV1<T, T>,
@@ -83,9 +78,7 @@ export function getRawQuery(request: Request): Record<string, string> {
   return res;
 }
 
-export function getRawParams(
-  route: MatchedRoute<RouterData>,
-): Record<string, string> {
+export function getRawParams(route: MatchedRoute<RouterData>): Record<string, string> {
   const params = route.params;
   if (!params) return {};
 
@@ -136,9 +129,7 @@ export function serializeErrorResponse(err: unknown): ErrorResponse {
 
 export async function callCtxModifierHooks(
   ctx: any,
-  hooks:
-    | LifeCycleHook<(ctx: any) => MaybePromise<Record<string, any> | void>>[]
-    | undefined,
+  hooks: LifeCycleHook<(ctx: any) => MaybePromise<Record<string, any> | void>>[] | undefined,
 ): Promise<Response | undefined> {
   if (!hooks) return;
 

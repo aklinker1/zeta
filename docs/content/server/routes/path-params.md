@@ -1,12 +1,15 @@
 ---
 title: Path Params
-description: Zeta uses [rou3](https://npmjs.com/package/rou3) internally to route requests to the appropriate handler.
+description:
+  Zeta uses [rou3](https://npmjs.com/package/rou3) internally to route requests to the appropriate
+  handler.
 weight: 1
 ---
 
 ## Overview
 
-To add a path parameter to your endpoint, use the `:paramName` syntax in the route and add a schema for it in the endpoint's definition:
+To add a path parameter to your endpoint, use the `:paramName` syntax in the route and add a schema
+for it in the endpoint's definition:
 
 ```ts
 const app = createApp().get(
@@ -33,9 +36,11 @@ There are three ways to define a path parameter:
 2. `**` &ndash; Anonymous wildcard
 3. `**:paramName` &ndash; Named wildcard
 
-Wildcard parameters accept any number of path segments, and can be accessed by `params["**"]` or `params.paramName`, depending on if it is anonymous or named.
+Wildcard parameters accept any number of path segments, and can be accessed by `params["**"]` or
+`params.paramName`, depending on if it is anonymous or named.
 
-Here's an example using an anonymous wildcard parameter to throw a 404 error if the API endpoint is not found:
+Here's an example using an anonymous wildcard parameter to throw a 404 error if the API endpoint is
+not found:
 
 ```ts
 const app = createApp({ prefix: "/api" })
@@ -52,7 +57,8 @@ Refer to [rou3's documentation](https://www.npmjs.com/package/rou3) for more det
 
 ## Coercing Path Parameters
 
-Path parameters are `string`s by default. If you want to transform or convert the parameter into a different type, like a `number`, use your validation library to coerce the value:
+Path parameters are `string`s by default. If you want to transform or convert the parameter into a
+different type, like a `number`, use your validation library to coerce the value:
 
 ```ts
 const app = createApp().get(

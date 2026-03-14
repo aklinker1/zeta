@@ -1,7 +1,7 @@
 # https://www.getzola.org/documentation/deployment/netlify/
 
 [build]
-base    = "docs"
+base = "docs"
 publish = "public"
 command = """
   ARCH=$(uname -m)

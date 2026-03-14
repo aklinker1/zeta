@@ -1,12 +1,14 @@
 ---
 title: onTransform
-description: This hook is called after the route has been matched and before the inputs are validated.
+description:
+  This hook is called after the route has been matched and before the inputs are validated.
 weight: 2
 ---
 
 ## Decorate the Context
 
-When you return an object from the hook, the object is merged into the context for subsequent hooks and handlers.
+When you return an object from the hook, the object is merged into the context for subsequent hooks
+and handlers.
 
 This is the main purpose of the `onTransform` hook.
 
@@ -26,9 +28,11 @@ const depsPlugin = createApp()
   .export();
 ```
 
-This is very similar to `decorate`, but `decorate` is only useful when you don't need the request context in your services.
+This is very similar to `decorate`, but `decorate` is only useful when you don't need the request
+context in your services.
 
-`onTransform` is meant to be used to decorate the context with utilities and services that require knowledge of the request context.
+`onTransform` is meant to be used to decorate the context with utilities and services that require
+knowledge of the request context.
 
 ## Modify Inputs
 
@@ -43,13 +47,15 @@ const app = createApp().onTransform(({ params }) => {
 });
 ```
 
-{% alert(type="warning") %}
-Most validation libraries provide some way of "transforming" input values before the value is validated. I would recommend you use the validation library to accomplish this instead of modifying the inputs in a hook. It provides a consistent, easy way of modifying individual properites at any level of the request.
-{% end %}
+{% alert(type="warning") %} Most validation libraries provide some way of "transforming" input
+values before the value is validated. I would recommend you use the validation library to accomplish
+this instead of modifying the inputs in a hook. It provides a consistent, easy way of modifying
+individual properites at any level of the request. {% end %}
 
 ## Short-circuiting
 
-You can short-circuit the request life cycle by returning a `Response` object. All subsequent hooks and handlers will be skipped (except for `onGlobalAfterResponse`).
+You can short-circuit the request life cycle by returning a `Response` object. All subsequent hooks
+and handlers will be skipped (except for `onGlobalAfterResponse`).
 
 ```ts
 const authPlugin = createApp()

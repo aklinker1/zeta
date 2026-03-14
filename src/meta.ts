@@ -1,6 +1,7 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import type { SchemaAdapter } from "./types";
+
 import { isZetaSchema, type ZetaSchema } from "./schema";
+import type { SchemaAdapter } from "./types";
 
 /** Get metadata for either a ZetaSchema or a StandardSchemaV1. */
 export function getMeta(

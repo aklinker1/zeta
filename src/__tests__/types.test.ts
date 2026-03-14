@@ -1,11 +1,13 @@
 import { describe, it } from "bun:test";
-import { expectTypeOf } from "expect-type";
-import type * as t from "../types";
-import { z } from "zod/v4";
+
 import type { StandardSchemaV1 } from "@standard-schema/spec";
+import { expectTypeOf } from "expect-type";
+import { z } from "zod/v4";
+
 import { ErrorResponse } from "../schema";
 import type { HttpStatus } from "../status";
 import type { BunTransport } from "../transports/bun-transport";
+import type * as t from "../types";
 
 describe("Types", () => {
   describe("MergeRoutes", () => {
@@ -141,9 +143,7 @@ describe("Types", () => {
         params: z.ZodObject<{ id: z.ZodString }>;
         body: z.ZodObject<{ id: z.ZodString; user: z.ZodString }>;
         operationId: string;
-        responses: z.ZodArray<
-          z.ZodObject<{ id: z.ZodString; user: z.ZodString }>
-        >;
+        responses: z.ZodArray<z.ZodObject<{ id: z.ZodString; user: z.ZodString }>>;
       };
       type Expected = {
         query: { asc: string };
@@ -687,12 +687,8 @@ describe("Types", () => {
       type Map = t.GetResponseStatusMap<t.AnyDef>;
       type Actual = t.StatusFn<Map>;
 
-      expectTypeOf<Actual>().toExtend<
-        (status: 200, body: unknown) => t.StatusResult
-      >();
-      expectTypeOf<Actual>().toExtend<
-        (status: 201, body: unknown) => t.StatusResult
-      >();
+      expectTypeOf<Actual>().toExtend<(status: 200, body: unknown) => t.StatusResult>();
+      expectTypeOf<Actual>().toExtend<(status: 201, body: unknown) => t.StatusResult>();
     });
 
     it("should return a never function when the response is not defined", () => {
@@ -714,18 +710,10 @@ describe("Types", () => {
         }>
       >;
 
-      expectTypeOf<Actual>().toExtend<
-        (status: 200, body: number) => t.StatusResult
-      >();
-      expectTypeOf<Actual>().toExtend<
-        (status: 201, body: boolean) => t.StatusResult
-      >();
-      expectTypeOf<Actual>().not.toMatchTypeOf<
-        (status: 202, body: any) => t.StatusResult
-      >();
-      expectTypeOf<Actual>().not.toMatchTypeOf<
-        (status: 200, body: boolean) => t.StatusResult
-      >();
+      expectTypeOf<Actual>().toExtend<(status: 200, body: number) => t.StatusResult>();
+      expectTypeOf<Actual>().toExtend<(status: 201, body: boolean) => t.StatusResult>();
+      expectTypeOf<Actual>().not.toMatchTypeOf<(status: 202, body: any) => t.StatusResult>();
+      expectTypeOf<Actual>().not.toMatchTypeOf<(status: 200, body: boolean) => t.StatusResult>();
     });
   });
 });

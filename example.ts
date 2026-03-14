@@ -1,12 +1,7 @@
-import {
-  createApp,
-  ErrorResponse,
-  NoResponse,
-  HttpStatus,
-  NotFoundHttpError,
-} from "./src";
-import { version } from "./package.json" with { type: "json" };
 import { z } from "zod/v4";
+
+import { version } from "./package.json" with { type: "json" };
+import { createApp, ErrorResponse, NoResponse, HttpStatus, NotFoundHttpError } from "./src";
 import { zodSchemaAdapter } from "./src/adapters/zod-schema-adapter";
 import { UploadFileBody, FormDataBody, UploadFilesBody } from "./src/schema";
 
@@ -45,10 +40,7 @@ const app = createApp({
       version,
       description: "API reference for the example application",
     },
-    tags: [
-      { name: "Entries", description: "Manage entries in the system" },
-      { name: "System" },
-    ],
+    tags: [{ name: "Entries", description: "Manage entries in the system" }, { name: "System" }],
   },
 })
   .get(
@@ -114,8 +106,7 @@ const app = createApp({
     },
     ({ params, status }) => {
       const entry = entries.find((entry) => entry.id === params.id);
-      if (!entry)
-        throw new NotFoundHttpError(undefined, { entryId: params.id });
+      if (!entry) throw new NotFoundHttpError(undefined, { entryId: params.id });
 
       return status(HttpStatus.Ok, entry);
     },

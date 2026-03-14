@@ -47,7 +47,8 @@ const app = createApp()
 
 ## Definition
 
-Document the route using the second argument. This is where all the OpenAPI docs are defined, and where you define the input/output schemas for the route.
+Document the route using the second argument. This is where all the OpenAPI docs are defined, and
+where you define the input/output schemas for the route.
 
 ```ts
 export const app = createApp().get(
@@ -75,7 +76,8 @@ All available properties are typed, so your editor can tell you what's available
 
 ## Handler Context
 
-The handler function receives "context" as its first argument. This object contains information about the request:
+The handler function receives "context" as its first argument. This object contains information
+about the request:
 
 - `route` &ndash; The matched route
 - `path` &ndash; The full URL pathname
@@ -89,7 +91,8 @@ The handler function receives "context" as its first argument. This object conta
 
 ### Decorate
 
-You can add objects, variables, or functions to the request context via [hooks](@/server/hooks/_index.md).
+You can add objects, variables, or functions to the request context via
+[hooks](@/server/hooks/_index.md).
 
 For simple objects, Zeta provides the `decorate` function:
 
@@ -103,7 +106,8 @@ const app = createApp()
   })
 ```
 
-`decorate` is shorthand for returning a value from the [`onTransform` hook](@/server/hooks/onTransform.md):
+`decorate` is shorthand for returning a value from the
+[`onTransform` hook](@/server/hooks/onTransform.md):
 
 ```ts
 const db = await openDatabase(...);

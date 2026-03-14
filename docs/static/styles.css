@@ -115,8 +115,8 @@ img {
   display: flex;
   align-items: center;
   gap: calc(2 * var(--spacing));
-  padding: calc(2.5 * var(--spacing)) calc(3 * var(--spacing))
-    calc(2.5 * var(--spacing)) calc(4 * var(--spacing));
+  padding: calc(2.5 * var(--spacing)) calc(3 * var(--spacing)) calc(2.5 * var(--spacing))
+    calc(4 * var(--spacing));
   color: oklch(from var(--color-base-content) l c h / 50%);
   background-color: oklch(from var(--color-neutral) l c h / 50%);
   border-radius: 9999px;

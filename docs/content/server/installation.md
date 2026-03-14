@@ -5,7 +5,8 @@ weight: 1
 
 ## Overview
 
-Zeta is available on both [JSR](https://jsr.io/@aklinker1/zeta) and [NPM](https://www.npmjs.com/package/@aklinker1/zeta):
+Zeta is available on both [JSR](https://jsr.io/@aklinker1/zeta) and
+[NPM](https://www.npmjs.com/package/@aklinker1/zeta):
 
 ```sh
 bun add @aklinker1/zeta
@@ -14,7 +15,8 @@ deno add @aklinker1/zeta
 
 ## Your First App
 
-Zeta apps require input/output validation and OpenAPI docs. These are two core features required for the app to run:
+Zeta apps require input/output validation and OpenAPI docs. These are two core features required for
+the app to run:
 
 ```ts
 // main.ts
@@ -70,4 +72,5 @@ The app will have three routes:
 - [Define more routes](@/server/routes/_index.md) on your app.
 - Learn more about [Validation](@/server/validation.md).
 - Provide more complete [OpenAPI docs](@/server/openapi.md).
-- Break up your app into multiple smaller apps and [compose](@/server/composing-apps.md) them together.
+- Break up your app into multiple smaller apps and [compose](@/server/composing-apps.md) them
+  together.

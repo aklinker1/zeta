@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+
 import { HttpStatus } from "../../src";
 import { openDb } from "./db";
 
@@ -36,9 +37,7 @@ describe("App", async () => {
     // Wait for onGlobalAfterResponse timeouts to be fired
     await Bun.sleep(1);
 
-    const history = db
-      .query("SELECT method, path, status_code FROM request_history")
-      .all();
+    const history = db.query("SELECT method, path, status_code FROM request_history").all();
 
     expect(history).toHaveLength(3);
     expect(history).toContainEqual({

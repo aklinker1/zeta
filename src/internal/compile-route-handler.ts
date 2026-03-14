@@ -17,9 +17,7 @@ import {
   validateOutputSchema,
 } from "./utils";
 
-export function compileRouteHandler(
-  options: CompileOptions,
-): CompiledRouteHandler {
+export function compileRouteHandler(options: CompileOptions): CompiledRouteHandler {
   if (options.fetch) {
     return new Function(`
       return (request, ctx) => ctx.matchedRoute.data.fetch(request)
@@ -76,11 +74,10 @@ ${options.hooks.onMapResponse?.length ? compileResponseModifierHookCall("onMapRe
 }
 //#sourceURL=${getSourceUrl(options)}
   `;
-  return new Function(
-    "utils",
-    "responseContentTypeMap",
-    cleanupCompiledWhitespace(js),
-  )(UTILS, responseContentTypeMap);
+  return new Function("utils", "responseContentTypeMap", cleanupCompiledWhitespace(js))(
+    UTILS,
+    responseContentTypeMap,
+  );
 }
 
 // These functions are available in the generated code via the "utils" object.
@@ -112,10 +109,7 @@ const ADD_CTX_BODY = `
   if (ctx.body) ctx.body = await ctx.body;
 `;
 
-function compileCtxModifierHookCall(
-  hook: LifeCycleHookName,
-  hookCount: number,
-): string {
+function compileCtxModifierHookCall(hook: LifeCycleHookName, hookCount: number): string {
   const lines: string[] = [];
 
   for (let i = 0; i < hookCount; i++) {
@@ -134,10 +128,7 @@ function compileCtxModifierHookCall(
   return lines.join("\n");
 }
 
-function compileResponseModifierHookCall(
-  hook: LifeCycleHookName,
-  hookCount: number,
-): string {
+function compileResponseModifierHookCall(hook: LifeCycleHookName, hookCount: number): string {
   const lines: string[] = [];
 
   for (let i = 0; i < hookCount; i++) {
@@ -165,18 +156,13 @@ function compileValidateResponse(options: CompileOptions): string {
   return "ctx.response = utils.validateOutputSchema(ctx.matchedRoute.data.def.responses[ctx.set.status], ctx.response);";
 }
 
-function getResponseContentTypeMap(
-  options: CompileOptions,
-): Record<number, string> | undefined {
+function getResponseContentTypeMap(options: CompileOptions): Record<number, string> | undefined {
   // No schemas defined
   if (!options.def?.responses) return;
 
   // One schema defined
   if ("~standard" in options.def.responses) {
-    const { contentType } = getMeta(
-      options.schemaAdapter,
-      options.def.responses,
-    );
+    const { contentType } = getMeta(options.schemaAdapter, options.def.responses);
     if (!contentType) return;
 
     return { [200]: contentType };

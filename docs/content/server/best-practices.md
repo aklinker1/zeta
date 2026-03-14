@@ -53,7 +53,8 @@ For full-stack projects:
 
 ## Create the app and listen in separate files
 
-In all the documentation so far, we've shown both creating and listening to the app in the same file for brevity. In a real-world application, you should separate these concerns into different files.
+In all the documentation so far, we've shown both creating and listening to the app in the same file
+for brevity. In a real-world application, you should separate these concerns into different files.
 
 ```ts
 // app.ts
@@ -72,13 +73,17 @@ app.listen(3000);
 The main idea here is to make it easy to import the app without calling `listen()`.
 
 1. When writing tests, you can import and test it without binding to a port.
-2. When creating a client using `@aklinker1/zeta/client`, you don't have to export the app instance from the main file, which doesn't make sense for a script entry point.
+2. When creating a client using `@aklinker1/zeta/client`, you don't have to export the app instance
+   from the main file, which doesn't make sense for a script entry point.
 
 ## Decorate global services instead of importing them
 
-Building a big application can require lots of services that depend on each other. I've spent a lot of time working on projects of all sizes, and I've figure out my personal preference for how to build these services regardless of the project size.
+Building a big application can require lots of services that depend on each other. I've spent a lot
+of time working on projects of all sizes, and I've figure out my personal preference for how to
+build these services regardless of the project size.
 
-Create a file, `dependencies.ts`, that builds your "dependency tree" and exports all dependencies you will need:
+Create a file, `dependencies.ts`, that builds your "dependency tree" and exports all dependencies
+you will need:
 
 ```ts
 export const db = await openDatabase(...);
@@ -107,12 +112,21 @@ const app = createApp()
 
 Now, why do this over just importing services from `dependencies.ts`?
 
-1. Keep how you get access services consistent - `createUsersRepo` isn't importing `db`, it accepts it as an argument so it can be easily mocked in tests. If you start importing services into your routes, now you have two different patterns for getting access to services. Additionally, it's much easier to create circular dependencies if you're importing other services all over the place.
+1. Keep how you get access services consistent - `createUsersRepo` isn't importing `db`, it accepts
+   it as an argument so it can be easily mocked in tests. If you start importing services into your
+   routes, now you have two different patterns for getting access to services. Additionally, it's
+   much easier to create circular dependencies if you're importing other services all over the
+   place.
 2. Testing! Accepting dependencies as arguments makes it easy to pass in mocks while testing.
-3. By using dependency injection, you can easily swap out one implementation for another without changing the code that uses it.
-4. In some cases, you'll have to construct services that depend on the request context. In that case, you'll have to pull those services from the request context anyways, so be consistent.
+3. By using dependency injection, you can easily swap out one implementation for another without
+   changing the code that uses it.
+4. In some cases, you'll have to construct services that depend on the request context. In that
+   case, you'll have to pull those services from the request context anyways, so be consistent.
 
-Now, manually constructing a "dependency tree" as shown above can be tedious, but full-blow DI solutions can be hard to learn and don't work well with TypeScript. I created [`@aklinker1/zero-ioc`](https://jsr.io/@aklinker1/zero-ioc) to create a simple, intuitive, DI/IOC container with full type-safety. Try it out!
+Now, manually constructing a "dependency tree" as shown above can be tedious, but full-blow DI
+solutions can be hard to learn and don't work well with TypeScript. I created
+[`@aklinker1/zero-ioc`](https://jsr.io/@aklinker1/zero-ioc) to create a simple, intuitive, DI/IOC
+container with full type-safety. Try it out!
 
 ```ts
 // dependencies.ts
@@ -127,12 +141,11 @@ export const container = createContainer()
 ```
 
 ```ts
-export const dependenciesPlugin = createApp()
-  .decorate(container.resolveAll())
-  .export();
+export const dependenciesPlugin = createApp().decorate(container.resolveAll()).export();
 ```
 
-All it does is automate the process of passing arguments into each service factory/constructor while preventing circular dependencies via TypeScript.
+All it does is automate the process of passing arguments into each service factory/constructor while
+preventing circular dependencies via TypeScript.
 
 But you can use whatever solution you prefer.
 
@@ -200,6 +213,8 @@ export const DeleteUserOutput = User;
 
 This has the following benefits:
 
-1. Only types will be documented in openAPI in the "Models" section, IO schemas will only be documented for each request
+1. Only types will be documented in openAPI in the "Models" section, IO schemas will only be
+   documented for each request
 2. Provides the optimal level of refs in your OpenAPI spec, keeping it as small as possible
-3. Having dedicated IO schemas means you can easily change the required inputs and outputs in a single place. This is especially useful if you are importing these models in client code.
+3. Having dedicated IO schemas means you can easily change the required inputs and outputs in a
+   single place. This is especially useful if you are importing these models in client code.

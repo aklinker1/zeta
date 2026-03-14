@@ -6,7 +6,8 @@ weight: 6
 
 ## Overview
 
-By default, all errors thrown inside a handler or hook are mapped to a `500 Internal Server Error` response. The original error will be the `cause`.
+By default, all errors thrown inside a handler or hook are mapped to a `500 Internal Server Error`
+response. The original error will be the `cause`.
 
 ```ts
 import { HttpError } from "@aklinker1/zeta";
@@ -31,7 +32,8 @@ const app = createApp().get("/users", {}, () => {
 <- }
 ```
 
-Regular `Error` instances are always mapped to a `500 Internal Server Error`. To control the status code, you need to throw a `HttpError`:
+Regular `Error` instances are always mapped to a `500 Internal Server Error`. To control the status
+code, you need to throw a `HttpError`:
 
 ```ts
 import { HttpError } from "@aklinker1/zeta";
@@ -53,11 +55,11 @@ const app = createApp().get("/users", {}, () => {
 <- }
 ```
 
-{% alert(type="tip") %}
-To disable the stack trace, set `NODE_ENV=production` in the environment variables.
-{% end %}
+{% alert(type="tip") %} To disable the stack trace, set `NODE_ENV=production` in the environment
+variables. {% end %}
 
-Alternatively, you can use a subclass of `HttpError` so you don't have to manually pass the status into the constructor:
+Alternatively, you can use a subclass of `HttpError` so you don't have to manually pass the status
+into the constructor:
 
 ```diff
 -import { HttpError } from "@aklinker1/zeta";
