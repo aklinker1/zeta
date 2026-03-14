@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.1.3
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v2.1.2...v2.1.3)
+
+### 🏡 Chore
+
+- Don't publish TS files directly ([fde6ceb](https://github.com/aklinker1/zeta/commit/fde6ceb))
+- Update TSConfig ([bf6236b](https://github.com/aklinker1/zeta/commit/bf6236b))
+- Fix formatting ([e4a1b8c](https://github.com/aklinker1/zeta/commit/e4a1b8c))
+
+### 🤖 CI
+
+- Fix test validation ([f9f052d](https://github.com/aklinker1/zeta/commit/f9f052d))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v2.1.2
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v2.1.1...v2.1.2)
