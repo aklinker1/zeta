@@ -1,7 +1,7 @@
 ---
 title: Mount Fetch Functions
 description: Zeta is WinterCG compliant, meaning you can mount other standard server-side fetch functions on your app.
-weight: 6
+weight: 7
 ---
 
 ## Overview
