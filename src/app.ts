@@ -3,9 +3,9 @@ import { addRoute, createRouter } from "rou3";
 import { compileRouter } from "rou3/compiler";
 import { compileFetchFunction } from "./internal/compile-fetch-function";
 import { compileRouteHandler } from "./internal/compile-route-handler";
-import { detectTransport } from "./internal/utils";
 import { buildOpenApiDocs, buildScalarHtml } from "./open-api";
 import type {
+  AnyTransport,
   App,
   BasePath,
   BasePrefix,
@@ -18,6 +18,7 @@ import type {
   ServerSideFetch,
   Transport,
 } from "./types";
+import { createFetchTransport } from "./transports/fetch-transport";
 
 let appIdInc = 0;
 const nextAppId = () => `app-${appIdInc++}`;
@@ -47,24 +48,32 @@ const nextHookId = (appId: string) => `${appId}/hook-${_hookIdInc++}`;
  * // Or serve the app yourself
  * const fetch = app.build();
  * Bun.serve({ fetch, ... });
- * Deno.serve({ fetch, ... });
+ * Deno.serve({ ... }, fetch);
  * ```
  *
  * @param options Configure application behavior.
  */
-export function createApp<TPrefix extends BasePrefix = "">(
-  options?: CreateAppOptions<TPrefix>,
+export function createApp<
+  TPrefix extends BasePrefix = "",
+  TTransport extends AnyTransport = Transport,
+>(
+  options?: CreateAppOptions<TPrefix, TTransport>,
 ): App<{
   ctx: {};
   exported: false;
   prefix: TPrefix;
   routes: {};
+  transport: TTransport;
 }> {
   const appId = nextAppId();
 
   const { origin = "http://localhost", prefix = "" } = options ?? {};
   const hooks: App["~zeta"]["hooks"] = {};
   const routes: App["~zeta"]["routes"] = {};
+
+  let _transport: AnyTransport;
+  const getTransport = (): AnyTransport =>
+    (_transport ??= options?.transport ?? createFetchTransport());
 
   const addRoutesEntry = (method: string, route: string, data: RouterData) => {
     routes[method] ??= {};
@@ -132,7 +141,8 @@ export function createApp<TPrefix extends BasePrefix = "">(
       }
 
       const getRoute = compileRouter(router);
-      return compileFetchFunction({ getRoute, hooks, origin });
+      const transport = getTransport();
+      return compileFetchFunction({ getRoute, hooks, origin, transport });
     },
 
     getOpenApiSpec: () => {
@@ -148,7 +158,7 @@ export function createApp<TPrefix extends BasePrefix = "">(
     },
 
     listen: (port, cb) => {
-      const transport = options?.transport ?? detectTransport();
+      const transport = getTransport();
       transport.listen(port, app.build(), cb);
       return app;
     },
@@ -352,7 +362,10 @@ export function createApp<TPrefix extends BasePrefix = "">(
 /**
  * Configure how the app is created.
  */
-export type CreateAppOptions<TPrefix extends BasePrefix = ""> = {
+export type CreateAppOptions<
+  TPrefix extends BasePrefix = "",
+  TTransport extends AnyTransport = Transport,
+> = {
   /**
    * The origin to use when constructing URLs.
    * @default "http://localhost"
@@ -397,7 +410,7 @@ export type CreateAppOptions<TPrefix extends BasePrefix = ""> = {
    * });
    * ```
    */
-  transport?: Transport;
+  transport?: TTransport;
 
   /**
    * Where the OpenAPI JSON docs is hosted.

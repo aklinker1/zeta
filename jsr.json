@@ -15,6 +15,7 @@
     "./schema": "./src/schema.ts",
     "./adapters/zod-schema-adapter": "./src/adapters/zod-schema-adapter.ts",
     "./transports/bun-transport": "./src/transports/bun-transport.ts",
+    "./transports/fetch-transport": "./src/transports/fetch-transport.ts",
     "./transports/deno-transport": "./src/transports/deno-transport.ts"
   }
 }

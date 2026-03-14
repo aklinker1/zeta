@@ -6,7 +6,8 @@ import { zodSchemaAdapter } from "../adapters/zod-schema-adapter";
 import { createApp } from "../app";
 import { HttpStatus } from "../status";
 import { createTestAppClient } from "../testing";
-import type { AnyDef, GetAppData } from "../types";
+import type { AnyDef, GetAppData, Transport } from "../types";
+import { createBunTransport } from "../transports/bun-transport";
 
 // Silence console.error logs
 globalThis.console.error = mock();
@@ -466,6 +467,7 @@ describe("App", () => {
             "/": AnyDef;
           };
         };
+        transport: Transport;
       }>();
       expect(actual).not.toMatchObject({ a: "A" });
     });
@@ -489,6 +491,7 @@ describe("App", () => {
             "/": AnyDef;
           };
         };
+        transport: Transport;
       }>();
       expect(actual).toMatchObject({ a: "A" });
     });
@@ -606,6 +609,23 @@ describe("App", () => {
           { bearerAuth: [] },
         ]);
       });
+    });
+  });
+
+  describe("transports", () => {
+    it("should include transport decorations", async () => {
+      const expected = Symbol("server") as any;
+
+      let actual: Bun.Server;
+      const app = createApp({
+        schemaAdapter: zodSchemaAdapter,
+        transport: createBunTransport(),
+      }).get("/", (ctx) => {
+        actual = ctx.server;
+      });
+      await app.build()(new Request("http://localhost:3000"), expected);
+
+      expect(actual!).toBe(expected);
     });
   });
 });

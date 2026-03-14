@@ -1,10 +1,17 @@
 import { describe, it, expect } from "bun:test";
 import { compileFetchFunction } from "../compile-fetch-function";
+import type { Transport } from "../../types";
 
 process.env.NODE_ENV = "production";
 
 const origin = "http://localhost";
 const getRoute = () => undefined;
+
+const transport: Transport = {
+  listen: () => {
+    throw Error("Not implemented");
+  },
+};
 
 describe("compileFetchFunction", () => {
   describe("when there are no hooks", () => {
@@ -13,6 +20,7 @@ describe("compileFetchFunction", () => {
         origin,
         getRoute,
         hooks: {},
+        transport,
       });
 
       expect(actual.toString()).toMatchInlineSnapshot(`
@@ -73,6 +81,7 @@ describe("compileFetchFunction", () => {
             { id: "", applyTo: "global", callback: () => void 0 },
           ],
         },
+        transport,
       });
 
       expect(actual.toString()).toMatchInlineSnapshot(`
@@ -141,12 +150,14 @@ describe("compileFetchFunction", () => {
             { id: "", applyTo: "global", callback: () => void 0 },
           ],
         },
+        transport,
       });
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "(request) => {
           const path = utils.getRawPathname(request);
           const ctx = new utils.Context(request, path, utils.origin);
+
           let handlerReturnedPromise = false;
 
           try {
@@ -214,6 +225,7 @@ describe("compileFetchFunction", () => {
             { id: "", applyTo: "global", callback: () => void 0 },
           ],
         },
+        transport,
       });
 
       expect(actual.toString()).toMatchInlineSnapshot(`
@@ -254,6 +266,73 @@ describe("compileFetchFunction", () => {
             ctx.error = error;
             utils.hooks.onGlobalError[0].callback(ctx);
 
+            const status =
+              error instanceof utils.HttpError
+                ? error.status
+                : utils.HttpStatus.InternalServerError;
+            return (
+              ctx.response = Response.json(
+                utils.serializeErrorResponse(error),
+                { status, headers: ctx.set.headers },
+              )
+            );
+          } 
+        }"
+      `);
+    });
+  });
+
+  describe("when the transport includes decoration", () => {
+    const decoratedTransport: Transport = {
+      listen: () => {
+        throw Error("Not implemented");
+      },
+      decorate: () => {
+        throw Error("Not implemented");
+      },
+    };
+
+    it("should include a call to transport.decorate", async () => {
+      const actual = compileFetchFunction({
+        origin,
+        getRoute,
+        hooks: {},
+        transport: decoratedTransport,
+      });
+
+      expect(actual.toString()).toMatchInlineSnapshot(`
+        "(request, ...args) => {
+          const path = utils.getRawPathname(request);
+          const ctx = new utils.Context(request, path, utils.origin);
+          utils.transport.decorate(ctx, request, ...args);
+
+          try {
+            const matchedRoute = utils.getRoute(request.method, path);
+            if (matchedRoute == null) {
+              throw new utils.NotFoundHttpError(undefined, {
+                method: request.method,
+                path,
+              });
+            } else {
+              ctx.matchedRoute = matchedRoute;
+            }
+
+            ctx.response = matchedRoute.data.compiledHandler(request, ctx);
+            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
+
+            return ctx.response.catch(error => {
+              const status =
+                error instanceof utils.HttpError
+                  ? error.status
+                  : utils.HttpStatus.InternalServerError;
+              return (
+                ctx.response = Response.json(
+                  utils.serializeErrorResponse(error),
+                  { status, headers: ctx.set.headers },
+                )
+              );
+            });
+          } catch (error) {
             const status =
               error instanceof utils.HttpError
                 ? error.status

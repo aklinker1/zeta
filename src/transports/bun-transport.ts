@@ -1,17 +1,27 @@
 import type { Transport } from "../types";
-// @ts-ignore: Bun types may not be available
-import type { ServeFunctionOptions } from "@types/bun";
+
+export type BunTransport = Transport<[request: Request, server: Bun.Server]>;
+
+declare module "../types" {
+  interface RequestContext {
+    server: Bun.Server;
+  }
+}
 
 export function createBunTransport(
-  options: Omit<ServeFunctionOptions<any, any>, "fetch" | "port">,
-): Transport {
-  const listen: Transport["listen"] = (port, fetch, cb) => {
-    // @ts-ignore: Bun types may not be available
+  options?: Omit<Bun.ServeFunctionOptions<any, any>, "fetch" | "port">,
+): BunTransport {
+  const listen: BunTransport["listen"] = (port, fetch, cb) => {
     Bun.serve({ ...options, port, fetch });
     if (cb) setTimeout(cb, 0);
   };
 
+  const decorate: BunTransport["decorate"] = (ctx, _request, server) => {
+    ctx.server = server;
+  };
+
   return {
     listen,
+    decorate,
   };
 }
