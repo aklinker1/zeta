@@ -50,10 +50,10 @@ export function getRawPathname(request: Request): string {
   // Find end of pathname (before ? or #)
   for (let i = start + 1; i < request.url.length; i++) {
     if (request.url[i] === "?" || request.url[i] === "#") {
-      return request.url.slice(start, i);
+      return decodeUrlString(request.url.slice(start, i));
     }
   }
-  return request.url.slice(start);
+  return decodeUrlString(request.url.slice(start));
 }
 
 export function getRawQuery(request: Request): Record<string, string> {
@@ -70,7 +70,7 @@ export function getRawQuery(request: Request): Record<string, string> {
       const end = i === len - 1 ? len : i;
       const eqIndex = str.indexOf("=", start);
       if (eqIndex !== -1 && eqIndex < end) {
-        res[str.slice(start, eqIndex)] = str.slice(eqIndex + 1, end);
+        res[str.slice(start, eqIndex)] = decodeUrlString(str.slice(eqIndex + 1, end));
       }
       start = i + 1;
     }
@@ -157,4 +157,8 @@ export function cleanupCompiledWhitespace(code: string): string {
       // Remove blank lines after curly braces
       .replaceAll("{\n\n", "{\n")
   );
+}
+
+function decodeUrlString(text: string): string {
+  return decodeURIComponent(text.replaceAll("+", " "));
 }

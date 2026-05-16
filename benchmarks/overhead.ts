@@ -1,3 +1,9 @@
+import { Elysia } from "elysia";
+import { Hono } from "hono";
+import { createMiddleware } from "hono/factory";
+import { Bench } from "tinybench";
+import { z } from "zod/v4";
+
 /**
  * Run some targeted benchmarks aiming to compare the internal handlers of
  * different frameworks.
@@ -7,13 +13,8 @@
  *   bun run benchmarks/overhead.ts
  *   bun run benchmarks/overhead.ts "{{benchmark_name}}"
  */
-import { createApp } from "@aklinker1/zeta";
-import type { ServerSideFetch } from "@aklinker1/zeta/types";
-import { Elysia } from "elysia";
-import { Hono } from "hono";
-import { createMiddleware } from "hono/factory";
-import { Bench } from "tinybench";
-import { z } from "zod/v4";
+import { createApp } from "../dist/index.mjs";
+import type { ServerSideFetch } from "../dist/types.mjs";
 
 process.env.NODE_ENV = "production";
 

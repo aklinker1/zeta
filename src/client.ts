@@ -51,14 +51,6 @@ export function createAppClient<TApp extends App>(
 ): AppClient<GetClientRoutes<TApp>> {
   const { baseUrl = location.origin, fetch = globalThis.fetch, headers = {} } = options ?? {};
 
-  const buildSearchParams = (query: Record<string, unknown>) => {
-    return new URLSearchParams(
-      Object.entries(query)
-        .filter(([, value]) => value != null)
-        .map(([key, value]) => [key, String(value)]),
-    ).toString();
-  };
-
   const buildPath = (route: string, params: Record<string, unknown>) => {
     return Object.entries(params).reduce(
       (path, [key, value]) =>
@@ -72,10 +64,13 @@ export function createAppClient<TApp extends App>(
 
   return {
     async fetch(method: string, route: string, inputs: any) {
-      const searchParams =
-        inputs.query == null ? "" : `?${buildSearchParams(inputs.query).toString()}`;
-      const path = inputs.params == null ? route : buildPath(route, inputs.params);
-      const url = `${join(baseUrl, path)}${searchParams}`;
+      const pathname = inputs.params ? buildPath(route, inputs.params) : route;
+      const url = new URL(pathname, baseUrl);
+      if (inputs.query) {
+        for (const [key, value] of Object.entries(inputs.query)) {
+          url.searchParams.set(key, String(value));
+        }
+      }
 
       const init = {
         body: undefined as BodyInit | undefined,
@@ -152,11 +147,3 @@ export type CreateAppClientOptions = {
    */
   headers?: Record<string, string>;
 };
-
-/** Join string together using `/` without double slashes. */
-function join(...paths: string[]) {
-  return paths
-    .map((path) => path.replace(/^\/+|\/+$/g, ""))
-    .filter(Boolean)
-    .join("/");
-}

@@ -194,14 +194,6 @@ describe("App", () => {
           input: { a: "a" },
           expected: { a: "a" },
         },
-        // {
-        //   input: { a: ["a", "b"] },
-        //   expected: { a: ["a", "b"] },
-        // },
-        // {
-        //   input: { a: "a", b: "b" },
-        //   expected: { a: "a", b: "b" },
-        // },
       ])("should parse the query parameters correctly for: %j", async ({ input, expected }) => {
         let actual: any;
         const app = createApp().get(
@@ -241,7 +233,26 @@ describe("App", () => {
         });
 
         expect(actual).toEqual({ limit: 50 });
-        expect(typeof actual.limit).toBe("number");
+      });
+
+      it("should decode query parameters correctly", async () => {
+        let actual: any;
+        const app = createApp().get(
+          "/test",
+          {
+            query: z.object({
+              text: z.string(),
+            }),
+          },
+          ({ query }) => void (actual = query),
+        );
+        const client = createTestAppClient(app);
+
+        await client.fetch("GET", "/test", {
+          query: { text: "hello world" },
+        });
+
+        expect(actual).toEqual({ text: "hello world" });
       });
     });
 
