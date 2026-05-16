@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.2.1
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v2.2.0...v2.2.1)
+
+### 🩹 Fixes
+
+- Automatically decode query/path params ([4e60a6f](https://github.com/aklinker1/zeta/commit/4e60a6f))
+
+### 🏡 Chore
+
+- Use oxfmt instead of prettier ([20d3a47](https://github.com/aklinker1/zeta/commit/20d3a47))
+- Add format on commit ([dfa67b1](https://github.com/aklinker1/zeta/commit/dfa67b1))
+
+### ❤️ Contributors
+
+- Aaron ([@aklinker1](https://github.com/aklinker1))
+
 ## v2.2.0
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v2.1.3...v2.2.0)
