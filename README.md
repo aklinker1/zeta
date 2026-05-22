@@ -1,4 +1,7 @@
-# Zeta
+<div align="center">
+
+# `@aklinker1/zeta`
+
 
 [![JSR](https://jsr.io/badges/@aklinker1/zeta)](https://jsr.io/@aklinker1/zeta)
 [![NPM Version](https://img.shields.io/npm/v/%40aklinker1%2Fzeta?logo=npm&labelColor=red&color=white)](https://www.npmjs.com/package/@aklinker1/zeta)
@@ -8,6 +11,13 @@
 [![Changelog](https://img.shields.io/badge/Changelog-blue?logo=github&logoColor=white)](https://github.com/aklinker1/zeta/blob/main/CHANGELOG.md)
 
 Composable, fast, testable, OpenAPI-first backend framework with validation built-in.
+
+</div>
+
+```sh
+bun add @aklinker1/zeta
+deno add @aklinker1/zeta
+```
 
 ```ts
 // main.ts
