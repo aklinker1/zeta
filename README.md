@@ -2,7 +2,6 @@
 
 # `@aklinker1/zeta`
 
-
 [![JSR](https://jsr.io/badges/@aklinker1/zeta)](https://jsr.io/@aklinker1/zeta)
 [![NPM Version](https://img.shields.io/npm/v/%40aklinker1%2Fzeta?logo=npm&labelColor=red&color=white)](https://www.npmjs.com/package/@aklinker1/zeta)
 [![Docs](https://img.shields.io/badge/Docs-blue?logo=readme&logoColor=white)](https://zeta.aklinker1.io)
