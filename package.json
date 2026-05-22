@@ -69,7 +69,8 @@
     "docs:preview": "vitepress preview docs",
     "example": "bun --watch run example.ts",
     "example:prod": "NODE_ENV=production bun run example",
-    "postinstall": "simple-git-hooks"
+    "postinstall": "simple-git-hooks",
+    "prepack": "bun run build"
   },
   "dependencies": {
     "@standard-schema/spec": "^1.0.0",

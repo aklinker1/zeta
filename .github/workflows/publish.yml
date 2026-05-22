@@ -1,40 +1,49 @@
 name: Publish
+
 on:
   workflow_dispatch:
+    inputs:
+      bump:
+        description: Blank (auto), a version (1.4.1), or major/minor/patch
+        type: string
+      dryRun:
+        description: Dry Run?
+        type: boolean
+        default: false
 
 jobs:
   validate:
-    name: Validate
-    uses: "./.github/workflows/validate.yml"
-    secrets: inherit
-  publish:
-    name: Publish
-    runs-on: ubuntu-24.04
-    needs: [validate]
+    uses: ./.github/workflows/validate.yml
+
+  release:
+    runs-on: ubuntu-latest
+    needs: validate
     permissions:
-      contents: write # Allow pushing
-      id-token: write # Enable OIDC for NPM and JSR
+      contents: write
+      id-token: write
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+
       - uses: ./.github/actions/setup
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
-      - run: sudo npm i -g npm@latest
-      - run: bun run build
-      - run: bunx jsr publish --dry-run
-      # - run: npm publish --dry-run # NPM fails with " npm error You cannot publish over the previously published versions: X.Y.Z."
+
       - run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      - run: bunx changelogen@latest --release --push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm publish
-      - name: Sync JSR version
-        run: |
-          node -e 'const fs = require("fs"); const ver = require("./package.json").version; let content = fs.readFileSync("jsr.json", "utf8"); fs.writeFileSync("jsr.json", content.replace(/(version"\s*:\s*")[^"]*(")/, `$1${ver}$2`))'
-          git add jsr.json
-          git commit -m "sync \`jsr.json\` version"
-          git push
-      - run: bunx jsr publish
+
+      - name: Update NPM for Provence
+        run: sudo npm i -g npm@latest
+
+      - name: Bump and Release
+        uses: aklinker1/zero-changelog/actions/release@b352bed6e2cad74077baace38bf4eb7fd89883e1 # 0.1.11
+        with:
+          bump: ${{ inputs.bump }}
+          publishCommands: |-
+            npm publish
+            bunx jsr publish
+          dryRun: ${{ inputs.dryRun }}
+          dryRunPublishCommands: |-
+            npm publish --dry-run
+            bunx jsr publish --dry-run --allow-dirty
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
