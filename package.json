@@ -124,6 +124,5 @@
   },
   "nano-staged": {
     "*": "oxfmt --no-error-on-unmatched-pattern"
-  },
-  "packageManager": "bun@1.3.10"
+  }
 }
