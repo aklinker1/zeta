@@ -1,5 +1,30 @@
 # Changelog
 
+## v2.2.2
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v2.2.1...v2.2.2)
+
+### 🩹 Fixes
+
+- **client**: Throw `RequestError` directly instead of putting it in the `cause` ([`3448ed0`](https://github.com/aklinker1/zeta/commit/3448ed0452f52f984e24fce106c500ac56cf5ae3))
+
+### 📖 Documentation
+
+- Update README header to match my other repos ([`70c0e24`](https://github.com/aklinker1/zeta/commit/70c0e245a498eac3e82002a9fbc3390b4d505e3c))
+
+### 🏡 Chore
+
+- Move bun version to `.tool-versions` ([`f39cc62`](https://github.com/aklinker1/zeta/commit/f39cc629a14dacac23fbf39aa518f2e329cdb156))
+
+### 🤖 CI
+
+- Switch publish script to use zero-changelog ([`943bd65`](https://github.com/aklinker1/zeta/commit/943bd6534006d4fff996f95ce7bf28a5fac9e627))
+
+### ❤️ Contributors
+
+- Aaron <aaronklinker1@gmail.com>
+
+
 ## v2.2.1
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v2.2.0...v2.2.1)
