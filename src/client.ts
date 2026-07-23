@@ -96,6 +96,7 @@ export function createAppClient<TApp extends App>(
         }
         return response as any;
       } catch (err) {
+        if (err instanceof RequestError) throw err;
         throw Error("Fetch failed", { cause: err });
       }
     },
