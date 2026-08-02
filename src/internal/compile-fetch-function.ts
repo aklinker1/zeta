@@ -1,5 +1,6 @@
 import type { MatchedRoute } from "rou3";
 
+import { asyncLocalStorage } from "../async-local-storage";
 import { HttpError, NotFoundHttpError } from "../errors";
 import { HttpStatus } from "../status";
 import type { AnyTransport, LifeCycleHooks, RouterData, ServerSideFetch } from "../types";
@@ -18,33 +19,35 @@ return (request${options.transport?.decorate ? ", ...args" : ""}) => {
   ${options.transport?.decorate ? `utils.transport.decorate(ctx, request, ...args);` : ""}
   ${onGlobalAfterResponseCount ? "let handlerReturnedPromise = false;" : ""}
 
-  try {
-${onGlobalRequestCount ? compileOnGlobalRequestHook(onGlobalRequestCount) : ""}
+  return utils.asyncLocalStorage.run(ctx.getStoreMap(), () => {
+    try {
+${onGlobalRequestCount ? compileOnGlobalRequestHook(onGlobalRequestCount, 3) : ""}
 
-    const matchedRoute = utils.getRoute(request.method, path);
-    if (matchedRoute == null) {
-      throw new utils.NotFoundHttpError(undefined, {
-        method: request.method,
-        path,
-      });
-    } else {
-      ctx.matchedRoute = matchedRoute;
-    }
+      const matchedRoute = utils.getRoute(request.method, path);
+      if (matchedRoute == null) {
+        throw new utils.NotFoundHttpError(undefined, {
+          method: request.method,
+          path,
+        });
+      } else {
+        ctx.matchedRoute = matchedRoute;
+      }
 
-    ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-    if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
+      ctx.response = matchedRoute.data.compiledHandler(request, ctx);
+      if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
 
-    ${onGlobalAfterResponseCount ? "handlerReturnedPromise = true;" : ""}
-    return ctx.response.catch(error => {
+      ${onGlobalAfterResponseCount ? "handlerReturnedPromise = true;" : ""}
+      return ctx.response.catch(error => {
+${onGlobalErrorCount ? compileOnGlobalErrorHook(onGlobalErrorCount, 4) : ""}
+
+${compileErrorResponse(4)}
+      })${onGlobalAfterResponseCount ? compileOnGlobalAfterResponsePromiseFinally(onGlobalAfterResponseCount, 3) : ""};
+    } catch (error) {
 ${onGlobalErrorCount ? compileOnGlobalErrorHook(onGlobalErrorCount, 3) : ""}
 
 ${compileErrorResponse(3)}
-    })${onGlobalAfterResponseCount ? compileOnGlobalAfterResponsePromiseFinally(onGlobalAfterResponseCount, 2) : ""};
-  } catch (error) {
-${onGlobalErrorCount ? compileOnGlobalErrorHook(onGlobalErrorCount, 2) : ""}
-
-${compileErrorResponse(2)}
-  } ${onGlobalAfterResponseCount ? compileOnGlobalAfterResponseFinally(onGlobalAfterResponseCount, 1) : ""}
+    } ${onGlobalAfterResponseCount ? compileOnGlobalAfterResponseFinally(onGlobalAfterResponseCount, 2) : ""}
+  });
 }
 //#sourceURL=zeta-jit-generated://zeta-fetch-fn.js
   `;
@@ -60,28 +63,30 @@ ${compileErrorResponse(2)}
     HttpStatus,
     serializeErrorResponse,
     transport: options.transport,
+    asyncLocalStorage,
   });
 }
 
-function compileOnGlobalRequestHook(hookCount: number): string {
+function compileOnGlobalRequestHook(hookCount: number, tabs: number = 2): string {
+  const indent = "  ".repeat(tabs);
   const lines: string[] = [];
 
   for (let i = 0; i < hookCount; i++) {
     const resultVar = `onGlobalRequestRes${i}`;
     lines.push(
-      `    const ${resultVar} = utils.hooks.onGlobalRequest[${i}].callback(ctx);`,
+      `${indent}const ${resultVar} = utils.hooks.onGlobalRequest[${i}].callback(ctx);`,
       ...(process.env.NODE_ENV !== "production"
         ? [
-            `    if (${resultVar} instanceof Promise)`,
-            `      console.warn("Warning: Promise returned from onGlobalRequest hook. Promises returned from onGlobalRequest are not awaited, ignoring the return value.");`,
+            `${indent}if (${resultVar} instanceof Promise)`,
+            `${indent}  console.warn("Warning: Promise returned from onGlobalRequest hook. Promises returned from onGlobalRequest are not awaited, ignoring the return value.");`,
           ]
         : []),
-      `    if (${resultVar})`,
-      `      if (typeof ${resultVar}.body?.bytes === utils.FUNCTION)`,
-      `        return ${resultVar};`,
-      `      else`,
-      `        for (const key of Object.keys(${resultVar}))`,
-      `          ctx[key] = ${resultVar}[key];`,
+      `${indent}if (${resultVar})`,
+      `${indent}  if (typeof ${resultVar}.body?.bytes === utils.FUNCTION)`,
+      `${indent}    return ${resultVar};`,
+      `${indent}  else`,
+      `${indent}    for (const key of Object.keys(${resultVar}))`,
+      `${indent}      ctx[key] = ${resultVar}[key];`,
     );
   }
 

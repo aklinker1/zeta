@@ -53,6 +53,7 @@ deno run --allow-net main.ts
 - ❄️ WinterCG compatible
 - 🧪 Easy to test
 - 📄 OpenAPI docs built-in
+- 🗄️ Built in `AsyncLocalStorage` access
 
 ## Docs
 

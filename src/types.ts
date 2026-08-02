@@ -577,6 +577,23 @@ export interface RequestContext {
   path: string;
   method: string;
   set: Setter;
+  /**
+   * AsyncLocalStorage store for per-request data.
+   * Allows storing and accessing data anywhere in the call stack.
+   *
+   * @example
+   * ```ts
+   * app.onGlobalRequest(({ store }) => {
+   *   store.set("requestId", crypto.randomUUID());
+   * });
+   *
+   * app.get("/test", ({ store }) => {
+   *   const requestId = store.get("requestId");
+   *   return { requestId };
+   * });
+   * ```
+   */
+  store: import("./async-local-storage").Store;
 }
 
 /**

@@ -29,21 +29,34 @@ describe("compileFetchFunction", () => {
           const path = utils.getRawPathname(request);
           const ctx = new utils.Context(request, path, utils.origin);
 
-          try {
-            const matchedRoute = utils.getRoute(request.method, path);
-            if (matchedRoute == null) {
-              throw new utils.NotFoundHttpError(undefined, {
-                method: request.method,
-                path,
+          return utils.asyncLocalStorage.run(ctx.getStoreMap(), () => {
+            try {
+              const matchedRoute = utils.getRoute(request.method, path);
+              if (matchedRoute == null) {
+                throw new utils.NotFoundHttpError(undefined, {
+                  method: request.method,
+                  path,
+                });
+              } else {
+                ctx.matchedRoute = matchedRoute;
+              }
+
+              ctx.response = matchedRoute.data.compiledHandler(request, ctx);
+              if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
+
+              return ctx.response.catch(error => {
+                const status =
+                  error instanceof utils.HttpError
+                    ? error.status
+                    : utils.HttpStatus.InternalServerError;
+                return (
+                  ctx.response = Response.json(
+                    utils.serializeErrorResponse(error),
+                    { status, headers: ctx.set.headers },
+                  )
+                );
               });
-            } else {
-              ctx.matchedRoute = matchedRoute;
-            }
-
-            ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
-
-            return ctx.response.catch(error => {
+            } catch (error) {
               const status =
                 error instanceof utils.HttpError
                   ? error.status
@@ -54,19 +67,8 @@ describe("compileFetchFunction", () => {
                   { status, headers: ctx.set.headers },
                 )
               );
-            });
-          } catch (error) {
-            const status =
-              error instanceof utils.HttpError
-                ? error.status
-                : utils.HttpStatus.InternalServerError;
-            return (
-              ctx.response = Response.json(
-                utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
-              )
-            );
-          } 
+            } 
+          });
         }"
       `);
     });
@@ -88,29 +90,42 @@ describe("compileFetchFunction", () => {
           const path = utils.getRawPathname(request);
           const ctx = new utils.Context(request, path, utils.origin);
 
-          try {
-            const onGlobalRequestRes0 = utils.hooks.onGlobalRequest[0].callback(ctx);
-            if (onGlobalRequestRes0)
-              if (typeof onGlobalRequestRes0.body?.bytes === utils.FUNCTION)
-                return onGlobalRequestRes0;
-              else
-                for (const key of Object.keys(onGlobalRequestRes0))
-                  ctx[key] = onGlobalRequestRes0[key];
+          return utils.asyncLocalStorage.run(ctx.getStoreMap(), () => {
+            try {
+              const onGlobalRequestRes0 = utils.hooks.onGlobalRequest[0].callback(ctx);
+              if (onGlobalRequestRes0)
+                if (typeof onGlobalRequestRes0.body?.bytes === utils.FUNCTION)
+                  return onGlobalRequestRes0;
+                else
+                  for (const key of Object.keys(onGlobalRequestRes0))
+                    ctx[key] = onGlobalRequestRes0[key];
 
-            const matchedRoute = utils.getRoute(request.method, path);
-            if (matchedRoute == null) {
-              throw new utils.NotFoundHttpError(undefined, {
-                method: request.method,
-                path,
+              const matchedRoute = utils.getRoute(request.method, path);
+              if (matchedRoute == null) {
+                throw new utils.NotFoundHttpError(undefined, {
+                  method: request.method,
+                  path,
+                });
+              } else {
+                ctx.matchedRoute = matchedRoute;
+              }
+
+              ctx.response = matchedRoute.data.compiledHandler(request, ctx);
+              if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
+
+              return ctx.response.catch(error => {
+                const status =
+                  error instanceof utils.HttpError
+                    ? error.status
+                    : utils.HttpStatus.InternalServerError;
+                return (
+                  ctx.response = Response.json(
+                    utils.serializeErrorResponse(error),
+                    { status, headers: ctx.set.headers },
+                  )
+                );
               });
-            } else {
-              ctx.matchedRoute = matchedRoute;
-            }
-
-            ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
-
-            return ctx.response.catch(error => {
+            } catch (error) {
               const status =
                 error instanceof utils.HttpError
                   ? error.status
@@ -121,19 +136,8 @@ describe("compileFetchFunction", () => {
                   { status, headers: ctx.set.headers },
                 )
               );
-            });
-          } catch (error) {
-            const status =
-              error instanceof utils.HttpError
-                ? error.status
-                : utils.HttpStatus.InternalServerError;
-            return (
-              ctx.response = Response.json(
-                utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
-              )
-            );
-          } 
+            } 
+          });
         }"
       `);
     });
@@ -157,22 +161,39 @@ describe("compileFetchFunction", () => {
 
           let handlerReturnedPromise = false;
 
-          try {
-            const matchedRoute = utils.getRoute(request.method, path);
-            if (matchedRoute == null) {
-              throw new utils.NotFoundHttpError(undefined, {
-                method: request.method,
-                path,
+          return utils.asyncLocalStorage.run(ctx.getStoreMap(), () => {
+            try {
+              const matchedRoute = utils.getRoute(request.method, path);
+              if (matchedRoute == null) {
+                throw new utils.NotFoundHttpError(undefined, {
+                  method: request.method,
+                  path,
+                });
+              } else {
+                ctx.matchedRoute = matchedRoute;
+              }
+
+              ctx.response = matchedRoute.data.compiledHandler(request, ctx);
+              if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
+
+              handlerReturnedPromise = true;
+              return ctx.response.catch(error => {
+                const status =
+                  error instanceof utils.HttpError
+                    ? error.status
+                    : utils.HttpStatus.InternalServerError;
+                return (
+                  ctx.response = Response.json(
+                    utils.serializeErrorResponse(error),
+                    { status, headers: ctx.set.headers },
+                  )
+                );
+              }).finally(() => {
+                setTimeout(() => {
+                  utils.hooks.onGlobalAfterResponse[0].callback(ctx);
+                })
               });
-            } else {
-              ctx.matchedRoute = matchedRoute;
-            }
-
-            ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
-
-            handlerReturnedPromise = true;
-            return ctx.response.catch(error => {
+            } catch (error) {
               const status =
                 error instanceof utils.HttpError
                   ? error.status
@@ -183,30 +204,15 @@ describe("compileFetchFunction", () => {
                   { status, headers: ctx.set.headers },
                 )
               );
-            }).finally(() => {
-              setTimeout(() => {
-                utils.hooks.onGlobalAfterResponse[0].callback(ctx);
-              })
-            });
-          } catch (error) {
-            const status =
-              error instanceof utils.HttpError
-                ? error.status
-                : utils.HttpStatus.InternalServerError;
-            return (
-              ctx.response = Response.json(
-                utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
-              )
-            );
-          } finally {
-            if (!handlerReturnedPromise) {
-              setTimeout(() => {
-                utils.hooks.onGlobalAfterResponse[0].callback(ctx);
-              })
+            } finally {
+              if (!handlerReturnedPromise) {
+                setTimeout(() => {
+                  utils.hooks.onGlobalAfterResponse[0].callback(ctx);
+                })
+              }
             }
-          }
 
+          });
         }"
       `);
     });
@@ -228,21 +234,37 @@ describe("compileFetchFunction", () => {
           const path = utils.getRawPathname(request);
           const ctx = new utils.Context(request, path, utils.origin);
 
-          try {
-            const matchedRoute = utils.getRoute(request.method, path);
-            if (matchedRoute == null) {
-              throw new utils.NotFoundHttpError(undefined, {
-                method: request.method,
-                path,
+          return utils.asyncLocalStorage.run(ctx.getStoreMap(), () => {
+            try {
+              const matchedRoute = utils.getRoute(request.method, path);
+              if (matchedRoute == null) {
+                throw new utils.NotFoundHttpError(undefined, {
+                  method: request.method,
+                  path,
+                });
+              } else {
+                ctx.matchedRoute = matchedRoute;
+              }
+
+              ctx.response = matchedRoute.data.compiledHandler(request, ctx);
+              if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
+
+              return ctx.response.catch(error => {
+                ctx.error = error;
+                utils.hooks.onGlobalError[0].callback(ctx);
+
+                const status =
+                  error instanceof utils.HttpError
+                    ? error.status
+                    : utils.HttpStatus.InternalServerError;
+                return (
+                  ctx.response = Response.json(
+                    utils.serializeErrorResponse(error),
+                    { status, headers: ctx.set.headers },
+                  )
+                );
               });
-            } else {
-              ctx.matchedRoute = matchedRoute;
-            }
-
-            ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
-
-            return ctx.response.catch(error => {
+            } catch (error) {
               ctx.error = error;
               utils.hooks.onGlobalError[0].callback(ctx);
 
@@ -256,22 +278,8 @@ describe("compileFetchFunction", () => {
                   { status, headers: ctx.set.headers },
                 )
               );
-            });
-          } catch (error) {
-            ctx.error = error;
-            utils.hooks.onGlobalError[0].callback(ctx);
-
-            const status =
-              error instanceof utils.HttpError
-                ? error.status
-                : utils.HttpStatus.InternalServerError;
-            return (
-              ctx.response = Response.json(
-                utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
-              )
-            );
-          } 
+            } 
+          });
         }"
       `);
     });
@@ -301,21 +309,34 @@ describe("compileFetchFunction", () => {
           const ctx = new utils.Context(request, path, utils.origin);
           utils.transport.decorate(ctx, request, ...args);
 
-          try {
-            const matchedRoute = utils.getRoute(request.method, path);
-            if (matchedRoute == null) {
-              throw new utils.NotFoundHttpError(undefined, {
-                method: request.method,
-                path,
+          return utils.asyncLocalStorage.run(ctx.getStoreMap(), () => {
+            try {
+              const matchedRoute = utils.getRoute(request.method, path);
+              if (matchedRoute == null) {
+                throw new utils.NotFoundHttpError(undefined, {
+                  method: request.method,
+                  path,
+                });
+              } else {
+                ctx.matchedRoute = matchedRoute;
+              }
+
+              ctx.response = matchedRoute.data.compiledHandler(request, ctx);
+              if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
+
+              return ctx.response.catch(error => {
+                const status =
+                  error instanceof utils.HttpError
+                    ? error.status
+                    : utils.HttpStatus.InternalServerError;
+                return (
+                  ctx.response = Response.json(
+                    utils.serializeErrorResponse(error),
+                    { status, headers: ctx.set.headers },
+                  )
+                );
               });
-            } else {
-              ctx.matchedRoute = matchedRoute;
-            }
-
-            ctx.response = matchedRoute.data.compiledHandler(request, ctx);
-            if (typeof ctx.response.then !== utils.FUNCTION) return ctx.response;
-
-            return ctx.response.catch(error => {
+            } catch (error) {
               const status =
                 error instanceof utils.HttpError
                   ? error.status
@@ -326,19 +347,8 @@ describe("compileFetchFunction", () => {
                   { status, headers: ctx.set.headers },
                 )
               );
-            });
-          } catch (error) {
-            const status =
-              error instanceof utils.HttpError
-                ? error.status
-                : utils.HttpStatus.InternalServerError;
-            return (
-              ctx.response = Response.json(
-                utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
-              )
-            );
-          } 
+            } 
+          });
         }"
       `);
     });

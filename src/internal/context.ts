@@ -1,5 +1,6 @@
 import type { MatchedRoute } from "rou3";
 
+import { createStore, type Store } from "../async-local-storage";
 import { HttpStatus } from "../status";
 import type { RouterData, StatusResult } from "../types";
 import { getRawParams, getRawQuery, IsStatusResult } from "./utils";
@@ -16,11 +17,34 @@ export class Context {
   #params: Record<string, any> | undefined;
   #query: Record<string, any> | undefined;
 
+  /**
+   * AsyncLocalStorage store for per-request data.
+   * Allows storing and accessing data anywhere in the call stack.
+   */
+  store: Store;
+
+  /**
+   * Internal Map used by AsyncLocalStorage.
+   * @private
+   */
+  #storeMap: Map<string, any>;
+
   constructor(
     public request: Request,
     public path: string,
     public origin: string,
-  ) {}
+  ) {
+    this.#storeMap = new Map();
+    this.store = createStore(this.#storeMap);
+  }
+
+  /**
+   * Get the internal Map for AsyncLocalStorage.
+   * @private
+   */
+  getStoreMap(): Map<string, any> {
+    return this.#storeMap;
+  }
 
   get url(): URL {
     return new URL(this.request.url, this.origin);
