@@ -30,7 +30,6 @@ const app = createApp({
   "/hello",
   {
     operationId: "sayHello",
-    summary: "Say Hello",
     description: "A simple hello world example",
     response: z.object({ message: z.string() }),
   },
