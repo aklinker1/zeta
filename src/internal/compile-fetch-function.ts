@@ -4,7 +4,12 @@ import { HttpError, NotFoundHttpError } from "../errors";
 import { HttpStatus } from "../status";
 import type { AnyTransport, LifeCycleHooks, RouterData, ServerSideFetch } from "../types";
 import { Context } from "./context";
-import { cleanupCompiledWhitespace, getRawPathname, serializeErrorResponse } from "./utils";
+import {
+  cleanupCompiledWhitespace,
+  getRawPathname,
+  RESPONSE_TAG,
+  serializeErrorResponse,
+} from "./utils";
 
 export function compileFetchFunction(options: CompileOptions): ServerSideFetch {
   const onGlobalRequestCount = options.hooks.onGlobalRequest?.length;
@@ -51,6 +56,7 @@ ${compileErrorResponse(2)}
   `;
   return new Function("utils", cleanupCompiledWhitespace(js))({
     FUNCTION: "function",
+    RESPONSE_TAG,
     getRawPathname,
     hooks: options.hooks,
     Context,
@@ -78,7 +84,7 @@ function compileOnGlobalRequestHook(hookCount: number): string {
           ]
         : []),
       `    if (${resultVar})`,
-      `      if (typeof ${resultVar}.body?.bytes === utils.FUNCTION)`,
+      `      if (${resultVar}[Symbol.toStringTag] === utils.RESPONSE_TAG)`,
       `        return ${resultVar};`,
       `      else`,
       `        for (const key of Object.keys(${resultVar}))`,

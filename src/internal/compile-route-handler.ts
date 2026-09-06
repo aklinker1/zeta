@@ -15,6 +15,7 @@ import {
   cleanupCompiledWhitespace,
   IsStatusResult,
   JSON_RESPONSE_INIT,
+  RESPONSE_TAG,
   TEXT_RESPONSE_INIT,
   validateInputSchema,
   validateOutputSchema,
@@ -69,7 +70,7 @@ export function compileRouteHandlerSource(
     "    ctx.set.status = ctx.response.status;",
     "    ctx.response = ctx.response.body;",
     "  }",
-    "  if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;",
+    "  if (ctx.response?.[Symbol.toStringTag] === utils.RESPONSE_TAG) return ctx.response;",
     "}",
   );
 
@@ -91,6 +92,7 @@ const UTILS = {
   FUNCTION: "function",
   IsStatusResult,
   JSON_RESPONSE_INIT,
+  RESPONSE_TAG,
   TEXT_RESPONSE_INIT,
   validateInputSchema,
   validateOutputSchema,
@@ -183,7 +185,7 @@ function compileCtxModifierHooks(
     const res = chain.split(`${path}.callback(ctx)`);
     chain.push(
       `if (${res}) {`,
-      `  if (typeof ${res}.body?.bytes === utils.FUNCTION) return ${res};`,
+      `  if (${res}[Symbol.toStringTag] === utils.RESPONSE_TAG) return ${res};`,
       `  for (const key of Object.keys(${res})) ctx[key] = ${res}[key];`,
       `}`,
     );
@@ -202,7 +204,7 @@ function compileResponseModifierHooks(
     chain.push(
       `if (${res}) {`,
       `  ctx.response = ${res};`,
-      `  if (typeof ${res}.body?.bytes === utils.FUNCTION) return ${res};`,
+      `  if (${res}[Symbol.toStringTag] === utils.RESPONSE_TAG) return ${res};`,
       `}`,
     );
   }

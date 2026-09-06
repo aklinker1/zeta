@@ -53,7 +53,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
+            if (ctx.response?.[Symbol.toStringTag] === utils.RESPONSE_TAG) return ctx.response;
           }
           const status = ctx.set.status;
           const headers = ctx.set.rawHeaders;
@@ -117,7 +117,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
+            if (ctx.response?.[Symbol.toStringTag] === utils.RESPONSE_TAG) return ctx.response;
           }
           const status = ctx.set.status;
           const headers = ctx.set.rawHeaders;
@@ -169,7 +169,7 @@ describe("compileRouteHandler", () => {
 
         function step1(request, ctx, value0) {
           if (value0) {
-            if (typeof value0.body?.bytes === utils.FUNCTION) return value0;
+            if (value0[Symbol.toStringTag] === utils.RESPONSE_TAG) return value0;
             for (const key of Object.keys(value0)) ctx[key] = value0[key];
           }
           const value1 = ctx.matchedRoute.data.handler(ctx);
@@ -185,7 +185,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
+            if (ctx.response?.[Symbol.toStringTag] === utils.RESPONSE_TAG) return ctx.response;
           }
           const status = ctx.set.status;
           const headers = ctx.set.rawHeaders;
@@ -236,7 +236,7 @@ describe("compileRouteHandler", () => {
 
         function step1(request, ctx, value0) {
           if (value0) {
-            if (typeof value0.body?.bytes === utils.FUNCTION) return value0;
+            if (value0[Symbol.toStringTag] === utils.RESPONSE_TAG) return value0;
             for (const key of Object.keys(value0)) ctx[key] = value0[key];
           }
           const value1 = ctx.matchedRoute.data.handler(ctx);
@@ -252,7 +252,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
+            if (ctx.response?.[Symbol.toStringTag] === utils.RESPONSE_TAG) return ctx.response;
           }
           const status = ctx.set.status;
           const headers = ctx.set.rawHeaders;
@@ -308,7 +308,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
+            if (ctx.response?.[Symbol.toStringTag] === utils.RESPONSE_TAG) return ctx.response;
           }
           const value1 = ctx.matchedRoute.data.hooks.onAfterHandle[0].callback(ctx);
           if (value1 != null && typeof value1.then === utils.FUNCTION)
@@ -319,7 +319,7 @@ describe("compileRouteHandler", () => {
         function step2(request, ctx, value1) {
           if (value1) {
             ctx.response = value1;
-            if (typeof value1.body?.bytes === utils.FUNCTION) return value1;
+            if (value1[Symbol.toStringTag] === utils.RESPONSE_TAG) return value1;
           }
           const status = ctx.set.status;
           const headers = ctx.set.rawHeaders;
@@ -375,7 +375,7 @@ describe("compileRouteHandler", () => {
               ctx.set.status = ctx.response.status;
               ctx.response = ctx.response.body;
             }
-            if (typeof ctx.response?.body?.bytes === utils.FUNCTION) return ctx.response;
+            if (ctx.response?.[Symbol.toStringTag] === utils.RESPONSE_TAG) return ctx.response;
           }
           const value1 = ctx.matchedRoute.data.hooks.onMapResponse[0].callback(ctx);
           if (value1 != null && typeof value1.then === utils.FUNCTION)
@@ -386,7 +386,7 @@ describe("compileRouteHandler", () => {
         function step2(request, ctx, value1) {
           if (value1) {
             ctx.response = value1;
-            if (typeof value1.body?.bytes === utils.FUNCTION) return value1;
+            if (value1[Symbol.toStringTag] === utils.RESPONSE_TAG) return value1;
           }
           const status = ctx.set.status;
           const headers = ctx.set.rawHeaders;

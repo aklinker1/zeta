@@ -508,6 +508,55 @@ describe("App", () => {
       },
     );
 
+    // https://github.com/aklinker1/zeta/issues/15
+    it.each(["onTransform", "onBeforeHandle"] as const)(
+      "should short circuit when a %s hook returns a Response with an empty body",
+      async (hook) => {
+        const handler = mock(() => "handled");
+        const fetch = createApp()
+          [hook](() => new Response(undefined, { status: HttpStatus.NoContent }))
+          .get("/", handler)
+          .build();
+
+        const response = await fetch(new Request("http://localhost/"));
+
+        expect(response.status).toBe(HttpStatus.NoContent);
+        expect(await response.text()).toBe("");
+        expect(handler).not.toHaveBeenCalled();
+      },
+    );
+
+    // https://github.com/aklinker1/zeta/issues/15
+    it("should short circuit when an onGlobalRequest hook returns a Response with an empty body", async () => {
+      const handler = mock(() => "handled");
+      const fetch = createApp()
+        .onGlobalRequest(() => new Response(undefined, { status: HttpStatus.NoContent }))
+        .get("/", handler)
+        .build();
+
+      const response = await fetch(new Request("http://localhost/"));
+
+      expect(response.status).toBe(HttpStatus.NoContent);
+      expect(await response.text()).toBe("");
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    // https://github.com/aklinker1/zeta/issues/15
+    it.each(["onAfterHandle", "onMapResponse"] as const)(
+      "should replace the response with one with an empty body when a %s hook returns one",
+      async (hook) => {
+        const fetch = createApp()
+          [hook](() => new Response(undefined, { status: HttpStatus.NoContent }))
+          .get("/", () => "handled")
+          .build();
+
+        const response = await fetch(new Request("http://localhost/"));
+
+        expect(response.status).toBe(HttpStatus.NoContent);
+        expect(await response.text()).toBe("");
+      },
+    );
+
     it.each(["onAfterHandle", "onMapResponse"] as const)(
       "should replace the response when a %s hook returns one",
       async (hook) => {

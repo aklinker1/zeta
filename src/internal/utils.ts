@@ -180,6 +180,12 @@ export const JSON_RESPONSE_INIT: ResponseInit = createContentTypeInit("applicati
 
 export const IsStatusResult = Symbol("IsStatusResult");
 
+/**
+ * Used by compiled code to detect `Response` instances without a slow
+ * `instanceof Response` check.
+ */
+export const RESPONSE_TAG = "Response";
+
 export function cleanupCompiledWhitespace(code: string): string {
   return (
     code
