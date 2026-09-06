@@ -5,15 +5,15 @@
   <rect x="122" y="88" width="562" height="1" fill="#000000" rounded="undefined" rx="undefined" ry="undefined"></rect>
   <rect x="122" y="89" width="1" height="208" fill="#000000" rounded="undefined" rx="undefined" ry="undefined"></rect>
   <text x="106" y="121" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="regular">vanilla 🥇</text>
-  <text x="106" y="169" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="regular">elysia v1.4.30 🥈</text>
-  <text x="106" y="217" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="regular">hono v4.13.7 🥉</text>
-  <text x="106" y="265" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="bold">zeta v2.2.2 </text>
-  <rect x="139" y="105" width="266.38450782771" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
-  <rect x="139" y="153" width="351.5259071111312" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
-  <rect x="139" y="201" width="442.7197436405173" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
+  <text x="106" y="169" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="bold">zeta v2.2.2 🥈</text>
+  <text x="106" y="217" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="regular">elysia v1.4.30 🥉</text>
+  <text x="106" y="265" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="regular">hono v4.13.7 </text>
+  <rect x="139" y="105" width="296.20228644760317" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
+  <rect x="139" y="153" width="349.06101074922265" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
+  <rect x="139" y="201" width="430.6734545148614" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
   <rect x="139" y="249" width="545" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
-  <text x="395.38450782771" y="121" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">381.856 μs</text>
-  <text x="480.5259071111312" y="169" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">503.904 μs</text>
-  <text x="571.7197436405173" y="217" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">634.628 μs</text>
-  <text x="674" y="265" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">781.244 μs</text>
+  <text x="425.20228644760317" y="121" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">362.368 μs</text>
+  <text x="478.06101074922265" y="169" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">427.035 μs</text>
+  <text x="559.6734545148614" y="217" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">526.878 μs</text>
+  <text x="674" y="265" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">666.743 μs</text>
 </svg>

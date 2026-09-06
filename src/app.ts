@@ -167,6 +167,7 @@ export function createApp<
         id: nextHookId(appId),
         applyTo: "local",
         callback: () => obj,
+        decoration: obj,
       });
 
       return app;

@@ -423,6 +423,12 @@ export type LifeCycleHook<TCallback extends Function> = {
    * The function called when the hook is triggered.
    */
   callback: TCallback;
+  /**
+   * Set by `app.decorate` to a static object of values to merge into the
+   * request context. When present, compiled handlers assign the keys directly
+   * instead of calling `callback` and iterating over its result.
+   */
+  decoration?: Record<string, any>;
 };
 
 /**

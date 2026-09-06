@@ -6,14 +6,14 @@
   <rect x="122" y="89" width="1" height="208" fill="#000000" rounded="undefined" rx="undefined" ry="undefined"></rect>
   <text x="106" y="121" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="regular">vanilla 🥇</text>
   <text x="106" y="169" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="regular">elysia v1.4.30 🥈</text>
-  <text x="106" y="217" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="regular">hono v4.13.7 🥉</text>
-  <text x="106" y="265" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="bold">zeta v2.2.2 </text>
-  <rect x="139" y="105" width="207.61675380400217" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
-  <rect x="139" y="153" width="240.29901514069718" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
-  <rect x="139" y="201" width="311.3267610299394" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
+  <text x="106" y="217" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="bold">zeta v2.2.2 🥉</text>
+  <text x="106" y="265" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#000000" font-weight="regular">hono v4.13.7 </text>
+  <rect x="139" y="105" width="370.62783883773875" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
+  <rect x="139" y="153" width="447.49429978998995" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
+  <rect x="139" y="201" width="527.5211868485112" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
   <rect x="139" y="249" width="545" height="32" fill="#0077b6" rounded="4" rx="4" ry="4"></rect>
-  <text x="336.6167538040022" y="121" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">230.910 μs</text>
-  <text x="369.2990151406972" y="169" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">267.259 μs</text>
-  <text x="440.3267610299394" y="217" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">346.256 μs</text>
-  <text x="674" y="265" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">606.146 μs</text>
+  <text x="499.62783883773875" y="121" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">241.602 μs</text>
+  <text x="576.49429978999" y="169" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">291.709 μs</text>
+  <text x="656.5211868485112" y="217" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">343.876 μs</text>
+  <text x="674" y="265" dominant-baseline="middle" text-anchor="end" font-size="12" fill="#ffffff" font-weight="bold">355.270 μs</text>
 </svg>

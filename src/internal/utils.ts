@@ -4,9 +4,9 @@ import type { MatchedRoute } from "rou3";
 import { HttpError } from "../errors";
 import type { ErrorResponse } from "../schema";
 import { HttpStatus } from "../status";
-import type { App, LifeCycleHook, MaybePromise, RouterData, StatusResult } from "../types";
+import type { RouterData } from "../types";
 
-export function validateSchema<T>(
+function validateSchema<T>(
   schema: StandardSchemaV1<T, T>,
   input: unknown,
   status: number,
@@ -38,41 +38,62 @@ export const validateOutputSchema = createHttpSchemaValidator(
   "Output validation failed",
 );
 
-export function isApp(obj: unknown): obj is App<any> {
-  return (obj as any)[Symbol.toStringTag] === "ZetaApp";
-}
+// Character codes used while scanning URLs. Scanning by char code avoids
+// allocating a single-character string for every character of the URL.
+const CHAR_HASH = 35; // #
+const CHAR_PERCENT = 37; // %
+const CHAR_AMPERSAND = 38; // &
+const CHAR_PLUS = 43; // +
+const CHAR_EQUALS = 61; // =
+const CHAR_QUESTION = 63; // ?
 
-export function getRawPathname(request: Request): string {
+export function getRawPathname(url: string): string {
   // Fast path for common case: http://host/path
-  const start = request.url.indexOf("/", 8); // Skip 'http://' or 'https://'
+  const start = url.indexOf("/", 8); // Skip 'http://' or 'https://'
   if (start === -1) return "/";
 
-  // Find end of pathname (before ? or #)
-  for (let i = start + 1; i < request.url.length; i++) {
-    if (request.url[i] === "?" || request.url[i] === "#") {
-      return decodeUrlString(request.url.slice(start, i));
-    }
+  // Find end of pathname (before ? or #), noting whether it contains any
+  // percent-escapes so decoding can be skipped for the (very common) case
+  // where there's nothing to decode.
+  const len = url.length;
+  let escaped = false;
+  let i = start;
+  for (; i < len; i++) {
+    const char = url.charCodeAt(i);
+    if (char === CHAR_QUESTION || char === CHAR_HASH) break;
+    if (char === CHAR_PERCENT) escaped = true;
   }
-  return decodeUrlString(request.url.slice(start));
+
+  const pathname = url.slice(start, i);
+  return escaped ? decodeURIComponent(pathname) : pathname;
 }
 
-export function getRawQuery(request: Request): Record<string, string> {
-  let index = request.url.indexOf("?");
+export function getRawQuery(url: string): Record<string, string> {
+  const index = url.indexOf("?");
   if (index === -1) return {};
 
   const res: Record<string, string> = {};
-  const str = request.url;
-  const len = str.length;
+  const len = url.length;
   let start = index + 1;
+  let eq = -1;
+  let escaped = false;
 
-  for (let i = start; i < len; i++) {
-    if (str[i] === "&" || i === len - 1) {
-      const end = i === len - 1 ? len : i;
-      const eqIndex = str.indexOf("=", start);
-      if (eqIndex !== -1 && eqIndex < end) {
-        res[str.slice(start, eqIndex)] = decodeUrlString(str.slice(eqIndex + 1, end));
+  // `i === len` acts as a trailing "&" so the last pair is flushed by the same
+  // code path as the rest.
+  for (let i = start; i <= len; i++) {
+    const char = i === len ? CHAR_AMPERSAND : url.charCodeAt(i);
+    if (char === CHAR_AMPERSAND) {
+      if (eq !== -1) {
+        const value = url.slice(eq + 1, i);
+        res[url.slice(start, eq)] = escaped ? decodeUrlString(value) : value;
       }
       start = i + 1;
+      eq = -1;
+      escaped = false;
+    } else if (char === CHAR_EQUALS) {
+      if (eq === -1) eq = i;
+    } else if (eq !== -1 && (char === CHAR_PERCENT || char === CHAR_PLUS)) {
+      escaped = true;
     }
   }
   return res;
@@ -84,14 +105,14 @@ export function getRawParams(route: MatchedRoute<RouterData>): Record<string, st
 
   const res: Record<string, string> = {};
   for (const key in params) {
+    const value = params[key]!;
     // Rename rou3's _ to ** to match type-system
-    const outKey = key === "_" ? "**" : key;
-    res[outKey] = decodeURIComponent(params[key]!);
+    res[key === "_" ? "**" : key] = value.indexOf("%") === -1 ? value : decodeURIComponent(value);
   }
   return res;
 }
 
-export function getErrorStack(err: Error): string[] | undefined {
+function getErrorStack(err: Error): string[] | undefined {
   if (process.env.NODE_ENV === "production") return;
   return err.stack
     ?.split("\n")
@@ -127,25 +148,37 @@ export function serializeErrorResponse(err: unknown): ErrorResponse {
   };
 }
 
-export async function callCtxModifierHooks(
-  ctx: any,
-  hooks: LifeCycleHook<(ctx: any) => MaybePromise<Record<string, any> | void>>[] | undefined,
-): Promise<Response | undefined> {
-  if (!hooks) return;
-
-  for (const hook of hooks) {
-    let res = hook.callback(ctx);
-    if (res instanceof Promise) res = await res;
-    if (res instanceof Response) return res;
-    if (res) Object.assign(ctx, res); // TODO: Replace with manual property setting for performance?
+/**
+ * Builds a `ResponseInit` that only sets `Content-Type`, in the cheapest form
+ * the runtime accepts.
+ *
+ * Building a `ResponseInit` is a surprisingly large share of the cost of
+ * responding - in Bun, `new Response(body, { headers: { "Content-Type": x } })`
+ * takes about 2.5x as long as `new Response(body)`. A bare `Response` is a
+ * valid `ResponseInit` (the spec reads `status`/`statusText`/`headers` off of
+ * whatever object it's given) and is by far the fastest of the options, since
+ * the runtime can copy the already-parsed header list instead of re-parsing an
+ * object literal. Nothing is shared with the constructed response, so a single
+ * template can be reused for every request.
+ *
+ * The template is probed once at startup and falls back to a plain object for
+ * runtimes that don't handle it.
+ */
+function createContentTypeInit(contentType: string): ResponseInit {
+  const template = new Response(null, { headers: { "Content-Type": contentType } });
+  try {
+    const probe = new Response(null, template);
+    if (probe.status === 200 && probe.headers.get("Content-Type") === contentType) return template;
+  } catch {
+    // Fall through to the portable form.
   }
+  return { headers: template.headers };
 }
+
+export const TEXT_RESPONSE_INIT: ResponseInit = createContentTypeInit("text/plain");
+export const JSON_RESPONSE_INIT: ResponseInit = createContentTypeInit("application/json");
 
 export const IsStatusResult = Symbol("IsStatusResult");
-
-export function isStatusResult(result: any): result is StatusResult {
-  return IsStatusResult in result;
-}
 
 export function cleanupCompiledWhitespace(code: string): string {
   return (
