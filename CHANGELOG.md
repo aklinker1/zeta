@@ -1,5 +1,39 @@
 # Changelog
 
+## v2.2.3
+
+[compare changes](https://github.com/aklinker1/zeta/compare/v2.2.2...v2.2.3)
+
+### 🔥 Performance
+
+- Visualize benchmarks ([`bef6189`](https://github.com/aklinker1/zeta/commit/bef6189dbb8e5478e2855f11bd9b745147bd3361))
+- Optimizations with AI ([#17](https://github.com/aklinker1/zeta/pull/17))
+
+### 🩹 Fixes
+
+- Make `simple-git-hooks` a dev dependency ([`7e122b8`](https://github.com/aklinker1/zeta/commit/7e122b8aad264b6b94fd991b3c4d29d1fffd0f90))
+- Short-circuit when `new Response(undefined)` is returned from hooks/handler ([`1e0b1a4`](https://github.com/aklinker1/zeta/commit/1e0b1a4d05b893b337017e0e4c16a4ddc64fc992))
+
+### 📖 Documentation
+
+- Remove summary from example ([`5f5a87a`](https://github.com/aklinker1/zeta/commit/5f5a87ae92820ae69ea3da82302950d0c400548d))
+- Add benchmark results ([`2ba483d`](https://github.com/aklinker1/zeta/commit/2ba483dccf9c326bede2ef5fd3130c90224518b7))
+
+### 🏡 Chore
+
+- Fix failing build ([`e058b31`](https://github.com/aklinker1/zeta/commit/e058b319b1d297f44e94e89362ddaae4b8674c47))
+- Fix failing checks ([`e1283fa`](https://github.com/aklinker1/zeta/commit/e1283fab45c0ab3a6e30c16476b60d5247e4c008))
+
+### 🤖 CI
+
+- Upgrade zero-changelog to v0.2.2 ([`be2ec89`](https://github.com/aklinker1/zeta/commit/be2ec89c5da3caff26e8496bb91051ac6e73bfd0))
+- Update tool-versions file ([`ae1291b`](https://github.com/aklinker1/zeta/commit/ae1291bdffdbf72fcae3650b1bb2067860130aa5))
+
+### ❤️ Contributors
+
+- [@aklinker1](https://github.com/aklinker1)
+
+
 ## v2.2.2
 
 [compare changes](https://github.com/aklinker1/zeta/compare/v2.2.1...v2.2.2)
@@ -23,7 +57,6 @@
 ### ❤️ Contributors
 
 - Aaron <aaronklinker1@gmail.com>
-
 
 ## v2.2.1
 

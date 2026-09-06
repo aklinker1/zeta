@@ -1,6 +1,6 @@
 {
   "name": "@aklinker1/zeta",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Composable, testable, OpenAPI-first backend framework with validation built-in",
   "keywords": [
     "backend",
