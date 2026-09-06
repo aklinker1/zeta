@@ -13,8 +13,9 @@ export function compileFetchFunction(options: CompileOptions): ServerSideFetch {
 
   const js = `
 return (request${options.transport?.decorate ? ", ...args" : ""}) => {
-  const path = utils.getRawPathname(request);
-  const ctx = new utils.Context(request, path, utils.origin);
+  const url = request.url;
+  const path = utils.getRawPathname(url);
+  const ctx = new utils.Context(request, path, utils.origin, url);
   ${options.transport?.decorate ? `utils.transport.decorate(ctx, request, ...args);` : ""}
   ${onGlobalAfterResponseCount ? "let handlerReturnedPromise = false;" : ""}
 
@@ -138,7 +139,7 @@ ${indent}    : utils.HttpStatus.InternalServerError;
 ${indent}return (
 ${indent}  ctx.response = Response.json(
 ${indent}    utils.serializeErrorResponse(error),
-${indent}    { status, headers: ctx.set.headers },
+${indent}    { status, headers: ctx.set.rawHeaders },
 ${indent}  )
 ${indent});`;
 }

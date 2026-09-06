@@ -25,12 +25,12 @@ describe("App", () => {
         {
           respondWith: { hello: "world" },
           expectedResponse: { hello: "world" },
-          expectedContentType: "application/json;charset=utf-8",
+          expectedContentType: "application/json",
         },
         {
           respondWith: [1, 2, 3],
           expectedResponse: [1, 2, 3],
-          expectedContentType: "application/json;charset=utf-8",
+          expectedContentType: "application/json",
         },
         {
           respondWith: "test",
@@ -59,14 +59,90 @@ describe("App", () => {
         },
       ])(
         "should respond with the correct content type and value for %j",
-        async ({ respondWith, expectedResponse }) => {
+        async ({ respondWith, expectedResponse, expectedContentType }) => {
           const app = createApp().get("/test", { responses: z.any() }, () => respondWith);
+          const fetch = app.build();
           const client = createTestAppClient(app);
+
           const response = await client.fetch("GET", "/test", {});
+          const raw = await fetch(new Request("http://localhost/test"));
 
           expect(response).toEqual(expectedResponse);
+          expect(raw.headers.get("content-type")).toBe(expectedContentType);
         },
       );
+
+      it.each<{ name: string; respondWith: () => any; expectedContentType: string | null }>([
+        {
+          name: "a class instance",
+          respondWith: () =>
+            new (class Point {
+              x = 1;
+            })(),
+          expectedContentType: "application/json",
+        },
+        {
+          name: "a null-prototype object",
+          respondWith: () => Object.assign(Object.create(null), { x: 1 }),
+          expectedContentType: "application/json",
+        },
+        {
+          name: "a Blob",
+          respondWith: () => new Blob(["a,b"], { type: "text/csv" }),
+          expectedContentType: "text/csv",
+        },
+      ])(
+        "should fall back to full serialization for $name",
+        async ({ respondWith, expectedContentType }) => {
+          const fetch = createApp().get("/test", respondWith).build();
+
+          const response = await fetch(new Request("http://localhost/test"));
+
+          expect(response.headers.get("content-type")).toBe(expectedContentType);
+        },
+      );
+
+      it("should keep a status set on the context", async () => {
+        const fetch = createApp()
+          .get("/test", (ctx) => {
+            ctx.set.status = HttpStatus.ImATeapot;
+            return { teapot: true };
+          })
+          .build();
+
+        const response = await fetch(new Request("http://localhost/test"));
+
+        expect(response.status).toBe(HttpStatus.ImATeapot);
+        expect(response.headers.get("content-type")).toBe("application/json");
+        expect(await response.json()).toEqual({ teapot: true });
+      });
+
+      it("should keep headers set on the context", async () => {
+        const fetch = createApp()
+          .get("/test", (ctx) => {
+            ctx.set.headers["X-Custom"] = "yes";
+            return "body";
+          })
+          .build();
+
+        const response = await fetch(new Request("http://localhost/test"));
+
+        expect(response.headers.get("x-custom")).toBe("yes");
+        expect(response.headers.get("content-type")).toBe("text/plain");
+      });
+
+      it("should let the handler override the content type", async () => {
+        const fetch = createApp()
+          .get("/test", (ctx) => {
+            ctx.set.headers["Content-Type"] = "text/csv";
+            return "a,b,c";
+          })
+          .build();
+
+        const response = await fetch(new Request("http://localhost/test"));
+
+        expect(response.headers.get("content-type")).toBe("text/csv");
+      });
     });
 
     describe("Response content type meta", () => {
@@ -183,6 +259,20 @@ describe("App", () => {
         expect(actual).toEqual({ id: 123 });
         expect(typeof actual.id).toBe("number");
       });
+
+      it("should percent-decode path parameters but leave + alone", async () => {
+        let actual: any;
+        const fetch = createApp()
+          .get("/test/:value", (ctx) => void (actual = ctx.params))
+          .build();
+
+        await fetch(new Request("http://localhost/test/a%20b"));
+        expect(actual).toEqual({ value: "a b" });
+
+        // "+" only means "space" in query strings, not in path segments.
+        await fetch(new Request("http://localhost/test/a+b"));
+        expect(actual).toEqual({ value: "a+b" });
+      });
     });
 
     describe("query parameters parsing", () => {
@@ -253,6 +343,31 @@ describe("App", () => {
         });
 
         expect(actual).toEqual({ text: "hello world" });
+      });
+
+      it.each<{ search: string; expected: Record<string, string> }>([
+        { search: "?a=1&b=2", expected: { a: "1", b: "2" } },
+        { search: "?a=hello%20world", expected: { a: "hello world" } },
+        { search: "?a=hello+world", expected: { a: "hello world" } },
+        { search: "?a=", expected: { a: "" } },
+        // Keys without a value are skipped
+        { search: "?a", expected: {} },
+        // A trailing separator shouldn't leak into the last value
+        { search: "?a=1&", expected: { a: "1" } },
+        // Only the first "=" separates the key from the value
+        { search: "?a=b=c", expected: { a: "b=c" } },
+        // Last value wins for repeated keys
+        { search: "?a=1&a=2", expected: { a: "2" } },
+        { search: "", expected: {} },
+      ])("should parse the raw query string $search", async ({ search, expected }) => {
+        let actual: any;
+        const fetch = createApp()
+          .get("/test", (ctx) => void (actual = ctx.query))
+          .build();
+
+        await fetch(new Request(`http://localhost/test${search}`));
+
+        expect(actual).toEqual(expected);
       });
     });
 
@@ -358,6 +473,71 @@ describe("App", () => {
       const actual = await appClient.fetch("GET", "/mounted/**", {});
 
       expect(actual).toEqual(expected);
+    });
+  });
+
+  describe("life cycle hooks", () => {
+    it.each(["onTransform", "onBeforeHandle", "onAfterHandle", "onMapResponse"] as const)(
+      "should ignore a %s hook that returns nothing",
+      async (hook) => {
+        const fetch = createApp()
+          [hook](() => {})
+          .get("/", () => "handled")
+          .build();
+
+        const response = await fetch(new Request("http://localhost/"));
+
+        expect(response.status).toBe(HttpStatus.Ok);
+        expect(await response.text()).toBe("handled");
+      },
+    );
+
+    it.each(["onTransform", "onBeforeHandle"] as const)(
+      "should short circuit when a %s hook returns a Response",
+      async (hook) => {
+        const handler = mock(() => "handled");
+        const fetch = createApp()
+          [hook](() => new Response("short circuited"))
+          .get("/", handler)
+          .build();
+
+        const response = await fetch(new Request("http://localhost/"));
+
+        expect(await response.text()).toBe("short circuited");
+        expect(handler).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each(["onAfterHandle", "onMapResponse"] as const)(
+      "should replace the response when a %s hook returns one",
+      async (hook) => {
+        const fetch = createApp()
+          [hook](() => new Response("replaced"))
+          .get("/", () => "handled")
+          .build();
+
+        const response = await fetch(new Request("http://localhost/"));
+
+        expect(await response.text()).toBe("replaced");
+      },
+    );
+
+    it("should await async hooks", async () => {
+      const calls: string[] = [];
+      const fetch = createApp()
+        .onTransform(async () => void calls.push("transform"))
+        .onBeforeHandle(async () => void calls.push("beforeHandle"))
+        .onAfterHandle(async () => void calls.push("afterHandle"))
+        .get("/", async () => {
+          calls.push("handler");
+          return "handled";
+        })
+        .build();
+
+      const response = await fetch(new Request("http://localhost/"));
+
+      expect(await response.text()).toBe("handled");
+      expect(calls).toEqual(["transform", "beforeHandle", "handler", "afterHandle"]);
     });
   });
 

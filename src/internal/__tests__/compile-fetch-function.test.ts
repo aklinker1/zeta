@@ -26,8 +26,9 @@ describe("compileFetchFunction", () => {
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "(request) => {
-          const path = utils.getRawPathname(request);
-          const ctx = new utils.Context(request, path, utils.origin);
+          const url = request.url;
+          const path = utils.getRawPathname(url);
+          const ctx = new utils.Context(request, path, utils.origin, url);
 
           try {
             const matchedRoute = utils.getRoute(request.method, path);
@@ -51,7 +52,7 @@ describe("compileFetchFunction", () => {
               return (
                 ctx.response = Response.json(
                   utils.serializeErrorResponse(error),
-                  { status, headers: ctx.set.headers },
+                  { status, headers: ctx.set.rawHeaders },
                 )
               );
             });
@@ -63,7 +64,7 @@ describe("compileFetchFunction", () => {
             return (
               ctx.response = Response.json(
                 utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
+                { status, headers: ctx.set.rawHeaders },
               )
             );
           } 
@@ -85,8 +86,9 @@ describe("compileFetchFunction", () => {
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "(request) => {
-          const path = utils.getRawPathname(request);
-          const ctx = new utils.Context(request, path, utils.origin);
+          const url = request.url;
+          const path = utils.getRawPathname(url);
+          const ctx = new utils.Context(request, path, utils.origin, url);
 
           try {
             const onGlobalRequestRes0 = utils.hooks.onGlobalRequest[0].callback(ctx);
@@ -118,7 +120,7 @@ describe("compileFetchFunction", () => {
               return (
                 ctx.response = Response.json(
                   utils.serializeErrorResponse(error),
-                  { status, headers: ctx.set.headers },
+                  { status, headers: ctx.set.rawHeaders },
                 )
               );
             });
@@ -130,7 +132,7 @@ describe("compileFetchFunction", () => {
             return (
               ctx.response = Response.json(
                 utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
+                { status, headers: ctx.set.rawHeaders },
               )
             );
           } 
@@ -152,8 +154,9 @@ describe("compileFetchFunction", () => {
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "(request) => {
-          const path = utils.getRawPathname(request);
-          const ctx = new utils.Context(request, path, utils.origin);
+          const url = request.url;
+          const path = utils.getRawPathname(url);
+          const ctx = new utils.Context(request, path, utils.origin, url);
 
           let handlerReturnedPromise = false;
 
@@ -180,7 +183,7 @@ describe("compileFetchFunction", () => {
               return (
                 ctx.response = Response.json(
                   utils.serializeErrorResponse(error),
-                  { status, headers: ctx.set.headers },
+                  { status, headers: ctx.set.rawHeaders },
                 )
               );
             }).finally(() => {
@@ -196,7 +199,7 @@ describe("compileFetchFunction", () => {
             return (
               ctx.response = Response.json(
                 utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
+                { status, headers: ctx.set.rawHeaders },
               )
             );
           } finally {
@@ -225,8 +228,9 @@ describe("compileFetchFunction", () => {
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "(request) => {
-          const path = utils.getRawPathname(request);
-          const ctx = new utils.Context(request, path, utils.origin);
+          const url = request.url;
+          const path = utils.getRawPathname(url);
+          const ctx = new utils.Context(request, path, utils.origin, url);
 
           try {
             const matchedRoute = utils.getRoute(request.method, path);
@@ -253,7 +257,7 @@ describe("compileFetchFunction", () => {
               return (
                 ctx.response = Response.json(
                   utils.serializeErrorResponse(error),
-                  { status, headers: ctx.set.headers },
+                  { status, headers: ctx.set.rawHeaders },
                 )
               );
             });
@@ -268,7 +272,7 @@ describe("compileFetchFunction", () => {
             return (
               ctx.response = Response.json(
                 utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
+                { status, headers: ctx.set.rawHeaders },
               )
             );
           } 
@@ -297,8 +301,9 @@ describe("compileFetchFunction", () => {
 
       expect(actual.toString()).toMatchInlineSnapshot(`
         "(request, ...args) => {
-          const path = utils.getRawPathname(request);
-          const ctx = new utils.Context(request, path, utils.origin);
+          const url = request.url;
+          const path = utils.getRawPathname(url);
+          const ctx = new utils.Context(request, path, utils.origin, url);
           utils.transport.decorate(ctx, request, ...args);
 
           try {
@@ -323,7 +328,7 @@ describe("compileFetchFunction", () => {
               return (
                 ctx.response = Response.json(
                   utils.serializeErrorResponse(error),
-                  { status, headers: ctx.set.headers },
+                  { status, headers: ctx.set.rawHeaders },
                 )
               );
             });
@@ -335,7 +340,7 @@ describe("compileFetchFunction", () => {
             return (
               ctx.response = Response.json(
                 utils.serializeErrorResponse(error),
-                { status, headers: ctx.set.headers },
+                { status, headers: ctx.set.rawHeaders },
               )
             );
           } 
