@@ -64,7 +64,7 @@ Create your own adapter implementing the
 [Zod's implementation](https://github.com/aklinker1/zeta/blob/main/src/adapters/zod-schema-adapter.ts)
 as an example.
 
-You need to implement 3 functions:
+You need to implement 2 functions:
 
 1. `toJsonSchema` returns a JSON schema representation of the given schema.
 2. `getMeta` returns metadata about the given schema.
